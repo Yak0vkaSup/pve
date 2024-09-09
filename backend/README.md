@@ -21,7 +21,7 @@ cd platform_gui/backend
 ### 2. Create a virtual environment:
 
 ```bash
-python -m venv venv
+conda create -n my_env python=3.10
 ```
 
 ### 3. Activate the virtual environment:
@@ -29,13 +29,7 @@ python -m venv venv
 - On **Windows**:
 
     ```bash
-    venv\Scripts\activate
-    ```
-
-- On **macOS/Linux**:
-
-    ```bash
-    source venv/bin/activate
+    conda activate my_env
     ```
 
 ### 4. Install dependencies:
