@@ -5,7 +5,7 @@ This project is a Flask-based backend that fetches financial candlestick data fr
 
 ## Requirements
 
-- Python 3.x
+- Python 3.10
 - PostgreSQL database with candlestick data
 - Docker for PostgreSQL setup
 
