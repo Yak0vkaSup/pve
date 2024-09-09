@@ -17,7 +17,7 @@ MyAddNode.title = "Sum";
 MyAddNode.prototype.onExecute = function () {
   const A = this.getInputData(0) || 0;
   const B = this.getInputData(1) || 0;
-  this.setOutputData(0, A + B);
+  this.setOutputData(0, A + B);v
 }
 
 // Register the node with LiteGraph

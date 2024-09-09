@@ -1,8 +1,3 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import HelloLWC from './components/HelloLWC.vue'
-</script>
-
 <template>
   <div class="container">
     <div class="chart-container">
@@ -14,20 +9,37 @@ import HelloLWC from './components/HelloLWC.vue'
   </div>
 </template>
 
+<script setup lang="ts">
+import HelloWorld from './components/HelloWorld.vue'
+import HelloLWC from './components/HelloLWC.vue'
+</script>
+
 <style scoped>
-.conghtainer {
-  
+.container {
+  display: flex;
   flex-direction: column; /* Stack the components vertically */
-  gap: 1rem; /* Add space between the components */
+  gap: 0.5rem; /* Add space between the components */
+  height: 97vh;
+  /* Use full viewport height */
+
 }
 
 .chart-container {
-  display: flex;
+  /* height:  100vh; */
+  flex-grow: 1;
   width: 100%;
-  height: 600px; /* Set a fixed height for the chart */
+  min-height: 300px;
+  height: 100%; /* Occupy 40% of the screen height */
 }
 
-
+.graph-container {
+  /* height:  100vh; */
+  flex-grow: 1;
+  width: 100%;
+  min-height: 300px;
+  height: 100%; 
+  /* Occupy 60% of the screen height */
+}
 
 canvas {
   width: 100%;

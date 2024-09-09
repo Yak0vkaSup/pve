@@ -3,7 +3,7 @@
 
 #app {
   margin: 0 auto;
-  padding: 0rem;
+  padding: 1rem 1rem 1rem 1rem;
   font-weight: normal;
 }
 
@@ -30,7 +30,7 @@ a,
   #app {
     display: grid;
 
-    padding: 0 rem;
+    padding: 1 rem;
   }
 }
 

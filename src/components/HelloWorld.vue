@@ -1,3 +1,9 @@
+<template>
+  <div class="graph-container">
+    <canvas id="mycanvas"></canvas> <!-- Make sure the canvas is present in the template -->
+  </div>
+</template>
+
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js'
@@ -14,8 +20,12 @@ let graphCanvas
 const resizeCanvas = () => {
   const canvasElement = document.getElementById('mycanvas')
   if (canvasElement) {
-    canvasElement.width = window.innerWidth
-    canvasElement.height = window.innerHeight
+    // Ensure canvas takes the full size of its parent container
+    const parentElement = canvasElement.parentElement
+    if (parentElement) {
+      canvasElement.width = parentElement.clientWidth
+      canvasElement.height = parentElement.clientHeight
+    }
     if (graphCanvas) {
       graphCanvas.resize()  // Update the LGraphCanvas size
     }
@@ -78,14 +88,15 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<template>
-  <canvas id='mycanvas'></canvas>
-</template>
-
 <style scoped>
+.graph-container {
+  width: 100%;
+  height: 100%;
+}
+
 canvas {
   width: 100%;
   height: 100%;
-  border: 1px solid black;
+  border: 1px solid black; /* Ensure the canvas takes up the full size of its container */
 }
 </style>
