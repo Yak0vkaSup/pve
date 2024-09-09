@@ -15,7 +15,7 @@ import HelloLWC from './components/HelloLWC.vue'
 </template>
 
 <style scoped>
-.container {
+.conghtainer {
   
   flex-direction: column; /* Stack the components vertically */
   gap: 1rem; /* Add space between the components */
@@ -27,10 +27,7 @@ import HelloLWC from './components/HelloLWC.vue'
   height: 600px; /* Set a fixed height for the chart */
 }
 
-.graph-container {
-  width: 100%;
-  height: 100%; /* Set a fixed height for the graph canvas */
-}
+
 
 canvas {
   width: 100%;

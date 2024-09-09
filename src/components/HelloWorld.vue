@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js'
+import { MyAddNode } from './custom_nodes/MyAddNode.js'  // Import the custom node
 
 defineProps({
   msg: String,
@@ -8,7 +9,6 @@ defineProps({
 
 const count = ref(0)
 let graph
-let canvas
 let graphCanvas
 
 const resizeCanvas = () => {
@@ -25,7 +25,7 @@ const resizeCanvas = () => {
 const exportGraphToJson = () => {
   const json = graph.serialize()
   const jsonString = JSON.stringify(json, null, 2)
-  console.log(jsonString)  // For demonstration, log it to the console. You could also save this to a file or server.
+  console.log(jsonString)  // Log it to the console
 }
 
 const loadGraphFromJson = (json) => {
@@ -39,16 +39,27 @@ onMounted(() => {
   graph = new LGraph()
   graphCanvas = new LGraphCanvas("#mycanvas", graph)
 
+  // Create constant node
   const node_const = LiteGraph.createNode("basic/const")
   node_const.pos = [200, 200]
   graph.add(node_const)
   node_const.setValue(4.5)
 
+  // Create watch node
   const node_watch = LiteGraph.createNode("basic/watch")
   node_watch.pos = [700, 200]
   graph.add(node_watch)
 
-  node_const.connect(0, node_watch, 0)
+  // Create sum node from the custom node
+  const node_sum = LiteGraph.createNode("basic/sum");
+  node_sum.pos = [400, 200];  // Position the sum node
+  graph.add(node_sum);
+
+  // Connect constant node to sum node
+  node_const.connect(0, node_sum, 0);
+
+  // Connect sum node to watch node
+  node_sum.connect(0, node_watch, 0);
 
   graph.start()
 
@@ -68,11 +79,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <canvas id='mycanvas' style='border: 1px solid'></canvas>
+  <canvas id='mycanvas'></canvas>
 </template>
 
 <style scoped>
-.read-the-docs {
-  color: #888;
+canvas {
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
 }
 </style>

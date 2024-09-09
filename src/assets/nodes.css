@@ -247,10 +247,11 @@
   
   .litegraph.dialog.settings {
     left: 10px;
-    top: 10px;
-    height: calc(100% - 20px);
+    top: 50%;
+    height: calc(50% - 20px);
     margin: auto;
     max-width: 50%;
+    
   }
   
   .litegraph.dialog.centered {
@@ -317,6 +318,7 @@
     color: #aaa;
     /*background-color: black;*/
     overflow: auto;
+    top: 50%;
   }
   
   .litegraph.dialog .dialog-content h3 {
