@@ -15,7 +15,7 @@ This project is a Flask-based backend that fetches financial candlestick data fr
 
 ```bash
 git clone https://github.com/Yak0vkaSup/platform_gui
-cd platform_gui
+cd platform_gui/backend
 ```
 
 ### 2. Create a virtual environment:
