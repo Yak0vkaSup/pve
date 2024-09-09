@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js'
-import { MyAddNode } from './custom_nodes/MyAddNode.js'  // Import the custom node
-
+import { FetchDataNode } from './custom_nodes/GetDataNode.js'  // Import the custom FetchDataNode
+import { MyAddNode } from './custom_nodes/MyAddNode.js'
 defineProps({
   msg: String,
 })
@@ -40,28 +40,27 @@ onMounted(() => {
   graphCanvas = new LGraphCanvas("#mycanvas", graph)
 
   // Create constant node
-  const node_const = LiteGraph.createNode("basic/const")
-  node_const.pos = [200, 200]
-  graph.add(node_const)
-  node_const.setValue(4.5)
+  // const node_const = LiteGraph.createNode("basic/const")
+  // node_const.pos = [200, 200]
+  // graph.add(node_const)
+  // node_const.setValue(4.5)
 
-  // Create watch node
-  const node_watch = LiteGraph.createNode("basic/watch")
-  node_watch.pos = [700, 200]
-  graph.add(node_watch)
+  // // Create watch node
+  // const node_watch = LiteGraph.createNode("basic/watch")
+  // node_watch.pos = [700, 200]
+  // graph.add(node_watch)
 
-  // Create sum node from the custom node
-  const node_sum = LiteGraph.createNode("basic/sum");
-  node_sum.pos = [400, 200];  // Position the sum node
-  graph.add(node_sum);
+  // // Create and add FetchDataNode to the graph
+  const node_data = LiteGraph.createNode("basic/sum");
+  // node_data.pos = [800, 500];  // Position the fetch data node
+  // graph.add(node_data);
 
-  // Connect constant node to sum node
-  node_const.connect(0, node_sum, 0);
+  // Connect the nodes
 
-  // Connect sum node to watch node
-  node_sum.connect(0, node_watch, 0);
+  // You can connect fetch data node's output to other nodes if needed
+  // For example: node_data.connect(0, node_watch, 0);
 
-  graph.start()
+  graph.start()  // Start the graph
 
   window.addEventListener('resize', resizeCanvas)  // Listen to window resize
 
