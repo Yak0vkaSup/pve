@@ -47,7 +47,7 @@ pip install -r requirements.txt
 ### 5. Run the Flask server:
 
 ```bash
-python app.py
+python main.py
 ```
 
 ### 6. Deactivate the virtual environment (when done):
