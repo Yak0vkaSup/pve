@@ -11,7 +11,7 @@ export function MyAddNode() {
 }
 
 // Set the title for the node
-MyAddNode.title = "Sum";
+MyAddNode.title = "Data";
 
 // Execution logic for the node
 MyAddNode.prototype.onExecute = function () {
@@ -21,4 +21,4 @@ MyAddNode.prototype.onExecute = function () {
 }
 
 // Register the node with LiteGraph
-LiteGraph.registerNodeType("basic/sum", MyAddNode);
+LiteGraph.registerNodeType("custom/pve", MyAddNode);

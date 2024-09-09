@@ -1,36 +1,48 @@
 import { LiteGraph } from 'litegraph.js';
 
-function FetchDataNode() {
+export function FetchDataNode() {
     this.addInput("symbol", "string");
-    this.addInput("start_date", "string");
-    this.addInput("end_date", "string");
     this.addOutput("candle_data", "object");
-    this.properties = { symbol: "", start_date: "", end_date: "" };
+    this.properties = { symbol: "DOGSUSDT" }; // Default symbol
 }
 
 FetchDataNode.title = "Fetch Data Node";
 FetchDataNode.desc = "Fetch data from the backend";
 
-FetchDataNode.prototype.onExecute = async function() {
-    const symbol = this.getInputData(0) || this.properties.symbol;
-    const start_date = this.getInputData(1) || this.properties.start_date;
-    const end_date = this.getInputData(2) || this.properties.end_date;
-
-    if (symbol && start_date && end_date) {
-        // Call the backend API to fetch data
-        const response = await fetch("/api/fetch-data", {
-            method: "POST",
+// Function to fetch data from the backend API
+async function fetchData(symbol) {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/fetch-data', {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 symbol: symbol,
-                start_date: start_date,
-                end_date: end_date,
+                start_date: '2024-07-29 00:51:00+00',
             }),
         });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+
         const data = await response.json();
-        this.setOutputData(0, data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+FetchDataNode.prototype.onExecute = async function() {
+    const symbol = this.getInputData(0) || this.properties.symbol; // Get the symbol from input or use default
+
+    // Fetch data only if the symbol exists
+    if (symbol) {
+        const data = await fetchData(symbol);
+        if (data) {
+            this.setOutputData(0, data);  // Set the fetched data as the output
+        }
     }
 };
 
