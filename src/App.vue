@@ -1,17 +1,17 @@
 <template>
   <div class="container">
     <div class="chart-container">
-      <HelloLWC /> <!-- This is where your chart will be rendered -->
+      <chart /> <!-- This is where your chart will be rendered -->
     </div>
     <div class="graph-container">
-      <HelloWorld msg="" /> <!-- This is where your LiteGraph.js canvas will be rendered -->
+      <nodes msg="" /> <!-- This is where your LiteGraph.js canvas will be rendered -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import HelloLWC from './components/HelloLWC.vue'
+import nodes from './components/nodes.vue'
+import chart from './components/chart.vue'
 </script>
 
 <style scoped>

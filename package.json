@@ -15,6 +15,7 @@
   "dependencies": {
     "lightweight-charts": "^4.2.0",
     "litegraph.js": "^0.7.18",
+    "socket.io-client": "^4.7.5",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },
