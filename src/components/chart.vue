@@ -42,7 +42,7 @@ onMounted(() => {
   })
 
   // Initialize Socket.IO client
-  socket = io('http://127.0.0.1:5001')  // Adjust the URL if needed
+  socket = io('https://pve.finance', { path: '/api/ws/socket.io' });
 
   socket.on('connect', () => {
     console.log('Connected to server via WebSocket')

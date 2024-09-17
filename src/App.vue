@@ -1,10 +1,11 @@
 <template>
   <div class="container">
+
     <div class="chart-container">
-      <chart /> <!-- This is where your chart will be rendered -->
+      <chart /> 
     </div>
     <div class="graph-container">
-      <nodes msg="" /> <!-- This is where your LiteGraph.js canvas will be rendered -->
+      <nodes /> 
     </div>
   </div>
 </template>

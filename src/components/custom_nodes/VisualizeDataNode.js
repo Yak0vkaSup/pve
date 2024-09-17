@@ -18,7 +18,7 @@ export function VizualizeData() {
       console.log("Graph JSON:", JSON.stringify(serializedGraph, null, 2));
 
       // Send the JSON to the Flask API
-      fetch('http://127.0.0.1:5001/receive-graph', {
+      fetch('https://pve.finance/api/receive-graph', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
