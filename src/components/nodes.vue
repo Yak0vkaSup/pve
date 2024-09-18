@@ -5,53 +5,53 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js';
-import 'litegraph.js/css/litegraph.css';
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js'
+import 'litegraph.js/css/litegraph.css'
 
 // Import your custom nodes
-import './custom_nodes/FetchDataNode.js';
-import './custom_nodes/VisualizeDataNode.js';
+import './custom_nodes/FetchDataNode.js'
+import './custom_nodes/VisualizeDataNode.js'
 
-const graph = ref(null);
-const graphCanvas = ref(null);
+const graph = ref(null)
+const graphCanvas = ref(null)
 
 const resizeCanvas = () => {
-  const canvasElement = document.getElementById('mycanvas');
+  const canvasElement = document.getElementById('mycanvas')
   if (canvasElement) {
-    const parentElement = canvasElement.parentElement;
+    const parentElement = canvasElement.parentElement
     if (parentElement) {
-      canvasElement.width = parentElement.clientWidth;
-      canvasElement.height = parentElement.clientHeight;
+      canvasElement.width = parentElement.clientWidth
+      canvasElement.height = parentElement.clientHeight
     }
     if (graphCanvas.value) {
-      graphCanvas.value.resize();
+      graphCanvas.value.resize()
     }
   }
-};
+}
 
 onMounted(() => {
-  resizeCanvas();
+  resizeCanvas()
 
   // Initialize the graph and canvas
-  graph.value = new LGraph();
-  graphCanvas.value = new LGraphCanvas('#mycanvas', graph.value);
+  graph.value = new LGraph()
+  graphCanvas.value = new LGraphCanvas('#mycanvas', graph.value)
 
   // Create FetchDataNode
-  const fetchDataNode = LiteGraph.createNode('custom/fetch');
-  fetchDataNode.pos = [200, 200];
-  graph.value.add(fetchDataNode);
+  const fetchDataNode = LiteGraph.createNode('custom/fetch')
+  fetchDataNode.pos = [200, 200]
+  graph.value.add(fetchDataNode)
 
   // Create VisualizeDataNode
-  const visualizeNode = LiteGraph.createNode('custom/vizualize');
-  visualizeNode.pos = [600, 200];
-  graph.value.add(visualizeNode);
+  const visualizeNode = LiteGraph.createNode('custom/vizualize')
+  visualizeNode.pos = [600, 200]
+  graph.value.add(visualizeNode)
 
   // Connect the nodes
-  fetchDataNode.connect(0, visualizeNode, 0);
+  fetchDataNode.connect(0, visualizeNode, 0)
 
   // Start the graph
-  graph.value.start();
+  graph.value.start()
 
   // Remove or comment out the onExecute function
   // visualizeNode.onExecute = function () {
@@ -59,21 +59,20 @@ onMounted(() => {
   //   sendGraphToServer();
   // };
 
-  window.addEventListener('resize', resizeCanvas);
-});
-
+  window.addEventListener('resize', resizeCanvas)
+})
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', resizeCanvas);
+  window.removeEventListener('resize', resizeCanvas)
   if (graph.value) {
-    graph.value.stop();
+    graph.value.stop()
   }
-});
+})
 
 // Function to serialize the graph and send it to the Flask API
 function sendGraphToServer() {
-  const serializedGraph = graph.value.serialize();
-  console.log("Graph JSON:", JSON.stringify(serializedGraph, null, 2));
+  const serializedGraph = graph.value.serialize()
+  console.log('Graph JSON:', JSON.stringify(serializedGraph, null, 2))
 
   // Send the JSON to the Flask API
   fetch('https://pve.finance/api/receive-graph', {
@@ -83,13 +82,13 @@ function sendGraphToServer() {
     },
     body: JSON.stringify(serializedGraph)
   })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Response from server:', data);
-  })
-  .catch(error => {
-    console.error('Error sending graph to server:', error);
-  });
+    .then((response) => response.json())
+    .then((data) => {
+      console.log('Response from server:', data)
+    })
+    .catch((error) => {
+      console.error('Error sending graph to server:', error)
+    })
 }
 </script>
 

@@ -1,11 +1,13 @@
 <template>
   <div class="container">
-
+    <div class="user_container">
+      <login />
+    </div>
     <div class="chart-container">
-      <chart /> 
+      <chart />
     </div>
     <div class="graph-container">
-      <nodes /> 
+      <nodes />
     </div>
   </div>
 </template>
@@ -13,6 +15,7 @@
 <script setup lang="ts">
 import nodes from './components/nodes.vue'
 import chart from './components/chart.vue'
+import login from './components/login.vue'
 </script>
 
 <style scoped>
@@ -22,9 +25,13 @@ import chart from './components/chart.vue'
   gap: 0.5rem; /* Add space between the components */
   height: 97vh;
   /* Use full viewport height */
-
 }
-
+.user_container {
+  flex-basis: 10%; /* Set the user container to occupy 15% of the height */
+  width: 100%;
+  min-height: 50px; /* Optionally set a minimum height */
+  height: auto; /* Adjust height dynamically based on content */
+}
 .chart-container {
   /* height:  100vh; */
   flex-grow: 1;
@@ -38,7 +45,7 @@ import chart from './components/chart.vue'
   flex-grow: 1;
   width: 100%;
   min-height: 300px;
-  height: 100%; 
+  height: 100%;
   /* Occupy 60% of the screen height */
 }
 

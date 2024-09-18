@@ -14,21 +14,21 @@ onMounted(() => {
     width: chartContainer.value.clientWidth,
     height: chartContainer.value.clientHeight,
     layout: {
-      background: { type: 'solid', color: '#222' },  // Set to grey background
-      textColor: '#FFFFFF',                          // Set axis labels to white
+      background: { type: 'solid', color: '#222' }, // Set to grey background
+      textColor: '#FFFFFF' // Set axis labels to white
     },
     grid: {
       vertLines: {
-        color: '#111',                               // Vertical grid lines
+        color: '#111' // Vertical grid lines
       },
       horzLines: {
-        color: '#111',                               // Horizontal grid lines
-      },
+        color: '#111' // Horizontal grid lines
+      }
     },
     timeScale: {
       timeVisible: true,
-      secondsVisible: true,
-    },
+      secondsVisible: true
+    }
   })
 
   // Add candlestick series
@@ -38,11 +38,11 @@ onMounted(() => {
     borderDownColor: '#f44336',
     borderUpColor: '#4caf50',
     wickDownColor: '#f44336',
-    wickUpColor: '#4caf50',
+    wickUpColor: '#4caf50'
   })
 
   // Initialize Socket.IO client
-  socket = io('https://pve.finance', { path: '/api/ws/socket.io' });
+  socket = io('https://pve.finance', { path: '/api/ws/socket.io' })
 
   socket.on('connect', () => {
     console.log('Connected to server via WebSocket')
@@ -89,20 +89,20 @@ onBeforeUnmount(() => {
 function fetchDataFromServer() {
   // Emit 'fetch_data' event to request data
   socket.emit('fetch_data', {
-    limit: 100000,  // You can adjust limit and offset as needed
-    offset: 0,
+    limit: 100000, // You can adjust limit and offset as needed
+    offset: 0
   })
 }
 
 // Function to update the chart with new data
 function updateChartData(fetchedData) {
   if (fetchedData && Array.isArray(fetchedData)) {
-    const formattedData = fetchedData.map(candle => ({
-      time: candle.date,  // The API returns Unix timestamp
+    const formattedData = fetchedData.map((candle) => ({
+      time: candle.date, // The API returns Unix timestamp
       open: candle.open,
       high: candle.high,
       low: candle.low,
-      close: candle.close,
+      close: candle.close
     }))
 
     // Ensure the data is sorted by time (ascending order)
@@ -125,6 +125,6 @@ function updateChartData(fetchedData) {
   width: 100%;
   height: 100%;
   background-color: #2e2e2e; /* Matches the background of the chart */
-  border: 0px solid #444;    /* Optional border to match the LiteGraph style */
+  border: 0px solid #444; /* Optional border to match the LiteGraph style */
 }
 </style>
