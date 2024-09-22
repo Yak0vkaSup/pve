@@ -90,7 +90,7 @@ This command will start the container in detached mode with the name `timescaled
 - **Password**: `postgres`
 - **Database**: `postgres`
 
-### 4. Connect to the database:
+### 4. Connect to the database and use db_init_query.SQL:
 
 You can use `pgAdmin` or any PostgreSQL client to connect to the database. Use the following connection details:
 
