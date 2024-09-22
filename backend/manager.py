@@ -105,7 +105,7 @@ def get_candles(symbol, timeframe, start_date, end_date):
             break
 
     df = pd.DataFrame(candles_data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
-    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', utc=True)
+    df['timestamp'] = pd.to_datetime(pd.to_numeric(df['timestamp']), unit='ms', utc=True)
     df['close'] = pd.to_numeric(df['close'], errors='coerce')
     df['open'] = pd.to_numeric(df['open'], errors='coerce')
     df['high'] = pd.to_numeric(df['high'], errors='coerce')
@@ -209,4 +209,4 @@ if __name__ == '__main__':
     print(symbols)
     num_days = 30 # last days
     update_all_symbols(symbols, num_days)
-    update_symbols_continuously(symbols)
+    # update_symbols_continuously(symbols)
