@@ -14,13 +14,13 @@ This project is a Flask-based backend that fetches financial candlestick data fr
 
 ```bash
 git clone https://github.com/Yak0vkaSup/platform_gui
-cd platform_gui
+cd platform_gui/backend
 ```
 
 ### 2. Create a virtual environment:
 
 ```bash
-python -m venv venv
+conda create -n my_env python=3.10
 ```
 
 ### 3. Activate the virtual environment:
@@ -28,13 +28,7 @@ python -m venv venv
 - On **Windows**:
 
   ```bash
-  venv\Scripts\activate
-  ```
-
-- On **macOS/Linux**:
-
-  ```bash
-  source venv/bin/activate
+  conda activate my_env
   ```
 
 ### 4. Install dependencies:
@@ -46,7 +40,7 @@ pip install -r requirements.txt
 ### 5. Run the Flask server:
 
 ```bash
-python app.py
+python main.py
 ```
 
 ### 6. Deactivate the virtual environment (when done):
