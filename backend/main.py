@@ -94,12 +94,17 @@ def receive_telegram_auth():
 
         # Example function to save user token (implement save_user_token)
         save_user_token(user_data.get('id'), user_token)
-        print(user_data.get('id'), user_token)
+
+        # print(user_data.get('id'), user_token)
         # Debug: Print success message
         print("Authorization successful! User token generated:", user_token)
 
         # Return a success message<
-        return jsonify({'status': 'success', 'message': 'Success'})
+        return jsonify({
+            'status': 'success',
+            'message': 'Authorization successful',
+            'token': user_token  # Return the generated token
+        })
     except Exception as e:
         # Debug: Print the error message
         print("Exception occurred:", str(e))
@@ -198,7 +203,7 @@ def handle_fetch_data(data):
 
     nodes = graph_json.get("nodes", [])
     symbol = None
-
+    print(nodes)
     # Iterate over nodes to find the symbol
     for node in nodes:
         if node.get("type") == "custom/fetch":

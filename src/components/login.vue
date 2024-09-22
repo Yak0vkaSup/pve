@@ -102,6 +102,11 @@ window.onTelegramAuth = function (user) {
     .then((response) => response.json())
     .then((data) => {
       console.log('Response from server:', data)
+      if (data.status === 'success') {
+        // Save the token to localStorage
+        localStorage.setItem('userToken', data.token)
+        console.log('Token saved to localStorage:', data.token)
+      }
     })
     .catch((error) => {
       console.error('Error sending data to server:', error)
