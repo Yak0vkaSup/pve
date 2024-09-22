@@ -5,11 +5,7 @@
 
     <!-- Profile button that appears after login -->
     <div v-if="userLoggedIn" class="profile-button" @click="toggleUserInfo">
-      <img
-        :src="userInfo.photo_url || defaultProfileImage"
-        alt="User Profile"
-        @error="handleImageError"
-      />
+      <img :src="userInfo.photo_url || defaultProfileImage" alt="User Profile" />
     </div>
 
     <!-- Modal to display and edit user info -->
