@@ -20,7 +20,7 @@ DB_PORT = 5432
 
 # Connection pool
 db_pool = psycopg2.pool.SimpleConnectionPool(
-    1, 5000,  # Min and max connections
+    1, 50000,  # Min and max connections
     dbname=DB_NAME,
     user=DB_USER,
     password=DB_PASSWORD,

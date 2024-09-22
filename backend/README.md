@@ -80,6 +80,7 @@ docker run -d --name maindb \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=postgres \
+  -e POSTGRES_MAX_CONNECTIONS=5000 \
   -p 5432:5432 \
   timescale/timescaledb:latest-pg16
 ```
