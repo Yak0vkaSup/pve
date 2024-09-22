@@ -1,4 +1,3 @@
-
 # Flask Backend for Fetching Candle Data
 
 This project is a Flask-based backend that fetches financial candlestick data from a PostgreSQL database and provides it as a JSON API for a frontend application.
@@ -28,15 +27,15 @@ python -m venv venv
 
 - On **Windows**:
 
-    ```bash
-    venv\Scripts\activate
-    ```
+  ```bash
+  venv\Scripts\activate
+  ```
 
 - On **macOS/Linux**:
 
-    ```bash
-    source venv/bin/activate
-    ```
+  ```bash
+  source venv/bin/activate
+  ```
 
 ### 4. Install dependencies:
 
@@ -69,7 +68,7 @@ Download and install Docker Desktop from the official [Docker website](https://w
 Run the following command to pull the database image:
 
 ```bash
-docker pull yak0vka/bybit_db:latest
+docker pull timescale/timescaledb:latest-pg16
 ```
 
 ### 3. Start the PostgreSQL container:
@@ -77,12 +76,12 @@ docker pull yak0vka/bybit_db:latest
 Run this command to start the container:
 
 ```bash
-docker run -d --name timescaledb \
+docker run -d --name maindb \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=postgres \
   -p 5432:5432 \
-  yak0vka/bybit_db:latest
+  timescale/timescaledb:latest-pg16
 ```
 
 This command will start the container in detached mode with the name `timescaledb`, and the database will be available on port `5432`. Use the following credentials to connect:
@@ -108,4 +107,3 @@ Configure your data manager or use the basic settings. You can run the manager u
 ```bash
 python data/manager.py
 ```
-

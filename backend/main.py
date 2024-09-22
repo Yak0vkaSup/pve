@@ -49,7 +49,7 @@ def receive_telegram_auth():
 
     # Generate the secret key by hashing the bot token using SHA-256
     secret_key = hashlib.sha256(BOT_TOKEN.encode()).digest()
-
+    
     # Generate the HMAC-SHA-256 signature
     hmac_signature = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).digest()
 

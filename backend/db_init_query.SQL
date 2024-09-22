@@ -8,3 +8,15 @@ CREATE TABLE IF NOT EXISTS users (
     key VARCHAR(255),
     key_secret VARCHAR(255)
 );
+
+CREATE TABLE IF NOT EXISTS candles (
+	id SERIAL PRIMARY KEY,
+	symbol VARCHAR(20),
+	timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+	open NUMERIC,
+	high NUMERIC,
+	low NUMERIC,
+	close NUMERIC,
+	volume NUMERIC,
+	UNIQUE(symbol, timestamp)
+);
