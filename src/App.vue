@@ -1,17 +1,21 @@
 <template>
   <div class="container">
+    <div class="user_container">
+      <login />
+    </div>
     <div class="chart-container">
-      <HelloLWC /> <!-- This is where your chart will be rendered -->
+      <chart />
     </div>
     <div class="graph-container">
-      <HelloWorld msg="" /> <!-- This is where your LiteGraph.js canvas will be rendered -->
+      <nodes />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import HelloLWC from './components/HelloLWC.vue'
+import nodes from './components/nodes.vue'
+import chart from './components/chart.vue'
+import login from './components/login.vue'
 </script>
 
 <style scoped>
@@ -21,9 +25,13 @@ import HelloLWC from './components/HelloLWC.vue'
   gap: 0.5rem; /* Add space between the components */
   height: 97vh;
   /* Use full viewport height */
-
 }
-
+.user_container {
+  flex-basis: 10%; /* Set the user container to occupy 15% of the height */
+  width: 100%;
+  min-height: 50px; /* Optionally set a minimum height */
+  height: auto; /* Adjust height dynamically based on content */
+}
 .chart-container {
   /* height:  100vh; */
   flex-grow: 1;
@@ -37,7 +45,7 @@ import HelloLWC from './components/HelloLWC.vue'
   flex-grow: 1;
   width: 100%;
   min-height: 300px;
-  height: 100%; 
+  height: 100%;
   /* Occupy 60% of the screen height */
 }
 

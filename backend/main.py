@@ -1,11 +1,22 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
+from flask_socketio import SocketIO, emit
 import psycopg2
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
+import hashlib
+import hmac
+import uuid
+import base64
+import binascii
+import uuid
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+
+graph_json = None
 
 def connect_to_db():
     conn = psycopg2.connect(
@@ -16,13 +27,198 @@ def connect_to_db():
     )
     return conn
 
-@app.route('/api/fetch-data', methods=['POST'])
-def fetch_data():
-    data = request.json
-    symbol = data.get('symbol')
-    start_date = data.get('start_date')
+@app.route('/api/telegram-auth', methods=['POST'])
+def receive_telegram_auth():
+    BOT_TOKEN = "6180226975:AAHePZ0wipSWogSkZDFXmf6tm8DwDXVPgJI"
+    try:
+        # Parse incoming JSON
+        user_data = request.get_json()
+
+        # Debug: Print received user data
+        # print("Received user data:", user_data)
+
+        # Step 1: Remove 'hash' and store it separately for comparison
+        received_hash = user_data.pop('hash', None)
+
+        # Debug: Print the received hash
+        # print("Received hash:", received_hash)
+
+        if not received_hash:
+            return jsonify({'status': 'error', 'message': 'Missing hash parameter'}), 400
+
+        # Convert received hash from hex to binary format (bytes)
+        try:
+            received_hash_bytes = binascii.unhexlify(received_hash)
+        except binascii.Error as e:
+            print("Error converting received hash to bytes:", e)
+            return jsonify({'status': 'error', 'message': 'Invalid hash format'}), 400
+
+        # Debug: Print the received hash as bytes
+        # print("Received hash (bytes):", received_hash_bytes)
+
+        # Step 2: Create data-check string (concatenate fields in alphabetical order)
+        # Skip empty fields like last_name if they are empty
+        data_check_arr = [f"{key}={value}" for key, value in sorted(user_data.items()) if value != '']
+
+        data_check_string = '\n'.join(data_check_arr).rstrip('\n')
+
+        # Debug: Print the data-check string and its length
+        # print("Data-check string:", data_check_string)
+        # print("Data-check string length:", len(data_check_string))
+
+        # Step 3: Compute the secret key by hashing the bot token with SHA256
+        secret_key = hashlib.sha256(BOT_TOKEN.encode()).digest()
+
+        # Debug: Print the secret key (in hexadecimal form for better readability)
+        # print("Secret key (SHA256 hashed bot token):", secret_key.hex())
+
+        # Step 4: Compute HMAC-SHA256 of the data-check string using the secret key
+        computed_hash_bytes = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).digest()
+
+        # Debug: Print the computed hash as bytes
+        # print("Computed hash (bytes):", computed_hash_bytes)
+
+        # Step 5: Compare the computed hash (bytes) with the received hash (bytes)
+        if computed_hash_bytes != received_hash_bytes:
+            print(f"Hash mismatch!\nReceived hash (bytes): {received_hash_bytes}\nComputed hash (bytes): {computed_hash_bytes}")
+            return jsonify({'status': 'error', 'message': 'Invalid hash, data integrity failed'}), 400
+
+        # Optional: Check if auth_date is not too old (e.g., within the last 24 hours)
+        current_time = int(time.time())
+        if current_time - int(user_data['auth_date']) > 86400:  # 86400 seconds = 24 hours
+            print("Auth data is outdated.")
+            return jsonify({'status': 'error', 'message': 'Auth data is outdated'}), 400
+
+        # Generate user token and process the user data further
+        user_token = str(uuid.uuid4())
+
+        # Example function to save user token (implement save_user_token)
+        save_user_token(user_data.get('id'), user_token)
+
+        # print(user_data.get('id'), user_token)
+        # Debug: Print success message
+        print("Authorization successful! User token generated:", user_token)
+
+        # Return a success message<
+        return jsonify({
+            'status': 'success',
+            'message': 'Authorization successful',
+            'token': user_token  # Return the generated token
+        })
+    except Exception as e:
+        # Debug: Print the error message
+        print("Exception occurred:", str(e))
+        return jsonify({'status': 'error', 'message': str(e)}), 400
+
+
+def save_user_token(user_id, token):
+    """Update the usertoken for an existing user in the database"""
+    # Get all existing user IDs from the database
+    existing_ids = get_all_user_ids()
+
+    conn = connect_to_db()
+    cursor = conn.cursor()
+
+    # Separate data into insert and update batches
+    to_insert = []
+    to_update = []
+
+    
+    if user_id in existing_ids:
+        print('exists')
+        # If the user ID exists, we'll update the token
+        to_update.append((token, user_id))
+    else:
+        # If the user ID doesn't exist, we'll insert a new record
+        to_insert.append((user_id, token))
+
+    # Insert new records if any
+    if to_insert:
+        insert_query = """
+        INSERT INTO users (id, usertoken) 
+        VALUES (%s, %s)
+        """
+        cursor.executemany(insert_query, to_insert)
+
+    # Update existing records if any
+    if to_update:
+        update_query = """
+        UPDATE users
+        SET usertoken = %s
+        WHERE id = %s
+        """
+        cursor.executemany(update_query, to_update)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def get_all_user_ids():
+    """Retrieve all user ids from the database."""
+    conn = connect_to_db()
+    cursor = conn.cursor()
+
+    query = "SELECT id FROM users"
+
+    cursor.execute(query)
+    existing_ids = cursor.fetchall()
+
+    # Convert the result into a flat list of user ids
+    existing_ids = [row[0] for row in existing_ids]
+
+    cursor.close()
+    conn.close()
+    return existing_ids
+
+def get_date_delta_days_ago(delta):
+    date_days_ago = datetime.now() - timedelta(delta)
+    return date_days_ago.strftime('%Y-%m-%d')
+
+@app.route('/api/receive-graph', methods=['POST'])
+def receive_graph():
+    global graph_json
+    graph_json = request.get_json()
+    print('Received graph JSON:')
+    print(graph_json)
+    # Notify all connected clients that the graph has been updated
+    socketio.emit('graph_updated', {'message': 'Graph has been updated'})
+    return jsonify({'status': 'success', 'message': 'Graph received'})
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+@socketio.on('fetch_data')
+def handle_fetch_data(data):
+
+    global graph_json
+    # Extract symbol from graph_json
+    if not graph_json:
+        emit('update_chart', {'status': 'error', 'message': 'Graph JSON not received yet'})
+        return
+
+    nodes = graph_json.get("nodes", [])
+    symbol = None
+    print(nodes)
+    # Iterate over nodes to find the symbol
+    for node in nodes:
+        if node.get("type") == "custom/fetch":
+            properties = node.get("properties", {})
+            symbol = properties.get("symbol")
+            if symbol:
+                break  # Symbol found, exit the loop
+
+    if symbol is None:
+        emit('update_chart', {'status': 'error', 'message': 'Symbol not found in graph JSON'})
+        return
+
     end_date = datetime.utcnow()
-    limit = data.get('limit', 100000)  # Default limit to 1000 rows
+    start_date = end_date - timedelta(days=15)
+    limit = data.get('limit', 100000)  # Default limit to 100000 rows
     offset = data.get('offset', 0)  # Default offset to 0 (start from the beginning)
 
     conn = connect_to_db()
@@ -32,7 +228,7 @@ def fetch_data():
     WHERE symbol = '{symbol}' AND
           timestamp BETWEEN '{start_date}' AND '{end_date}'
     ORDER BY timestamp
-    LIMIT {limit} OFFSET {offset};  -- Fetch data with limit and offset
+    LIMIT {limit} OFFSET {offset};
     """
     df = pd.read_sql(query, conn)
     conn.close()
@@ -40,11 +236,11 @@ def fetch_data():
     # Convert the timestamp to a Unix timestamp in seconds
     df['date'] = pd.to_datetime(df['date'], utc=True)
     df['date'] = df['date'].astype(int) // 10**9  # Convert to Unix timestamp in seconds
-    
+
     result = df.to_dict(orient="records")
+    # Emit the data back to the client
+    emit('update_chart', {'status': 'success', 'data': result})
 
-    return jsonify(result)
-
-
+    
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, host='0.0.0.0', port=5001, debug=True)

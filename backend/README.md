@@ -1,4 +1,3 @@
-
 # Flask Backend for Fetching Candle Data
 
 This project is a Flask-based backend that fetches financial candlestick data from a PostgreSQL database and provides it as a JSON API for a frontend application.
@@ -28,9 +27,9 @@ conda create -n my_env python=3.10
 
 - On **Windows**:
 
-    ```bash
-    conda activate my_env
-    ```
+  ```bash
+  conda activate my_env
+  ```
 
 ### 4. Install dependencies:
 
@@ -63,7 +62,7 @@ Download and install Docker Desktop from the official [Docker website](https://w
 Run the following command to pull the database image:
 
 ```bash
-docker pull yak0vka/bybit_db:latest
+docker pull timescale/timescaledb:latest-pg16
 ```
 
 ### 3. Start the PostgreSQL container:
@@ -71,12 +70,13 @@ docker pull yak0vka/bybit_db:latest
 Run this command to start the container:
 
 ```bash
-docker run -d --name timescaledb \
+docker run -d --name maindb \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=postgres \
+  -e POSTGRES_MAX_CONNECTIONS=5000 \
   -p 5432:5432 \
-  yak0vka/bybit_db:latest
+  timescale/timescaledb:latest-pg16
 ```
 
 This command will start the container in detached mode with the name `timescaledb`, and the database will be available on port `5432`. Use the following credentials to connect:
@@ -85,7 +85,7 @@ This command will start the container in detached mode with the name `timescaled
 - **Password**: `postgres`
 - **Database**: `postgres`
 
-### 4. Connect to the database:
+### 4. Connect to the database and use db_init_query.SQL:
 
 You can use `pgAdmin` or any PostgreSQL client to connect to the database. Use the following connection details:
 
@@ -102,4 +102,3 @@ Configure your data manager or use the basic settings. You can run the manager u
 ```bash
 python data/manager.py
 ```
-
