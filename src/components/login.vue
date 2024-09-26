@@ -210,7 +210,7 @@ onMounted(() => {
     // If user info is already in local storage, set user state
     userInfo.value = user
     userLoggedIn.value = true
-    fetchUserData(user.id) // Fetch user data from backend
+    //fetchUserData(user.id) // Fetch user data from backend
   } else {
     // Otherwise, load the Telegram login widget
     const script = document.createElement('script')
