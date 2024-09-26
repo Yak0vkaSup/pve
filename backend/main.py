@@ -170,6 +170,133 @@ def get_all_user_ids():
     conn.close()
     return existing_ids
 
+@app.route('/api/get-user-info', methods=['POST'])
+def get_user_info():
+    try:
+        # Get data from the request
+        request_data = request.get_json()
+        user_id = request_data.get('id')
+        user_token = request_data.get('token')
+
+        # Check if user_id or token is missing
+        if not user_id or not user_token:
+            return jsonify({'status': 'error', 'message': 'Missing user ID or token'}), 400
+
+        # Verify the user's token
+        if not verify_user_token(user_id, user_token):
+            return jsonify({'status': 'error', 'message': 'Invalid user token or user ID'}), 403
+
+        # If the token is valid, retrieve user info
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        query = """
+        SELECT first_name, last_name, username, key, key_secret 
+        FROM users 
+        WHERE id = %s
+        """
+        cursor.execute(query, (user_id,))
+        user_data = cursor.fetchone()
+
+        conn.close()
+
+        if not user_data:
+            return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+        # Respond with user data
+        user_info = {
+            'first_name': user_data[0],
+            'last_name': user_data[1],
+            'username': user_data[2],
+            'key': user_data[3],
+            'key_secret': user_data[4]
+        }
+
+        return jsonify({'status': 'success', 'user_info': user_info})
+    except Exception as e:
+        print(f"Error fetching user info: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/update-user', methods=['POST'])
+def update_user():
+    try:
+        # Get the request data
+        request_data = request.get_json()
+
+        # Extract the user_id and user_token from the request data
+        user_id = request_data.get('id')
+        user_token = request_data.get('token')
+
+        # Extract the updated user data
+        first_name = request_data.get('first_name')
+        last_name = request_data.get('last_name')
+        key = request_data.get('key')
+        key_secret = request_data.get('key_secret')
+
+        # Check if all required fields are provided
+        if not user_id or not user_token:
+            return jsonify({'status': 'error', 'message': 'Missing user ID or token'}), 400
+
+        # Verify the user token
+        if not verify_user_token(user_id, user_token):
+            return jsonify({'status': 'error', 'message': 'Invalid user token or user ID'}), 403
+
+        # Connect to the database and update the user's information
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        # Update query
+        update_query = """
+        UPDATE users
+        SET first_name = %s, last_name = %s, key = %s, key_secret = %s
+        WHERE id = %s
+        """
+        cursor.execute(update_query, (first_name, last_name, key, key_secret, user_id))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        # Respond with success
+        return jsonify({'status': 'success', 'message': 'User data updated successfully'})
+    
+    except Exception as e:
+        print(f"Error updating user data: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    
+def verify_user_token(user_id, user_token):
+    """Verify if the provided token matches the token stored in the database."""
+    try:
+        # Connect to the database
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        # Query to get the usertoken by user_id
+        query = """
+        SELECT usertoken 
+        FROM users 
+        WHERE id = %s
+        """
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        # If no result, the user ID does not exist
+        if result is None:
+            return False
+
+        # Fetch the token from the result
+        stored_token = result[0]
+        print(stored_token)
+        # Compare the provided token with the stored token
+        return stored_token == user_token
+    except Exception as e:
+        print(f"Error verifying user token: {str(e)}")
+        return False
+
 def get_date_delta_days_ago(delta):
     date_days_ago = datetime.now() - timedelta(delta)
     return date_days_ago.strftime('%Y-%m-%d')
@@ -204,6 +331,8 @@ def handle_fetch_data(data):
     nodes = graph_json.get("nodes", [])
     symbol = None
     print(nodes)
+    # PARSING
+    ''' ici a la place d'iteration faut rajouter une fonction'''
     # Iterate over nodes to find the symbol
     for node in nodes:
         if node.get("type") == "custom/fetch":
