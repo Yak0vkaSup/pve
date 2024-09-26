@@ -91,7 +91,7 @@ def save_user_token(user_data, token):
 
     conn = connect_to_db()
     cursor = conn.cursor()
-    
+
     if user_id in existing_ids:
         print('User exists, updating token.')
         # If the user ID exists, update the token
@@ -105,10 +105,10 @@ def save_user_token(user_data, token):
         print('New user, inserting user data and token.')
         # If the user ID doesn't exist, insert a new record with all user details
         insert_query = """
-        INSERT INTO users (id, first_name, last_name, username, photo_url, usertoken) 
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO users (id, first_name, last_name, username, usertoken) 
+        VALUES (%s, %s, %s, %s, %s)
         """
-        cursor.execute(insert_query, (user_id, first_name, last_name, username, photo_url, token))
+        cursor.execute(insert_query, (user_id, first_name, last_name, username, token))
 
     conn.commit()
     cursor.close()
