@@ -35,6 +35,9 @@ import 'litegraph.js/css/litegraph.css'
 // Import your custom nodes
 import './custom_nodes/FetchDataNode.js'
 import './custom_nodes/VisualizeDataNode.js'
+import './custom_nodes/GetDataFromDb.js'
+import './custom_nodes/MultiplyColumn.js'
+import './custom_nodes/RSINode.js'
 
 const graph = ref(null)
 const graphCanvas = ref(null)
@@ -72,6 +75,23 @@ onMounted(() => {
   const visualizeNode = LiteGraph.createNode('custom/vizualize')
   visualizeNode.pos = [600, 200]
   graph.value.add(visualizeNode)
+
+  // Create GetDataFromDbNode
+  const getdataNode = LiteGraph.createNode('custom/data/get')
+  getdataNode.pos = [900, 200]
+  graph.value.add(getdataNode)
+
+
+  // Create MultiplityColumnNode
+  const multiplycolumnNode = LiteGraph.createNode('custom/data/multiplycolumn')
+  multiplycolumnNode.pos = [1200, 200]
+  graph.value.add(multiplycolumnNode)
+
+  // Create RSINode
+  const RSINode = LiteGraph.createNode('custom/indicators/rsi')
+  RSINode.pos = [1200, 200]
+  graph.value.add(RSINode)
+
 
   // Connect the nodes
   fetchDataNode.connect(0, visualizeNode, 0)
