@@ -11,6 +11,7 @@ import uuid
 import base64
 import binascii
 import uuid
+import json
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -33,15 +34,7 @@ def receive_telegram_auth():
     try:
         # Parse incoming JSON
         user_data = request.get_json()
-
-        # Debug: Print received user data
-        # print("Received user data:", user_data)
-
-        # Step 1: Remove 'hash' and store it separately for comparison
         received_hash = user_data.pop('hash', None)
-
-        # Debug: Print the received hash
-        # print("Received hash:", received_hash)
 
         if not received_hash:
             return jsonify({'status': 'error', 'message': 'Missing hash parameter'}), 400
@@ -53,32 +46,11 @@ def receive_telegram_auth():
             print("Error converting received hash to bytes:", e)
             return jsonify({'status': 'error', 'message': 'Invalid hash format'}), 400
 
-        # Debug: Print the received hash as bytes
-        # print("Received hash (bytes):", received_hash_bytes)
-
-        # Step 2: Create data-check string (concatenate fields in alphabetical order)
-        # Skip empty fields like last_name if they are empty
         data_check_arr = [f"{key}={value}" for key, value in sorted(user_data.items()) if value != '']
-
         data_check_string = '\n'.join(data_check_arr).rstrip('\n')
-
-        # Debug: Print the data-check string and its length
-        # print("Data-check string:", data_check_string)
-        # print("Data-check string length:", len(data_check_string))
-
-        # Step 3: Compute the secret key by hashing the bot token with SHA256
         secret_key = hashlib.sha256(BOT_TOKEN.encode()).digest()
-
-        # Debug: Print the secret key (in hexadecimal form for better readability)
-        # print("Secret key (SHA256 hashed bot token):", secret_key.hex())
-
-        # Step 4: Compute HMAC-SHA256 of the data-check string using the secret key
         computed_hash_bytes = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).digest()
 
-        # Debug: Print the computed hash as bytes
-        # print("Computed hash (bytes):", computed_hash_bytes)
-
-        # Step 5: Compare the computed hash (bytes) with the received hash (bytes)
         if computed_hash_bytes != received_hash_bytes:
             print(f"Hash mismatch!\nReceived hash (bytes): {received_hash_bytes}\nComputed hash (bytes): {computed_hash_bytes}")
             return jsonify({'status': 'error', 'message': 'Invalid hash, data integrity failed'}), 400
@@ -89,14 +61,8 @@ def receive_telegram_auth():
             print("Auth data is outdated.")
             return jsonify({'status': 'error', 'message': 'Auth data is outdated'}), 400
 
-        # Generate user token and process the user data further
         user_token = str(uuid.uuid4())
-
-        # Example function to save user token (implement save_user_token)
-        save_user_token(user_data.get('id'), user_token)
-
-        # print(user_data.get('id'), user_token)
-        # Debug: Print success message
+        save_user_token(user_data, user_token)
         print("Authorization successful! User token generated:", user_token)
 
         # Return a success message<
@@ -111,43 +77,38 @@ def receive_telegram_auth():
         return jsonify({'status': 'error', 'message': str(e)}), 400
 
 
-def save_user_token(user_id, token):
+def save_user_token(user_data, token):
     """Update the usertoken for an existing user in the database"""
+    user_id = user_data.get('id')
+    first_name = user_data.get('first_name')
+    last_name = user_data.get('last_name', '') 
+    username = user_data.get('username', '')  
+    photo_url = user_data.get('photo_url', '') 
+
+
     # Get all existing user IDs from the database
     existing_ids = get_all_user_ids()
 
     conn = connect_to_db()
     cursor = conn.cursor()
 
-    # Separate data into insert and update batches
-    to_insert = []
-    to_update = []
-
-    
     if user_id in existing_ids:
-        print('exists')
-        # If the user ID exists, we'll update the token
-        to_update.append((token, user_id))
-    else:
-        # If the user ID doesn't exist, we'll insert a new record
-        to_insert.append((user_id, token))
-
-    # Insert new records if any
-    if to_insert:
-        insert_query = """
-        INSERT INTO users (id, usertoken) 
-        VALUES (%s, %s)
-        """
-        cursor.executemany(insert_query, to_insert)
-
-    # Update existing records if any
-    if to_update:
+        print('User exists, updating token.')
+        # If the user ID exists, update the token
         update_query = """
         UPDATE users
         SET usertoken = %s
         WHERE id = %s
         """
-        cursor.executemany(update_query, to_update)
+        cursor.execute(update_query, (token, user_id))
+    else:
+        print('New user, inserting user data and token.')
+        # If the user ID doesn't exist, insert a new record with all user details
+        insert_query = """
+        INSERT INTO users (id, first_name, last_name, username, usertoken) 
+        VALUES (%s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (user_id, first_name, last_name, username, token))
 
     conn.commit()
     cursor.close()
@@ -169,6 +130,250 @@ def get_all_user_ids():
     cursor.close()
     conn.close()
     return existing_ids
+
+@app.route('/api/get-user-info', methods=['POST'])
+def get_user_info():
+    try:
+        # Get data from the request
+        request_data = request.get_json()
+        user_id = request_data.get('id')
+        user_token = request_data.get('token')
+
+        # Check if user_id or token is missing
+        if not user_id or not user_token:
+            return jsonify({'status': 'error', 'message': 'Missing user ID or token'}), 400
+
+        # Verify the user's token
+        if not verify_user_token(user_id, user_token):
+            return jsonify({'status': 'error', 'message': 'Invalid user token or user ID'}), 403
+
+        # If the token is valid, retrieve user info
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        query = """
+        SELECT first_name, last_name, username, key, key_secret 
+        FROM users 
+        WHERE id = %s
+        """
+        cursor.execute(query, (user_id,))
+        user_data = cursor.fetchone()
+
+        conn.close()
+
+        if not user_data:
+            return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+        # Respond with user data
+        user_info = {
+            'first_name': user_data[0],
+            'last_name': user_data[1],
+            'username': user_data[2],
+            'key': user_data[3],
+            'key_secret': user_data[4]
+        }
+
+        return jsonify({'status': 'success', 'user_info': user_info})
+    except Exception as e:
+        print(f"Error fetching user info: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/update-user', methods=['POST'])
+def update_user():
+    try:
+        # Get the request data
+        request_data = request.get_json()
+
+        # Extract the user_id and user_token from the request data
+        user_id = request_data.get('id')
+        user_token = request_data.get('token')
+
+        # Extract the updated user data
+        first_name = request_data.get('first_name')
+        last_name = request_data.get('last_name')
+        key = request_data.get('key')
+        key_secret = request_data.get('key_secret')
+
+        # Check if all required fields are provided
+        if not user_id or not user_token:
+            return jsonify({'status': 'error', 'message': 'Missing user ID or token'}), 400
+
+        # Verify the user token
+        if not verify_user_token(user_id, user_token):
+            return jsonify({'status': 'error', 'message': 'Invalid user token or user ID'}), 403
+
+        # Connect to the database and update the user's information
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        # Update query
+        update_query = """
+        UPDATE users
+        SET first_name = %s, last_name = %s, key = %s, key_secret = %s
+        WHERE id = %s
+        """
+        cursor.execute(update_query, (first_name, last_name, key, key_secret, user_id))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        # Respond with success
+        return jsonify({'status': 'success', 'message': 'User data updated successfully'})
+    
+    except Exception as e:
+        print(f"Error updating user data: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    
+def verify_user_token(user_id, user_token):
+    """Verify if the provided token matches the token stored in the database."""
+    try:
+        # Connect to the database
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        # Query to get the usertoken by user_id
+        query = """
+        SELECT usertoken 
+        FROM users 
+        WHERE id = %s
+        """
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        # If no result, the user ID does not exist
+        if result is None:
+            return False
+
+        # Fetch the token from the result
+        stored_token = result[0]
+        print(stored_token)
+        # Compare the provided token with the stored token
+        return stored_token == user_token
+    except Exception as e:
+        print(f"Error verifying user token: {str(e)}")
+        return False
+
+# Route to save or update the graph in the database
+@app.route('/api/save-graph', methods=['POST'])
+def save_graph():
+    try:
+        request_data = request.get_json()
+
+        # Extract the user ID, graph name, and serialized graph data from the request
+        user_id = request_data.get('user_id')
+        graph_name = request_data.get('name')
+        graph_data = request_data.get('graph_data')
+        user_token = request_data.get('token')
+
+        if not user_id or not graph_name or not graph_data:
+            return jsonify({'status': 'error', 'message': 'Missing user ID, graph name, or graph data'}), 400
+
+        # Verify the user token
+        if not verify_user_token(user_id, user_token):
+            return jsonify({'status': 'error', 'message': 'Invalid user token'}), 403
+
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        # Check if the user already has a graph with the same name
+        query = "SELECT id FROM user_graphs WHERE user_id = %s AND name = %s"
+        cursor.execute(query, (user_id, graph_name))
+        existing_graph = cursor.fetchone()
+
+        if existing_graph:
+            # Update the existing graph
+            update_query = """
+            UPDATE user_graphs
+            SET graph_data = %s, created_at = CURRENT_TIMESTAMP
+            WHERE user_id = %s AND name = %s
+            """
+            cursor.execute(update_query, (json.dumps(graph_data), user_id, graph_name))
+        else:
+            # Insert new graph
+            insert_query = """
+            INSERT INTO user_graphs (user_id, name, graph_data, created_at)
+            VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+            """
+            cursor.execute(insert_query, (user_id, graph_name, json.dumps(graph_data)))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({'status': 'success', 'message': 'Graph saved successfully'})
+    except Exception as e:
+        print(f"Error saving graph: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/get-saved-graphs', methods=['GET'])
+def get_saved_graphs():
+    user_id = request.args.get('user_id')
+    user_token = request.args.get('token')
+
+    # Verify user token
+    if not verify_user_token(user_id, user_token):
+        return jsonify({'status': 'error', 'message': 'Invalid user token'}), 403
+
+    # Check if the user ID is provided
+    if not user_id:
+        return jsonify({'status': 'error', 'message': 'Missing user ID'}), 400
+
+    conn = connect_to_db()
+    cursor = conn.cursor()
+
+    query = "SELECT id, name FROM user_graphs WHERE user_id = %s"
+    cursor.execute(query, (user_id,))
+    graphs = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    graph_list = [{'id': graph[0], 'name': graph[1]} for graph in graphs]
+    return jsonify({'status': 'success', 'graphs': graph_list})
+
+@app.route('/api/load-graph', methods=['POST'])
+def load_graph():
+    try:
+        request_data = request.get_json()
+
+        # Extract the user ID, graph name, and user token from the request
+        user_id = request_data.get('user_id')
+        graph_name = request_data.get('name')
+        user_token = request_data.get('token')
+
+        if not user_id or not graph_name:
+            return jsonify({'status': 'error', 'message': 'Missing user ID or graph name'}), 400
+
+        # Verify the user token
+        if not verify_user_token(user_id, user_token):
+            return jsonify({'status': 'error', 'message': 'Invalid user token'}), 403
+
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        # Query to get the graph data for the given user and graph name
+        query = "SELECT graph_data FROM user_graphs WHERE user_id = %s AND name = %s"
+        cursor.execute(query, (user_id, graph_name))
+        graph = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        # If no graph is found, return an error
+        if not graph:
+            return jsonify({'status': 'error', 'message': 'Graph not found'}), 404
+
+        # Return the graph data
+        return jsonify({'status': 'success', 'graph_data': graph[0]})
+    
+    except Exception as e:
+        print(f"Error loading graph: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 def get_date_delta_days_ago(delta):
     date_days_ago = datetime.now() - timedelta(delta)
@@ -204,6 +409,8 @@ def handle_fetch_data(data):
     nodes = graph_json.get("nodes", [])
     symbol = None
     print(nodes)
+    # PARSING
+    ''' ici a la place d'iteration faut rajouter une fonction'''
     # Iterate over nodes to find the symbol
     for node in nodes:
         if node.get("type") == "custom/fetch":

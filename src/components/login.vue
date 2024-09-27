@@ -68,9 +68,53 @@ const editableUser = reactive({
 })
 const defaultProfileImage = './assets/default.png' // Make sure to set this to an actual image path
 
-// Function to toggle the user info modal
+// Function to toggle the user info modal and fetch user data from the backend
 function toggleUserInfo() {
-  showUserInfo.value = !showUserInfo.value
+  if (!showUserInfo.value) {
+    // Get user id and token from localStorage
+    const userId = localStorage.getItem('userId')
+    const userToken = localStorage.getItem('userToken')
+
+    if (userId && userToken) {
+      // Send a request to fetch user data from the backend
+      const requestData = {
+        id: userId,
+        token: userToken
+      }
+
+      fetch('https://pve.finance/api/get-user-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === 'success') {
+            // Update the editableUser with the fetched user info
+            editableUser.first_name = data.user_info.first_name
+            editableUser.last_name = data.user_info.last_name
+            editableUser.username = data.user_info.username
+            editableUser.key = data.user_info.key
+            editableUser.key_secret = data.user_info.key_secret
+
+            // Open the modal to display user info
+            showUserInfo.value = true
+          } else {
+            console.error('Error fetching user info:', data.message)
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching user info:', error)
+        })
+    } else {
+      console.error('User ID or token not found in localStorage')
+    }
+  } else {
+    // Close the modal
+    showUserInfo.value = false
+  }
 }
 
 // Function to handle the user login via Telegram
@@ -105,6 +149,7 @@ window.onTelegramAuth = function (user) {
       if (data.status === 'success') {
         // Save the token to localStorage
         localStorage.setItem('userToken', data.token)
+        localStorage.setItem('userId', user.id)
         console.log('Token saved to localStorage:', data.token)
       }
     })
@@ -119,45 +164,23 @@ window.onTelegramAuth = function (user) {
   }
 }
 
-// Function to fetch user data from the backend
-function fetchUserData(userId) {
-  fetch('https://pve.finance/api/user-data', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ user: { id: userId } })
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.status === 'success' && data.user_info) {
-        const userData = data.user_info
-        // Populate editableUser with fetched data
-        editableUser.first_name = userData.first_name
-        editableUser.last_name = userData.last_name
-        editableUser.username = userData.username
-        editableUser.key = userData.key || ''
-        editableUser.key_secret = userData.key_secret || ''
-        // Set userInfo for general display
-        userInfo.value = userData
-      } else {
-        console.error('User data not found or error occurred')
-      }
-    })
-    .catch((error) => {
-      console.error('Error fetching user data:', error)
-    })
-}
-
 // Function to send updated user data to the backend
 function saveUserData() {
+  const userToken = localStorage.getItem('userToken')
+
+  if (!userToken) {
+    console.error('User token not found')
+    return
+  }
+
   const updatedUser = {
     id: userInfo.value.id,
     first_name: editableUser.first_name,
     last_name: editableUser.last_name,
     username: editableUser.username,
     key: editableUser.key,
-    key_secret: editableUser.key_secret
+    key_secret: editableUser.key_secret,
+    token: userToken // Include the token in the request body
   }
 
   // Send the updated data to the backend
@@ -171,16 +194,13 @@ function saveUserData() {
     .then((response) => response.json())
     .then((data) => {
       console.log('Response from server:', data)
-      toggleUserInfo() // Close the modal
+      if (data.status === 'success') {
+        toggleUserInfo() // Close the modal if the update was successful
+      }
     })
     .catch((error) => {
       console.error('Error updating user data:', error)
     })
-}
-
-// Handle profile image error
-function handleImageError(event) {
-  event.target.src = defaultProfileImage // Fallback to default image
 }
 
 // Dynamically load the Telegram login widget script
@@ -190,7 +210,7 @@ onMounted(() => {
     // If user info is already in local storage, set user state
     userInfo.value = user
     userLoggedIn.value = true
-    fetchUserData(user.id) // Fetch user data from backend
+    //fetchUserData(user.id) // Fetch user data from backend
   } else {
     // Otherwise, load the Telegram login widget
     const script = document.createElement('script')
