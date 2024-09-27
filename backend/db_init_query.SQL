@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS candles (
 );
 
 CREATE TABLE user_graphs (
-    id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL, 
     graph_data JSONB NOT NULL, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
