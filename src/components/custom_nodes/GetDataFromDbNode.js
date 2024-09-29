@@ -1,7 +1,7 @@
 // Import LiteGraph
 import { LiteGraph } from 'litegraph.js'
 
-export function GetDataFromDb() {
+export function GetDataFromDbNode() {
   // this.addInput('Data', 'number')
   this.addOutput ("Open", "dataframe");
   this.addOutput ("High", "dataframe");
@@ -23,7 +23,7 @@ export function GetDataFromDb() {
 }
 
 // Set the title for the node
-GetDataFromDb.title = 'Get data From DB'
+GetDataFromDbNode.title = 'Get data From DB'
 
 // Register the node with LiteGraph
-LiteGraph.registerNodeType('custom/data/get', GetDataFromDb)
+LiteGraph.registerNodeType('custom/data/get', GetDataFromDbNode)
