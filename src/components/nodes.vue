@@ -20,7 +20,7 @@
       </option>
     </select>
 
-    <!-- <button @click="loadGraphFromServer">Load Graph</button> -->
+    <button @click="compileGraph">Compile</button>
   </div>
   <div class="graph-container">
     <canvas id="mycanvas"></canvas>
@@ -33,7 +33,6 @@ import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js'
 import 'litegraph.js/css/litegraph.css'
 
 // Import your custom nodes
-import './custom_nodes/FetchDataNode.js'
 import './custom_nodes/VisualizeDataNode.js'
 import './custom_nodes/GetDataFromDbNode.js'
 import './custom_nodes/MultiplyColumnNode.js'
@@ -68,11 +67,6 @@ onMounted(() => {
   graph.value = new LGraph()
   graphCanvas.value = new LGraphCanvas('#mycanvas', graph.value)
 
-  // Create FetchDataNode
-  const fetchDataNode = LiteGraph.createNode('custom/fetch')
-  fetchDataNode.pos = [200, 200]
-  graph.value.add(fetchDataNode)
-
   // Create VisualizeDataNode
   const visualizeNode = LiteGraph.createNode('custom/vizualize')
   visualizeNode.pos = [600, 200]
@@ -82,7 +76,6 @@ onMounted(() => {
   const getdataNode = LiteGraph.createNode('custom/data/get')
   getdataNode.pos = [900, 200]
   graph.value.add(getdataNode)
-
 
   // Create MultiplityColumnNode
   const multiplycolumnNode = LiteGraph.createNode('custom/data/multiplycolumn')
@@ -120,6 +113,41 @@ onMounted(() => {
   window.addEventListener('resize', resizeCanvas)
 })
 
+function compileGraph() {
+  const userId = localStorage.getItem('userId')
+  const userToken = localStorage.getItem('userToken')
+
+  if (!selectedGraph.value) {
+    alert('Please select a graph to compile')
+    return
+  }
+
+  const requestData = {
+    user_id: userId,
+    token: userToken,
+    name: selectedGraph.value // Send the selected graph name
+  }
+
+  // Send the request to the backend
+  fetch('https://pve.finance/api/compile-graph', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestData)
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === 'success') {
+        alert('Graph compiled successfully.')
+      } else {
+        alert(`Error compiling graph: ${data.message}`)
+      }
+    })
+    .catch((error) => {
+      console.error('Error compiling graph:', error)
+    })
+}
 function fetchSavedGraphs() {
   const userId = localStorage.getItem('userId')
   const userToken = localStorage.getItem('userToken')

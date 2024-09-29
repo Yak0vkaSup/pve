@@ -374,20 +374,56 @@ def load_graph():
     except Exception as e:
         print(f"Error loading graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+    
+@app.route('/api/compile-graph', methods=['POST'])
+def compile_graph():
+    try:
+        # Extract request data
+        request_data = request.get_json()
+
+        # Extract user details
+        user_id = request_data.get('user_id')
+        user_token = request_data.get('token')
+        graph_name = request_data.get('name')
+
+        # Check for missing data
+        if not user_id or not graph_name or not user_token:
+            return jsonify({'status': 'error', 'message': 'Missing user ID, graph name, or token'}), 400
+
+        # Verify the user token
+        if not verify_user_token(user_id, user_token):
+            return jsonify({'status': 'error', 'message': 'Invalid user token'}), 403
+
+        # Connect to the database
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        # Fetch the graph data
+        query = "SELECT graph_data FROM user_graphs WHERE user_id = %s AND name = %s"
+        cursor.execute(query, (user_id, graph_name))
+        graph = cursor.fetchone()
+
+        # If no graph is found, return an error
+        if not graph:
+            return jsonify({'status': 'error', 'message': 'Graph not found'}), 404
+
+        # Assuming we have the graph data, here we perform the "compilation"
+        # For now, just return a success message.
+        # TODO: Replace this with the actual compilation logic
+        compiled_result = "Compiled successfully"  # Placeholder compilation result
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({'status': 'success', 'message': compiled_result})
+    except Exception as e:
+        print(f"Error compiling graph: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 def get_date_delta_days_ago(delta):
     date_days_ago = datetime.now() - timedelta(delta)
     return date_days_ago.strftime('%Y-%m-%d')
 
-@app.route('/api/receive-graph', methods=['POST'])
-def receive_graph():
-    global graph_json
-    graph_json = request.get_json()
-    print('Received graph JSON:')
-    print(graph_json)
-    # Notify all connected clients that the graph has been updated
-    socketio.emit('graph_updated', {'message': 'Graph has been updated'})
-    return jsonify({'status': 'success', 'message': 'Graph received'})
 
 @socketio.on('connect')
 def handle_connect():
