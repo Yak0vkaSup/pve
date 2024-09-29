@@ -20,7 +20,7 @@
       </option>
     </select>
 
-    <!-- <button @click="loadGraphFromServer">Load Graph</button> -->
+    <button @click="loadGraphFromServer">Compile</button>
   </div>
   <div class="graph-container">
     <canvas id="mycanvas"></canvas>
