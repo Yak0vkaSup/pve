@@ -4,7 +4,7 @@ import { LiteGraph } from 'litegraph.js'
 export function GetAllIndicatorsNode() {
     // Initialize node with a single input and output
     this.addInput("Indicator", "dataframe");
-    this.addOutput("Df", "dataframe");
+    this.addOutput("List of indicators", "list");
 
     // Initial properties
     this.properties = {
@@ -18,6 +18,11 @@ export function GetAllIndicatorsNode() {
         this.properties.numInputs += 1;
         this.updateInputs();
     });
+    this.addWidget("button", "Delete Input", null, () => {
+      // Increment numInputs and update inputs when button is pressed
+      this.properties.numInputs += -1;
+      this.updateInputs();
+  });
 
     // Method to dynamically add inputs based on numInputs property
     this.updateInputs = function() {
