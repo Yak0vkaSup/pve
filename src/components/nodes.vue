@@ -70,12 +70,12 @@ onMounted(() => {
 
   // Create VisualizeDataNode
   const visualizeNode = LiteGraph.createNode('custom/vizualize')
-  visualizeNode.pos = [600, 200]
+  visualizeNode.pos = [900, 200]
   graph.value.add(visualizeNode)
 
   // Create GetDataFromDbNode
   const getdataNode = LiteGraph.createNode('custom/data/get')
-  getdataNode.pos = [900, 200]
+  getdataNode.pos = [600, 200]
   graph.value.add(getdataNode)
 
   // Create GetAllIndicatorsNode
