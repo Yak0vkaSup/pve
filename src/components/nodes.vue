@@ -20,7 +20,7 @@
       </option>
     </select>
 
-    <button @click="loadGraphFromServer">Compile</button>
+    <button @click="compileGraph">Compile</button>
   </div>
   <div class="graph-container">
     <canvas id="mycanvas"></canvas>
@@ -82,7 +82,6 @@ onMounted(() => {
   getdataNode.pos = [900, 200]
   graph.value.add(getdataNode)
 
-
   // Create MultiplityColumnNode
   const multiplycolumnNode = LiteGraph.createNode('custom/data/multiplycolumn')
   multiplycolumnNode.pos = [1200, 200]
@@ -97,7 +96,6 @@ onMounted(() => {
   const BollingerNode = LiteGraph.createNode('custom/indicators/bollinger')
   BollingerNode.pos = [1200, 400]
   graph.value.add(BollingerNode)
-
 
   // Connect the nodes
   fetchDataNode.connect(0, visualizeNode, 0)
@@ -114,6 +112,41 @@ onMounted(() => {
   window.addEventListener('resize', resizeCanvas)
 })
 
+function compileGraph() {
+  const userId = localStorage.getItem('userId')
+  const userToken = localStorage.getItem('userToken')
+
+  if (!selectedGraph.value) {
+    alert('Please select a graph to compile')
+    return
+  }
+
+  const requestData = {
+    user_id: userId,
+    token: userToken,
+    name: selectedGraph.value // Send the selected graph name
+  }
+
+  // Send the request to the backend
+  fetch('https://pve.finance/api/compile-graph', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestData)
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === 'success') {
+        alert('Graph compiled successfully.')
+      } else {
+        alert(`Error compiling graph: ${data.message}`)
+      }
+    })
+    .catch((error) => {
+      console.error('Error compiling graph:', error)
+    })
+}
 function fetchSavedGraphs() {
   const userId = localStorage.getItem('userId')
   const userToken = localStorage.getItem('userToken')
