@@ -37,8 +37,9 @@ import './custom_nodes/FetchDataNode.js'
 import './custom_nodes/VisualizeDataNode.js'
 import './custom_nodes/GetDataFromDbNode.js'
 import './custom_nodes/MultiplyColumnNode.js'
-import './custom_nodes/RSINode.js'
-import './custom_nodes/BollingerNode.js'
+import './custom_nodes/indicators/RSINode.js'
+import './custom_nodes/indicators/BollingerNode.js'
+import './custom_nodes/indicators/MaNode.js'
 
 const graph = ref(null)
 const graphCanvas = ref(null)
@@ -94,9 +95,14 @@ onMounted(() => {
   graph.value.add(RSINode)
 
   // Create BollingerNode
-  const BollingerNode = LiteGraph.createNode('custom/indicators/bollinger')
-  BollingerNode.pos = [1200, 400]
-  graph.value.add(BollingerNode)
+  const bollingerNode = LiteGraph.createNode('custom/indicators/bollinger')
+  bollingerNode.pos = [1200, 400]
+  graph.value.add(bollingerNode)
+
+  // Create MaNode
+  const maNode = LiteGraph.createNode('custom/indicators/ma')
+  maNode.pos = [1200, 600]
+  graph.value.add(maNode)
 
 
   // Connect the nodes
