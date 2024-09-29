@@ -7,15 +7,16 @@ export function MaNode() {
   this.addOutput ("ma", "dataframe");
 
   this.properties = { 
-    windows : 7,
+    Window : 7,
+    Mode : 'ema'
    };
 
    this.addWidget(
     'combo',
-    'Precision',
-    this.properties.precision,
+    'Mode',
+    this.properties.Mode,
     (value) => {
-      this.properties.precision = value
+      this.properties.Mode = value
     },
     { values: ["dma", "ema", "hma", "rma", "sinwma", "sma", "swma", "tema", "trima","wma","zlma"] }
   );

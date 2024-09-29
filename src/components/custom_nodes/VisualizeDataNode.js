@@ -6,6 +6,7 @@ export function VizualizeData() {
   this.addInput('High', 'dataframe')
   this.addInput('Low', 'dataframe')
   this.addInput('Close', 'dataframe')
+  this.addInput('Indicators list', 'list')
 }
 
 // Set the title for the node
