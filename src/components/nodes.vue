@@ -79,7 +79,7 @@ onMounted(() => {
   graph.value.add(getdataNode)
 
   // Create GetAllIndicatorsNode
-  const getAllIndicatorsNode = LiteGraph.createNode('custom/data/get')
+  const getAllIndicatorsNode = LiteGraph.createNode('custom/data/indicatorslist')
   getAllIndicatorsNode.pos = [900, 200]
   graph.value.add(getAllIndicatorsNode)
 
