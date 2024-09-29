@@ -4,9 +4,9 @@ import { LiteGraph } from 'litegraph.js'
 export function BollingerNode() {
   // this.addInput('Data', 'number')
   this.addInput ("Df","dataframe")
-  this.addOutput ("Df Lower", "dataframe");
-  this.addOutput ("Df Mid", "dataframe");
-  this.addOutput ("Df Upper", "dataframe");
+  this.addOutput ("Lower", "dataframe");
+  this.addOutput ("Mid", "dataframe");
+  this.addOutput ("Upper", "dataframe");
 
   this.properties = { 
     windows : 7,
