@@ -12,7 +12,7 @@ export function RSINode() {
 }
 
 // Set the title for the node
-RSINode.title = 'Add indicator'
+RSINode.title = 'RSI'
 
 // Register the node with LiteGraph
 LiteGraph.registerNodeType('custom/indicators/rsi', RSINode)

@@ -1,7 +1,7 @@
 // Import LiteGraph
 import { LiteGraph } from 'litegraph.js'
 
-export function MultiplyColumn() {
+export function MultiplyColumnNode() {
   // this.addInput('Data', 'number')
   this.addInput ("Df","dataframe")
   this.addOutput ("Df", "dataframe");
@@ -12,7 +12,7 @@ export function MultiplyColumn() {
 }
 
 // Set the title for the node
-MultiplyColumn.title = 'Multiply column on integer'
+MultiplyColumnNode.title = 'Multiply column on integer'
 
 // Register the node with LiteGraph
-LiteGraph.registerNodeType('custom/data/multiplycolumn', MultiplyColumn)
+LiteGraph.registerNodeType('custom/data/multiplycolumnnode', MultiplyColumnNode)
