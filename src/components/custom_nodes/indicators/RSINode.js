@@ -3,8 +3,8 @@ import { LiteGraph } from 'litegraph.js'
 
 export function RSINode() {
   // this.addInput('Data', 'number')
-  this.addInput ("Df","dataframe")
-  this.addOutput ("Df", "dataframe");
+  this.addInput ("Close","dataframe")
+  this.addOutput ("rsi", "dataframe");
 
   this.properties = { 
     windows : 7,
