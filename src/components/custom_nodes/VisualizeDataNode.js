@@ -2,14 +2,10 @@
 import { LiteGraph } from 'litegraph.js'
 
 export function VizualizeData() {
-  this.addInput('Data', 'number')
-  this.properties = { precision: 1 }
-
-  // Add a button widget to the node
-  this.addWidget('button', 'Update Chart', null, () => {
-    // When the button is clicked, trigger an event
-    this.sendGraphToServer()
-  })
+  this.addInput('Open', 'dataframe')
+  this.addInput('High', 'dataframe')
+  this.addInput('Low', 'dataframe')
+  this.addInput('Close', 'dataframe')
 }
 
 // Set the title for the node

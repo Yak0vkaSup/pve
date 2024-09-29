@@ -33,13 +33,12 @@ import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js'
 import 'litegraph.js/css/litegraph.css'
 
 // Import your custom nodes
-import './custom_nodes/FetchDataNode.js'
 import './custom_nodes/VisualizeDataNode.js'
 import './custom_nodes/GetDataFromDbNode.js'
 import './custom_nodes/MultiplyColumnNode.js'
 import './custom_nodes/RSINode.js'
 import './custom_nodes/BollingerNode.js'
-
+import './custom_nodes/MyAddNode.js'
 const graph = ref(null)
 const graphCanvas = ref(null)
 const graphName = ref('')
@@ -66,11 +65,6 @@ onMounted(() => {
   // Initialize the graph and canvas
   graph.value = new LGraph()
   graphCanvas.value = new LGraphCanvas('#mycanvas', graph.value)
-
-  // Create FetchDataNode
-  const fetchDataNode = LiteGraph.createNode('custom/fetch')
-  fetchDataNode.pos = [200, 200]
-  graph.value.add(fetchDataNode)
 
   // Create VisualizeDataNode
   const visualizeNode = LiteGraph.createNode('custom/vizualize')
