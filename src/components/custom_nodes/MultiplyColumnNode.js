@@ -7,12 +7,12 @@ export function MultiplyColumnNode() {
   this.addOutput ("Df", "dataframe");
 
   this.properties = { 
-    integer : 1,
+    factor : 1,
    };
 }
 
 // Set the title for the node
-MultiplyColumnNode.title = 'Multiply column on integer'
+MultiplyColumnNode.title = 'Multiply column'
 
 // Register the node with LiteGraph
 LiteGraph.registerNodeType('custom/data/multiplycolumnnode', MultiplyColumnNode)
