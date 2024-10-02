@@ -19,9 +19,7 @@ from nodes.nodes import pve
 from flask_socketio import join_room, leave_room
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-# socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
-socketio = SocketIO(app, ping_timeout=300, ping_interval=25)  # Adjust according to the compilation duration
-
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 graph_json = None
 
 def connect_to_db():
