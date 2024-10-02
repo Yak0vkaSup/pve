@@ -13,7 +13,7 @@ import base64
 import binascii
 import uuid
 import json
-
+from nodes.nodes import pve
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
@@ -381,7 +381,6 @@ def compile_graph():
     try:
         # Extract request data
         request_data = request.get_json()
-
         # Extract user details
         user_id = request_data.get('user_id')
         user_token = request_data.get('token')
@@ -408,9 +407,8 @@ def compile_graph():
         if not graph:
             return jsonify({'status': 'error', 'message': 'Graph not found'}), 404
 
-        # Assuming we have the graph data, here we perform the "compilation"
-        # For now, just return a success message.
-        # TODO: Replace this with the actual compilation logic
+        df = pve(str(json.dumps(graph[0], indent=4)))
+        print(df)
         compiled_result = "Compiled successfully"  # Placeholder compilation result
 
         cursor.close()
@@ -421,10 +419,6 @@ def compile_graph():
         print(f"Error compiling graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-def get_date_delta_days_ago(delta):
-    date_days_ago = datetime.now() - timedelta(delta)
-    return date_days_ago.strftime('%Y-%m-%d')
-
 
 @socketio.on('connect')
 def handle_connect():
@@ -433,57 +427,6 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
-
-@socketio.on('fetch_data')
-def handle_fetch_data(data):
-
-    global graph_json
-    # Extract symbol from graph_json
-    if not graph_json:
-        emit('update_chart', {'status': 'error', 'message': 'Graph JSON not received yet'})
-        return
-
-    nodes = graph_json.get("nodes", [])
-    symbol = None
-    print(nodes)
-    # PARSING
-    ''' ici a la place d'iteration faut rajouter une fonction'''
-    # Iterate over nodes to find the symbol
-    for node in nodes:
-        if node.get("type") == "custom/fetch":
-            properties = node.get("properties", {})
-            symbol = properties.get("symbol")
-            if symbol:
-                break  # Symbol found, exit the loop
-
-    if symbol is None:
-        emit('update_chart', {'status': 'error', 'message': 'Symbol not found in graph JSON'})
-        return
-
-    end_date = datetime.utcnow()
-    start_date = end_date - timedelta(days=15)
-    limit = data.get('limit', 100000)  # Default limit to 100000 rows
-    offset = data.get('offset', 0)  # Default offset to 0 (start from the beginning)
-
-    conn = connect_to_db()
-    query = f"""
-    SELECT timestamp AS date, open, high, low, close, volume
-    FROM candles
-    WHERE symbol = '{symbol}' AND
-          timestamp BETWEEN '{start_date}' AND '{end_date}'
-    ORDER BY timestamp
-    LIMIT {limit} OFFSET {offset};
-    """
-    df = pd.read_sql(query, conn)
-    conn.close()
-
-    # Convert the timestamp to a Unix timestamp in seconds
-    df['date'] = pd.to_datetime(df['date'], utc=True)
-    df['date'] = df['date'].astype(int) // 10**9  # Convert to Unix timestamp in seconds
-
-    result = df.to_dict(orient="records")
-    # Emit the data back to the client
-    emit('update_chart', {'status': 'success', 'data': result})
 
     
 if __name__ == '__main__':

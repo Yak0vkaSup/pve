@@ -8,7 +8,7 @@ import os
 import logging
 from datetime import datetime, timedelta
 import json
-from utils import fetch_data, calculate_ma
+from .utils import fetch_data, calculate_ma
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Node:
@@ -172,11 +172,8 @@ class MaNode(Node):
             self.output_values['MA'] = (None, None)
 
 
-def main():
+def pve(graph_json):
     # Load JSON data (adjusted dates and symbols)
-    graph_json = '''
-    {"extra": {}, "links": [[3, 5, 0, 3, 0, "column"], [4, 5, 3, 4, 0, "column"]], "nodes": [{"id": 4, "pos": [572, 238], "mode": 0, "size": {"0": 210, "1": 58}, "type": "custom/indicators/ma", "flags": {}, "order": 2, "inputs": [{"link": 4, "name": "Close", "type": "column"}], "outputs": [{"name": "MA", "type": "column", "links": null}], "properties": {"mode": "ema", "windows": 7}}, {"id": 5, "pos": [321, 146], "mode": 0, "size": {"0": 140, "1": 106}, "type": "custom/getdata", "flags": {}, "order": 0, "outputs": [{"name": "open", "type": "column", "links": [3], "slot_index": 0}, {"name": "high", "type": "column", "links": null}, {"name": "low", "type": "column", "links": null}, {"name": "close", "type": "column", "links": [4], "slot_index": 3}, {"name": "volume", "type": "column", "links": null}], "properties": {"symbol": "BTCUSDT", "endDate": "2024/10/02", "startDate": "2024/09/27"}}, {"id": 3, "pos": [604, 129], "mode": 0, "size": {"0": 210, "1": 58}, "type": "custom/indicators/ma", "flags": {}, "order": 1, "inputs": [{"link": 3, "name": "Close", "type": "column"}], "outputs": [{"name": "MA", "type": "column", "links": null}], "properties": {"mode": "sinwma", "windows": 7}}], "config": {}, "groups": [], "version": 0.4, "last_link_id": 4, "last_node_id": 5}
-    '''
     data = json.loads(graph_json)
 
     # Build nodes and connections
@@ -201,18 +198,25 @@ def main():
                 if isinstance(output_value, tuple):
                     df, column_name = output_value
                     if df is not None and column_name is not None:
-                        print(df[column_name].head(50))
+                        # print(df[column_name].head(50))
+                        return df
                     elif df is not None and column_name is None:
                         print("Column name is None")
                     else:
                         print("DataFrame is None")
                 elif isinstance(output_value, pd.DataFrame):
-                    print(output_value.head(50))
+                    # print(output_value.head(50))
+                    print('idk what to write here')
                 else:
                     print(f"Unsupported output value type: {type(output_value)}")
             else:
                 print("No data")
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     graph_json = '''
+#
+#     {"extra": {}, "links": [[3, 5, 0, 3, 0, "column"], [4, 5, 3, 4, 0, "column"], [5, 3, 0, 6, 0, "column"]], "nodes": [{"id": 5, "pos": [265, 126], "mode": 0, "size": {"0": 210, "1": 138}, "type": "custom/getdata", "flags": {}, "order": 0, "outputs": [{"name": "open", "type": "column", "links": [3], "slot_index": 0}, {"name": "high", "type": "column", "links": null}, {"name": "low", "type": "column", "links": null}, {"name": "close", "type": "column", "links": [4], "slot_index": 3}, {"name": "volume", "type": "column", "links": null}], "properties": {"symbol": "ETHUSDT", "endDate": "2024/10/02", "startDate": "2024/09/27"}}, {"id": 4, "pos": [572, 238], "mode": 0, "size": {"0": 210, "1": 58}, "type": "custom/indicators/ma", "flags": {}, "order": 2, "inputs": [{"link": 4, "name": "Close", "type": "column"}], "outputs": [{"name": "MA", "type": "column", "links": null}], "properties": {"mode": "ema", "windows": 7}}, {"id": 3, "pos": [604, 129], "mode": 0, "size": {"0": 210, "1": 58}, "type": "custom/indicators/ma", "flags": {}, "order": 1, "inputs": [{"link": 3, "name": "Close", "type": "column"}], "outputs": [{"name": "MA", "type": "column", "links": [5], "slot_index": 0}], "properties": {"mode": "sinwma", "windows": 7}}, {"id": 6, "pos": [852, 159], "mode": 0, "size": {"0": 210, "1": 58}, "type": "custom/indicators/ma", "flags": {}, "order": 3, "inputs": [{"link": 5, "name": "Close", "type": "column"}], "outputs": [{"name": "MA", "type": "column", "links": null}], "properties": {"mode": "rma", "windows": 7}}], "config": {}, "groups": [], "version": 0.4, "last_link_id": 5, "last_node_id": 6}
+#
+#                 '''
+#     pve(graph_json)
