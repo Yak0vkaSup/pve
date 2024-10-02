@@ -1,29 +1,73 @@
 // Import LiteGraph
 import { LiteGraph } from 'litegraph.js'
+import axios from 'axios'
 
 export function GetDataFromDbNode() {
-  // this.addInput('Data', 'number')
-  this.addOutput('Open', 'dataframe')
-  this.addOutput('High', 'dataframe')
-  this.addOutput('Low', 'dataframe')
-  this.addOutput('Close', 'dataframe')
-  this.addOutput('Volume', 'dataframe')
+  this.addOutput('open', 'column')
+  this.addOutput('high', 'column')
+  this.addOutput('low', 'column')
+  this.addOutput('close', 'column')
+  this.addOutput('volume', 'column')
 
-  const getFormattedDate = () => {
-    const date = new Date()
-    return date.toISOString().split('T')[0].replace(/-/g, '/') // Convert to YYYY/MM/DD
+  const getFormattedDate = (date) => {
+    return date.toISOString().split('T')[0].replace(/-/g, '/')
   }
+
+  const getDateDaysAgo = (days) => {
+    const date = new Date()
+    date.setDate(date.getDate() - days)
+    return date
+  }
+
+  const today = new Date()
+  const fiveDaysAgo = getDateDaysAgo(5)
 
   this.properties = {
-    precision: 1,
-    symbol: 'TONUSDT',
-    startDate: getFormattedDate(),
-    endDate: getFormattedDate()
+    symbol: 'BTCUSDT',
+    startDate: getFormattedDate(fiveDaysAgo),
+    endDate: getFormattedDate(today)
   }
+
+  const getSymbolsByTurnover = async (turnover) => {
+    try {
+      const response = await axios.get('https://api.bybit.com/v5/market/tickers', {
+        params: { category: 'linear' }
+      })
+
+      if (response.data.retCode !== 0) {
+        console.error('Failed to get tickers info')
+        return []
+      }
+
+      const filteredSymbols = response.data.result.list
+        .filter((ticker) => parseFloat(ticker.turnover24h) > turnover)
+        .map((ticker) => ticker.symbol)
+
+      console.info(`Symbols with turnover greater than ${turnover}:`, filteredSymbols)
+      return filteredSymbols
+    } catch (error) {
+      console.error('Error fetching symbols:', error)
+      return []
+    }
+  }
+
+  getSymbolsByTurnover(50000000).then((symbols) => {
+    this.addWidget(
+      'combo',
+      'symbol',
+      this.properties.symbol,
+      (value) => {
+        this.properties.symbol = value
+      },
+      {
+        values: symbols.length > 0 ? symbols : ['BTCUSDT', 'ETHUSDT', 'BNBUSDT']
+      }
+    )
+  })
+
+  this.serialiaz_widgets = true
 }
 
-// Set the title for the node
 GetDataFromDbNode.title = 'Get data'
 
-// Register the node with LiteGraph
-LiteGraph.registerNodeType('custom/data/get', GetDataFromDbNode)
+LiteGraph.registerNodeType('custom/getdata', GetDataFromDbNode)

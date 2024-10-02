@@ -3,26 +3,27 @@ import { LiteGraph } from 'litegraph.js'
 
 export function MaNode() {
   // this.addInput('Data', 'number')
-  this.addInput ("Close","dataframe")
-  this.addOutput ("ma", "dataframe");
+  this.addInput('Close', 'column')
+  this.addOutput('MA', 'column')
 
-  this.properties = { 
-    windows : 7,
-   };
+  this.properties = {
+    windows: 7,
+    mode: 'ema'
+  }
 
-   this.addWidget(
+  this.addWidget(
     'combo',
-    'Precision',
-    this.properties.precision,
+    'mode',
+    this.properties.mode,
     (value) => {
-      this.properties.precision = value
+      this.properties.mode = value
     },
-    { values: ["dma", "ema", "hma", "rma", "sinwma", "sma", "swma", "tema", "trima","wma","zlma"] }
-  );
+    {
+      values: ['dma', 'ema', 'hma', 'rma', 'sinwma', 'sma', 'swma', 'tema', 'trima', 'wma', 'zlma']
+    }
+  )
   this.serialiaz_widgets = true
-
 }
-
 
 // Set the title for the node
 MaNode.title = 'MA'
