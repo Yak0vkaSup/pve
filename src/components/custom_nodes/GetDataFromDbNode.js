@@ -65,7 +65,7 @@ export function GetDataFromDbNode() {
     )
   })
 
-  this.serialiaz_widgets = true
+  this.serialize_widgets = true
 }
 
 GetDataFromDbNode.title = 'Get data'

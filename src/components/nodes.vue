@@ -128,31 +128,26 @@ function compileGraph() {
     return
   }
 
-  const requestData = {
-    user_id: userId,
-    token: userToken,
-    name: selectedGraph.value // Send the selected graph name
-  }
-
-  // Send the request to the backend
-  fetch('https://pve.finance/api/compile-graph', {
+  fetch('/api/compile-graph', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(requestData)
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user_id: userId,
+      token: userToken,
+      name: selectedGraph.value,
+    })
   })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.status === 'success') {
-        alert('Graph compiled successfully.')
-      } else {
-        alert(`Error compiling graph: ${data.message}`)
-      }
-    })
-    .catch((error) => {
-      console.error('Error compiling graph:', error)
-    })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      console.log('Compilation started')
+    } else {
+      console.error('Error compiling graph:', data.message)
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error)
+  })
 }
 function fetchSavedGraphs() {
   const userId = localStorage.getItem('userId')

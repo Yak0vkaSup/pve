@@ -1,3 +1,5 @@
+from time import perf_counter
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
@@ -14,9 +16,11 @@ import binascii
 import uuid
 import json
 from nodes.nodes import pve
+from flask_socketio import join_room, leave_room
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+# socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, ping_timeout=300, ping_interval=25)  # Adjust according to the compilation duration
 
 graph_json = None
 
@@ -375,7 +379,7 @@ def load_graph():
     except Exception as e:
         print(f"Error loading graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-    
+
 @app.route('/api/compile-graph', methods=['POST'])
 def compile_graph():
     try:
@@ -407,18 +411,26 @@ def compile_graph():
         if not graph:
             return jsonify({'status': 'error', 'message': 'Graph not found'}), 404
 
+        # Process the graph and get the DataFrame
         df = pve(str(json.dumps(graph[0], indent=4)))
         print(df)
-        compiled_result = "Compiled successfully"  # Placeholder compilation result
 
+        # Convert DataFrame to JSON serializable format
+        # Ensure that 'date' is in UNIX timestamp (seconds)
+        df['date'] = df['date'].astype(int) // 10**9
+
+        data = df.to_dict('records')
+        # Close the database connection
         cursor.close()
         conn.close()
+        user_id = str(user_id)  # Ensure user_id is a string
+        socketio.emit('update_chart', {'status': 'success', 'data': data}, room=user_id)
+        print(f"Emitted 'update_chart' to room: {user_id}")
+        return jsonify({'status': 'success', 'message': 'Compiled and data sent to chart'})
 
-        return jsonify({'status': 'success', 'message': compiled_result})
     except Exception as e:
         print(f"Error compiling graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
 
 @socketio.on('connect')
 def handle_connect():
@@ -428,6 +440,9 @@ def handle_connect():
 def handle_disconnect():
     print('Client disconnected')
 
-    
+@socketio.on('update_chart')
+def update_chart():
+    print('Chart updated')
+
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5001, debug=True)

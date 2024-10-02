@@ -47,18 +47,10 @@ onMounted(() => {
   socket.on('connect', () => {
     console.log('Connected to server via WebSocket')
     // Fetch data immediately upon connection
-    fetchDataFromServer()
   })
 
   socket.on('disconnect', () => {
     console.log('Disconnected from server')
-  })
-
-  // Listen for 'graph_updated' event
-  socket.on('graph_updated', (message) => {
-    console.log('Graph updated:', message)
-    // Request data from the server
-    fetchDataFromServer()
   })
 
   // Listen for 'update_chart' event with new data
@@ -86,13 +78,6 @@ onBeforeUnmount(() => {
   }
 })
 
-function fetchDataFromServer() {
-  // Emit 'fetch_data' event to request data
-  socket.emit('fetch_data', {
-    limit: 100000, // You can adjust limit and offset as needed
-    offset: 0
-  })
-}
 
 // Function to update the chart with new data
 function updateChartData(fetchedData) {
