@@ -41,26 +41,43 @@ onMounted(() => {
     wickUpColor: '#4caf50'
   })
 
-  // Initialize Socket.IO client
-  socket = io('https://pve.finance', { path: '/api/ws/socket.io' })
+  // Get user ID and token from local storage
+  const userId = localStorage.getItem('userId')
+  const userToken = localStorage.getItem('userToken')
 
-  socket.on('connect', () => {
-    console.log('Connected to server via WebSocket')
-    // Fetch data immediately upon connection
+  // Initialize Socket.IO client with query parameters
+  socket = io('https://pve.finance', {
+    path: '/api/ws/socket.io',
+    query: {
+      user_id: userId,
+      token: userToken
+    },
+    transports: ['websocket']
   })
+  socket.on('connect', () => {
+      console.log('Connected to server via WebSocket');
+  });
 
   socket.on('disconnect', () => {
-    console.log('Disconnected from server')
-  })
+      console.log('Disconnected from server');
+  });
 
-  // Listen for 'update_chart' event with new data
+  socket.on('reconnect_attempt', () => {
+      console.log('Attempting to reconnect...');
+  });
+
+  socket.on('connect_error', (error) => {
+      console.error('Connection error:', error);
+  });
+
   socket.on('update_chart', (response) => {
-    if (response.status === 'success') {
-      updateChartData(response.data)
-    } else {
-      console.error('Error updating chart:', response.message)
-    }
-  })
+      console.log('Response from server:', response);
+      if (response.status === 'success') {
+          updateChartData(response.data);
+      } else {
+          console.error('Error updating chart:', response.message);
+      }
+  });
 
   // Resize chart on window resize
   window.addEventListener('resize', () => {

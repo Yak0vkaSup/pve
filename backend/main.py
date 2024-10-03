@@ -16,10 +16,15 @@ import binascii
 import uuid
 import json
 from nodes.nodes import pve
-from flask_socketio import join_room, leave_room
+from flask_socketio import join_room, leave_room, disconnect
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app,
+                    logger=True,
+                    cors_allowed_origins="*",
+                    async_mode='eventlet',
+                    engineio_logger=True,
+                    )
 graph_json = None
 
 def connect_to_db():
@@ -411,19 +416,24 @@ def compile_graph():
 
         # Process the graph and get the DataFrame
         df = pve(str(json.dumps(graph[0], indent=4)))
-        print(df)
+
 
         # Convert DataFrame to JSON serializable format
         # Ensure that 'date' is in UNIX timestamp (seconds)
         df['date'] = df['date'].astype(int) // 10**9
-
+        df = df.fillna(value=0)
         data = df.to_dict('records')
+        print(df)
         # Close the database connection
         cursor.close()
         conn.close()
-        user_id = str(user_id)  # Ensure user_id is a string
-        socketio.emit('update_chart', {'status': 'success', 'data': data}, room=user_id)
+
+
+        user_id = str(user_id)
+
+        socketio.emit('update_chart', {'status': 'success', 'data': data}, to=user_id, namespace='/')
         print(f"Emitted 'update_chart' to room: {user_id}")
+
         return jsonify({'status': 'success', 'message': 'Compiled and data sent to chart'})
 
     except Exception as e:
@@ -432,7 +442,17 @@ def compile_graph():
 
 @socketio.on('connect')
 def handle_connect():
-    print('Client connected')
+    user_id = request.args.get('user_id')
+    user_token = request.args.get('token')
+
+    # Verify user token
+    if not verify_user_token(user_id, user_token):
+        print('Invalid user token. Disconnecting client.')
+        return disconnect()
+
+    join_room(user_id)
+    socketio.emit('update_chart', {'status': 'success', 'data': 'pve'}, to=user_id, namespace='/')
+    print(f'Client connected: User ID {user_id}')
 
 @socketio.on('disconnect')
 def handle_disconnect():
