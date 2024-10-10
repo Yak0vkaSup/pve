@@ -423,7 +423,7 @@ def compile_graph():
         df['date'] = df['date'].astype(int) // 10**9
         df = df.fillna(value=0)
         data = df.to_dict('records')
-        print(df)
+        # print(df)
         # Close the database connection
         cursor.close()
         conn.close()
@@ -451,7 +451,6 @@ def handle_connect():
         return disconnect()
 
     join_room(user_id)
-    socketio.emit('update_chart', {'status': 'success', 'data': 'pve'}, to=user_id, namespace='/')
     print(f'Client connected: User ID {user_id}')
 
 @socketio.on('disconnect')

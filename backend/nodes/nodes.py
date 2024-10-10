@@ -70,8 +70,6 @@ def execute_graph(sorted_node_ids, nodes):
         print(f"Executing Node {node_id} of type {node.type}")
         node.execute()
 
-
-
 def build_graph(nodes):
     graph = {}
     in_degree = {}
