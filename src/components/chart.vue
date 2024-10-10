@@ -17,6 +17,7 @@ const lineSeriesMap = {}
 // Variable to store fetched data
 let fetchedData = []
 
+// Function to generate a random color
 function getRandomColor() {
   const letters = '0123456789ABCDEF'
   let color = '#'
@@ -25,6 +26,18 @@ function getRandomColor() {
   }
   return color
 }
+
+// Load saved MA colors from localStorage
+const savedMaColors = JSON.parse(localStorage.getItem('maColors') || '{}')
+
+// Watcher to save MA colors to localStorage whenever they change
+watch(maSettings, (newSettings) => {
+  const maColorsToSave = {}
+  for (const maName in newSettings) {
+    maColorsToSave[maName] = newSettings[maName].color
+  }
+  localStorage.setItem('maColors', JSON.stringify(maColorsToSave))
+}, { deep: true })
 
 onMounted(() => {
   // Initialize the chart
@@ -184,9 +197,9 @@ function updateChartData(data) {
     // Update maSettings with new MAs
     maNames.forEach((maName) => {
       if (!maSettings[maName]) {
-        // Assign default settings
+        // Assign saved color or generate a new one
         maSettings[maName] = {
-          color: getRandomColor(),
+          color: savedMaColors[maName] || getRandomColor(),
           visible: true // By default, MAs are visible
         }
       }
@@ -270,7 +283,6 @@ function updateChartData(data) {
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .chart-container {
