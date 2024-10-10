@@ -31,5 +31,6 @@ coverage
 
 # Backend venv
 /Backend/venv
+backend/nodes/__pycache__
 server.js
 /backend/nodes/__pycache__/
