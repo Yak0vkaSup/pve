@@ -33,10 +33,12 @@ def build_nodes(nodes_data):
         inputs = node_data.get('inputs', [])
         outputs = node_data.get('outputs', [])
 
-        if node_type == 'custom/getdata':
+        if node_type == 'custom/data/getdata':
             node = GetDataNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'custom/indicators/ma':
             node = MaNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'custom/data/multiply':
+            node = MultiplyColumnNode(node_id, node_type, properties, inputs, outputs)
         else:
             node = Node(node_id, node_type, properties, inputs, outputs)
 
@@ -169,6 +171,51 @@ class MaNode(Node):
             print(f"Node {self.id}: Error during MA calculation: {e}")
             self.output_values['MA'] = (None, None)
 
+class MultiplyColumnNode(Node):
+    def execute(self):
+        # Retrieve input data
+        input_slot = 0  # Assuming the input is always at slot 0
+        if input_slot in self.input_connections:
+            origin_node, origin_slot = self.input_connections[input_slot]
+            output_name = origin_node.outputs[origin_slot]['name']
+            input_data = origin_node.output_values.get(output_name)
+        else:
+            logging.warning(f"MultiplyColumnNode {self.id}: No input data.")
+            self.output_values['Result'] = (None, None)
+            return
+
+        if input_data is None or input_data[0] is None:
+            logging.warning(f"MultiplyColumnNode {self.id}: Input data is None.")
+            self.output_values['Result'] = (None, None)
+            return
+
+        df, column_name = input_data
+
+        if df is None or column_name is None:
+            logging.warning(f"MultiplyColumnNode {self.id}: DataFrame or column name is None.")
+            self.output_values['Result'] = (None, None)
+            return
+
+        # Validate 'factor'
+        try:
+            factor = float(self.properties.get('factor', 1.0))
+            if not (0.000 <= factor <= 100.0):
+                raise ValueError(f"'factor' {factor} is out of bounds [0.000, 100.000].")
+        except (ValueError, TypeError) as e:
+            logging.error(f"MultiplyColumnNode {self.id}: Invalid 'factor' value: {e}")
+            self.output_values['Result'] = (df, None)
+            return
+
+        # Perform multiplication
+        try:
+            new_column_name = f"{column_name}_x_{factor}"
+            df[new_column_name] = df[column_name] * factor
+            logging.debug(f"MultiplyColumnNode {self.id}: Created new column '{new_column_name}'.")
+            # Set the output
+            self.output_values['Result'] = (df, new_column_name)
+        except Exception as e:
+            logging.error(f"MultiplyColumnNode {self.id}: Error during multiplication: {e}")
+            self.output_values['Result'] = (None, None)
 
 def pve(graph_json):
     # Load JSON data (adjusted dates and symbols)

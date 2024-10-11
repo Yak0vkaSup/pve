@@ -23,7 +23,7 @@ socketio = SocketIO(app,
                     logger=True,
                     cors_allowed_origins="*",
                     async_mode='eventlet',
-                    engineio_logger=True,
+                    engineio_logger=False,
                     )
 graph_json = None
 
@@ -51,7 +51,7 @@ def receive_telegram_auth():
         try:
             received_hash_bytes = binascii.unhexlify(received_hash)
         except binascii.Error as e:
-            print("Error converting received hash to bytes:", e)
+            # print("Error converting received hash to bytes:", e)
             return jsonify({'status': 'error', 'message': 'Invalid hash format'}), 400
 
         data_check_arr = [f"{key}={value}" for key, value in sorted(user_data.items()) if value != '']
@@ -60,18 +60,18 @@ def receive_telegram_auth():
         computed_hash_bytes = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).digest()
 
         if computed_hash_bytes != received_hash_bytes:
-            print(f"Hash mismatch!\nReceived hash (bytes): {received_hash_bytes}\nComputed hash (bytes): {computed_hash_bytes}")
+            # print(f"Hash mismatch!\nReceived hash (bytes): {received_hash_bytes}\nComputed hash (bytes): {computed_hash_bytes}")
             return jsonify({'status': 'error', 'message': 'Invalid hash, data integrity failed'}), 400
 
         # Optional: Check if auth_date is not too old (e.g., within the last 24 hours)
         current_time = int(time.time())
         if current_time - int(user_data['auth_date']) > 86400:  # 86400 seconds = 24 hours
-            print("Auth data is outdated.")
+            # print("Auth data is outdated.")
             return jsonify({'status': 'error', 'message': 'Auth data is outdated'}), 400
 
         user_token = str(uuid.uuid4())
         save_user_token(user_data, user_token)
-        print("Authorization successful! User token generated:", user_token)
+        # print("Authorization successful! User token generated:", user_token)
 
         # Return a success message<
         return jsonify({
@@ -81,7 +81,7 @@ def receive_telegram_auth():
         })
     except Exception as e:
         # Debug: Print the error message
-        print("Exception occurred:", str(e))
+        # print("Exception occurred:", str(e))
         return jsonify({'status': 'error', 'message': str(e)}), 400
 
 
@@ -101,7 +101,7 @@ def save_user_token(user_data, token):
     cursor = conn.cursor()
 
     if user_id in existing_ids:
-        print('User exists, updating token.')
+        # print('User exists, updating token.')
         # If the user ID exists, update the token
         update_query = """
         UPDATE users
@@ -110,7 +110,7 @@ def save_user_token(user_data, token):
         """
         cursor.execute(update_query, (token, user_id))
     else:
-        print('New user, inserting user data and token.')
+        # print('New user, inserting user data and token.')
         # If the user ID doesn't exist, insert a new record with all user details
         insert_query = """
         INSERT INTO users (id, first_name, last_name, username, usertoken) 
@@ -259,11 +259,11 @@ def verify_user_token(user_id, user_token):
 
         # Fetch the token from the result
         stored_token = result[0]
-        print(stored_token)
+        # print(stored_token)
         # Compare the provided token with the stored token
         return stored_token == user_token
     except Exception as e:
-        print(f"Error verifying user token: {str(e)}")
+        # print(f"Error verifying user token: {str(e)}")
         return False
 
 # Route to save or update the graph in the database
@@ -416,7 +416,7 @@ def compile_graph():
 
         # Process the graph and get the DataFrame
         df = pve(str(json.dumps(graph[0], indent=4)))
-
+        print(graph)
 
         # Convert DataFrame to JSON serializable format
         # Ensure that 'date' is in UNIX timestamp (seconds)

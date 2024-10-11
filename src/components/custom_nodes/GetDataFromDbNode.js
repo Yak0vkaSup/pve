@@ -71,4 +71,4 @@ export function GetDataFromDbNode() {
 
 GetDataFromDbNode.title = 'Get data'
 
-LiteGraph.registerNodeType('custom/getdata', GetDataFromDbNode)
+LiteGraph.registerNodeType('custom/data/getdata', GetDataFromDbNode)
