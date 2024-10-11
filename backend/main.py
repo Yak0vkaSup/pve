@@ -416,7 +416,6 @@ def compile_graph():
 
         # Process the graph and get the DataFrame
         df = pve(str(json.dumps(graph[0], indent=4)))
-        print(graph)
 
         # Convert DataFrame to JSON serializable format
         # Ensure that 'date' is in UNIX timestamp (seconds)
