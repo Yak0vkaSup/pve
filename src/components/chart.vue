@@ -302,7 +302,7 @@ function updateChartData(data) {
   background-color: rgba(0, 0, 0, 0.0); /* Transparent background */
   padding: 8px;
   border-radius: 4px;
-  max-width: 200px;
+  max-width: 800px;
   max-height: 80vh;
   overflow-y: auto;
   display: flex;
@@ -314,6 +314,7 @@ function updateChartData(data) {
   display: flex;
   align-items: center;
   color: #fff;
+
 }
 
 /* Make the MA label smaller */

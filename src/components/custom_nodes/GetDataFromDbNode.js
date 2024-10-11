@@ -1,6 +1,7 @@
 // Import LiteGraph
 import { LiteGraph } from 'litegraph.js'
 import axios from 'axios'
+LiteGraph.clearRegisteredTypes();
 
 export function GetDataFromDbNode() {
   this.addOutput('open', 'column')
@@ -70,4 +71,4 @@ export function GetDataFromDbNode() {
 
 GetDataFromDbNode.title = 'Get data'
 
-LiteGraph.registerNodeType('custom/getdata', GetDataFromDbNode)
+LiteGraph.registerNodeType('custom/data/getdata', GetDataFromDbNode)

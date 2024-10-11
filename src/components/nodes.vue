@@ -33,11 +33,11 @@ import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js'
 import 'litegraph.js/css/litegraph.css'
 
 // Import your custom nodes
-import './custom_nodes/VisualizeDataNode.js'
-import './custom_nodes/GetAllIndicatorsNode.js'
 import './custom_nodes/GetDataFromDbNode.js'
+//import './custom_nodes/VisualizeDataNode.js'
+//import './custom_nodes/indicators/RSINode.js'
+//import './custom_nodes/GetAllIndicatorsNode.js'
 import './custom_nodes/MultiplyColumnNode.js'
-import './custom_nodes/indicators/RSINode.js'
 import './custom_nodes/indicators/BollingerNode.js'
 import './custom_nodes/indicators/MaNode.js'
 
@@ -62,50 +62,51 @@ const resizeCanvas = () => {
 }
 
 onMounted(() => {
+
   resizeCanvas()
 
   // Initialize the graph and canvas
   graph.value = new LGraph()
   graphCanvas.value = new LGraphCanvas('#mycanvas', graph.value)
 
-  // Create VisualizeDataNode
-  const visualizeNode = LiteGraph.createNode('custom/vizualize')
-  visualizeNode.pos = [900, 200]
-  graph.value.add(visualizeNode)
-
-  // Create GetDataFromDbNode
-  const getdataNode = LiteGraph.createNode('custom/data/get')
-  getdataNode.pos = [600, 200]
-  graph.value.add(getdataNode)
-
-  // Create GetAllIndicatorsNode
-  const getAllIndicatorsNode = LiteGraph.createNode('custom/data/indicatorslist')
-  getAllIndicatorsNode.pos = [900, 200]
-  graph.value.add(getAllIndicatorsNode)
-
-  // Create MultiplityColumnNode
-  const multiplycolumnNode = LiteGraph.createNode('custom/data/multiplycolumn')
-  multiplycolumnNode.pos = [1200, 200]
-  graph.value.add(multiplycolumnNode)
-
-  // Create RSINode
-  const RSINode = LiteGraph.createNode('custom/indicators/rsi')
-  RSINode.pos = [1200, 200]
-  graph.value.add(RSINode)
-
-  // Create BollingerNode
-  const bollingerNode = LiteGraph.createNode('custom/indicators/bollinger')
-  bollingerNode.pos = [1200, 400]
-  graph.value.add(bollingerNode)
-
-  // Create MaNode
-  const maNode = LiteGraph.createNode('custom/indicators/ma')
-  maNode.pos = [1200, 600]
-  graph.value.add(maNode)
+  // // Create VisualizeDataNode
+  // const visualizeNode = LiteGraph.createNode('custom/vizualize')
+  // visualizeNode.pos = [900, 200]
+  // graph.value.add(visualizeNode)
+  //
+  // // Create GetDataFromDbNode
+  // const getdataNode = LiteGraph.createNode('custom/data/get')
+  // getdataNode.pos = [600, 200]
+  // graph.value.add(getdataNode)
+  //
+  // // Create GetAllIndicatorsNode
+  // const getAllIndicatorsNode = LiteGraph.createNode('custom/data/indicatorslist')
+  // getAllIndicatorsNode.pos = [900, 200]
+  // graph.value.add(getAllIndicatorsNode)
+  //
+  // // Create MultiplityColumnNode
+  // const multiplycolumnNode = LiteGraph.createNode('custom/data/multiplycolumn')
+  // multiplycolumnNode.pos = [1200, 200]
+  // graph.value.add(multiplycolumnNode)
+  //
+  // // Create RSINode
+  // const RSINode = LiteGraph.createNode('custom/indicators/rsi')
+  // RSINode.pos = [1200, 200]
+  // graph.value.add(RSINode)
+  //
+  // // Create BollingerNode
+  // const bollingerNode = LiteGraph.createNode('custom/indicators/bollinger')
+  // bollingerNode.pos = [1200, 400]
+  // graph.value.add(bollingerNode)
+  //
+  // // Create MaNode
+  // const maNode = LiteGraph.createNode('custom/indicators/ma')
+  // maNode.pos = [1200, 600]
+  // graph.value.add(maNode)
 
 
   // Connect the nodes
-  fetchDataNode.connect(0, visualizeNode, 0)
+  // fetchDataNode.connect(0, visualizeNode, 0)
 
   // Start the graph
   graph.value.start()

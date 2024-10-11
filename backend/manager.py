@@ -209,4 +209,4 @@ if __name__ == '__main__':
     print(symbols)
     num_days = 30 # last days
     update_all_symbols(symbols, num_days)
-    # update_symbols_continuously(symbols)
+    update_symbols_continuously(symbols)
