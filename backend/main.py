@@ -429,8 +429,9 @@ def compile_graph():
 
 
         user_id = str(user_id)
-
         socketio.emit('update_chart', {'status': 'success', 'data': data}, to=user_id, namespace='/')
+
+
         print(f"Emitted 'update_chart' to room: {user_id}")
 
         return jsonify({'status': 'success', 'message': 'Compiled and data sent to chart'})
