@@ -35,11 +35,13 @@ import 'litegraph.js/css/litegraph.css'
 // Import your custom nodes
 import './custom_nodes/GetDataFromDbNode.js'
 import './custom_nodes/VisualizeDataNode.js'
+import './custom_nodes/indicators/HeikenAshiNode.js'
+import './custom_nodes/MultiplyColumnNode.js'
+import './custom_nodes/indicators/MaNode.js'
+
 //import './custom_nodes/indicators/RSINode.js'
 // import './custom_nodes/GetAllIndicatorsNode.js'
-import './custom_nodes/MultiplyColumnNode.js'
-import './custom_nodes/indicators/BollingerNode.js'
-import './custom_nodes/indicators/MaNode.js'
+// import './custom_nodes/indicators/BollingerNode.js'
 
 const graph = ref(null)
 const graphCanvas = ref(null)

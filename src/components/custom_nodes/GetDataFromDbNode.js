@@ -9,7 +9,6 @@ export function GetDataFromDbNode() {
   this.addOutput('low', 'column')
   this.addOutput('close', 'column')
   this.addOutput('volume', 'column')
-
   const getFormattedDate = (date) => {
     return date.toISOString().split('T')[0].replace(/-/g, '/')
   }

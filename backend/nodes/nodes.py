@@ -41,6 +41,9 @@ def build_nodes(nodes_data):
             node = MultiplyColumnNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'custom/data/vizualize':
             node = VizualizeDataNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'custom/indicators/heikin_ashi':
+            node = HeikinAshiNode(node_id, node_type, properties, inputs, outputs)
+
         else:
             node = Node(node_id, node_type, properties, inputs, outputs)
 
@@ -223,7 +226,7 @@ class MultiplyColumnNode(Node):
 class VizualizeDataNode(Node):
     def execute(self):
         # Initialize a set of columns to keep, starting with the timestamp
-        columns_to_keep = ['date']  # Assuming 'timestamp' is the name of the time column
+        columns_to_keep = ['date', 'open', 'high', 'low', 'close']  # Assuming 'timestamp' is the name of the time column
 
         df = None  # Initialize df
 
@@ -261,6 +264,79 @@ class VizualizeDataNode(Node):
             print(f"VizualizeDataNode {self.id}: Error filtering DataFrame columns: {e}")
             self.output_values['Filtered DataFrame'] = None
 
+class HeikinAshiNode(Node):
+    def execute(self):
+        # Retrieve input data for OHLC
+        inputs = {}
+        input_names = ['Open', 'High', 'Low', 'Close']
+        input_slots = [0, 1, 2, 3]  # Assuming these are the input slots
+
+        for slot, name in zip(input_slots, input_names):
+            if slot in self.input_connections:
+                origin_node, origin_slot = self.input_connections[slot]
+                output_name = origin_node.outputs[origin_slot]['name']
+                input_data = origin_node.output_values.get(output_name)
+                if input_data and input_data[0] is not None:
+                    df, column_name = input_data
+                    if column_name in df.columns:
+                        inputs[name] = df[column_name]
+                    else:
+                        print(f"HeikinAshiNode {self.id}: Column {column_name} not found in data.")
+                        inputs[name] = None
+                else:
+                    print(f"HeikinAshiNode {self.id}: Input {name} data is None.")
+                    inputs[name] = None
+            else:
+                print(f"HeikinAshiNode {self.id}: Input {name} not connected.")
+                inputs[name] = None
+
+        # Check that all inputs are present
+        if not all([inputs.get('Open') is not None, inputs.get('High') is not None,
+                    inputs.get('Low') is not None, inputs.get('Close') is not None]):
+            print(f"HeikinAshiNode {self.id}: Missing input data.")
+            # Set outputs to None
+            self.output_values['HA_Open'] = (None, None)
+            self.output_values['HA_High'] = (None, None)
+            self.output_values['HA_Low'] = (None, None)
+            self.output_values['HA_Close'] = (None, None)
+            return
+
+        # Assuming all inputs come from the same DataFrame, retrieve the base DataFrame
+        # Here, we take the 'date' from one of the inputs
+        origin_node, origin_slot = self.input_connections[0]
+        base_df, _ = origin_node.output_values.get(origin_node.outputs[origin_slot]['name'])
+
+        if base_df is None:
+            print(f"HeikinAshiNode {self.id}: Base DataFrame is None.")
+            self.output_values['HA_Open'] = (None, None)
+            self.output_values['HA_High'] = (None, None)
+            self.output_values['HA_Low'] = (None, None)
+            self.output_values['HA_Close'] = (None, None)
+            return
+
+        # Calculate Heikin Ashi using pandas_ta
+        try:
+            df_ha = ta.ha(inputs['Open'], inputs['High'], inputs['Low'], inputs['Close'])
+            # Add Heikin Ashi columns to the existing DataFrame
+            base_df['HA_Open'] = df_ha['HA_open']
+            base_df['HA_High'] = df_ha['HA_high']
+            base_df['HA_Low'] = df_ha['HA_low']
+            base_df['HA_Close'] = df_ha['HA_close']
+
+            # Set outputs
+            self.output_values['HA_Open'] = (base_df, 'HA_Open')
+            self.output_values['HA_High'] = (base_df, 'HA_High')
+            self.output_values['HA_Low'] = (base_df, 'HA_Low')
+            self.output_values['HA_Close'] = (base_df, 'HA_Close')
+
+            logging.info(f"HeikinAshiNode {self.id}: Successfully calculated and added Heikin Ashi columns.")
+        except Exception as e:
+            logging.error(f"HeikinAshiNode {self.id}: Error during Heikin Ashi calculation: {e}")
+            self.output_values['HA_Open'] = (None, None)
+            self.output_values['HA_High'] = (None, None)
+            self.output_values['HA_Low'] = (None, None)
+            self.output_values['HA_Close'] = (None, None)
+
 def pve(graph_json):
     # Load JSON data (adjusted dates and symbols)
     data = json.loads(graph_json)
@@ -288,7 +364,9 @@ def pve(graph_json):
                     df, column_name = output_value
                     if df is not None and column_name is not None:
                         # print(df[column_name].head(50))
-                        print(df)
+
+                        for col in df.columns:
+                            print(col)
                         return df
                     elif df is not None and column_name is None:
                         print("Column name is None")

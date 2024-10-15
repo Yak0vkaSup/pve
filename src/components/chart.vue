@@ -171,102 +171,129 @@ watch(maSettings, (newSettings) => {
 }, { deep: true })
 
 function updateChartData(data) {
-  fetchedData = data
+  fetchedData = data;
   if (fetchedData && Array.isArray(fetchedData)) {
-    const formattedData = []
-    const maNames = new Set()
+    const formattedData = [];
+    const maNames = new Set();
 
     fetchedData.forEach((candle) => {
-      // Format candlestick data
-      formattedData.push({
-        time: candle.date, // The API returns Unix timestamp
-        open: candle.open,
-        high: candle.high,
-        low: candle.low,
-        close: candle.close
-      })
+      // Use Object.hasOwn() if available, otherwise fall back to hasOwnProperty
+      const hasOwn = Object.hasOwn || Object.prototype.hasOwnProperty.call;
 
-      // Identify MA names in the candle
-      Object.keys(candle).forEach((key) => {
-        if (!['date', 'open', 'high', 'low', 'close', 'volume'].includes(key)) {
-          maNames.add(key)
+      // Find Heikin Ashi data columns dynamically (like HA_Close_x0.9)
+      const haKeys = Object.keys(candle).filter(key => key.startsWith("HA_"));
+
+      if (haKeys.length >= 4) {
+        // Assume the standard names exist in the form of HA_Open, HA_High, HA_Low, and HA_Close
+        const openKey = haKeys.find(key => key.startsWith("HA_Open"));
+        const highKey = haKeys.find(key => key.startsWith("HA_High"));
+        const lowKey = haKeys.find(key => key.startsWith("HA_Low"));
+        const closeKey = haKeys.find(key => key.startsWith("HA_Close"));
+
+        // Use Heikin Ashi data if all keys exist
+        if (openKey && highKey && lowKey && closeKey) {
+          formattedData.push({
+            time: candle.date, // The API returns Unix timestamp
+            open: candle[openKey],
+            high: candle[highKey],
+            low: candle[lowKey],
+            close: candle[closeKey],
+          });
         }
-      })
-    })
+      } else {
+        // Fallback to normal OHLC if Heikin Ashi isn't available
+        formattedData.push({
+          time: candle.date, // The API returns Unix timestamp
+          open: candle.open,
+          high: candle.high,
+          low: candle.low,
+          close: candle.close,
+        });
+      }
 
-    // Update maSettings with new MAs
+      // Identify MA names and other indicators in the candle dynamically
+      Object.keys(candle).forEach((key) => {
+        if (!["date", "open", "high", "low", "close", "volume", ...haKeys].includes(key)) {
+          maNames.add(key);
+        }
+      });
+    });
+
+    // Update maSettings with new MAs or indicators
     maNames.forEach((maName) => {
       if (!maSettings[maName]) {
         // Assign saved color or generate a new one
         maSettings[maName] = {
           color: savedMaColors[maName] || getRandomColor(),
-          visible: true // By default, MAs are visible
-        }
+          visible: true, // By default, MAs/indicators are visible
+        };
       }
-    })
+    });
 
-    // Remove MAs that are no longer in the data
+    // Remove MAs or indicators that are no longer in the data
     Object.keys(maSettings).forEach((maName) => {
       if (!maNames.has(maName)) {
-        delete maSettings[maName]
+        delete maSettings[maName];
         if (lineSeriesMap[maName]) {
-          chartInstance.removeSeries(lineSeriesMap[maName])
-          delete lineSeriesMap[maName]
+          chartInstance.removeSeries(lineSeriesMap[maName]);
+          delete lineSeriesMap[maName];
         }
       }
-    })
+    });
 
     // Ensure the data is sorted by time (ascending order)
-    formattedData.sort((a, b) => a.time - b.time)
+    formattedData.sort((a, b) => a.time - b.time);
 
     // Update the candlestick data
-    candleSeries.setData(formattedData)
+    candleSeries.setData(formattedData);
 
-    // For each MA, create or update the line series
+    // For each MA or indicator, create or update the line series
     Object.keys(maSettings).forEach((maName) => {
-      const settings = maSettings[maName]
+      const settings = maSettings[maName];
 
       if (settings.visible) {
         if (!lineSeriesMap[maName]) {
-          // Create a new line series for the MA
+          // Create a new line series for the MA or indicator
           const lineSeries = chartInstance.addLineSeries({
             color: settings.color,
             lineWidth: 2,
-            title: maName
-          })
-          lineSeriesMap[maName] = lineSeries
+            title: maName,
+          });
+          lineSeriesMap[maName] = lineSeries;
         } else {
           // Update line series options if needed
           lineSeriesMap[maName].applyOptions({
-            color: settings.color
-          })
+            color: settings.color,
+          });
         }
 
-        // Prepare data for this MA
+        // Prepare data for this MA or indicator
         const maData = fetchedData
           .filter(candle => candle[maName] !== undefined)
           .map((candle) => ({
             time: candle.date,
-            value: candle[maName]
-          }))
+            value: candle[maName],
+          }));
 
         // Ensure the data is sorted
-        maData.sort((a, b) => a.time - b.time)
+        maData.sort((a, b) => a.time - b.time);
 
         // Update the line series data
-        lineSeriesMap[maName].setData(maData)
+        lineSeriesMap[maName].setData(maData);
       } else {
-        // If MA is not visible, remove its series if it exists
+        // If MA/indicator is not visible, remove its series if it exists
         if (lineSeriesMap[maName]) {
-          chartInstance.removeSeries(lineSeriesMap[maName])
-          delete lineSeriesMap[maName]
+          chartInstance.removeSeries(lineSeriesMap[maName]);
+          delete lineSeriesMap[maName];
         }
       }
-    })
+    });
   } else {
-    console.error('Invalid data format:', fetchedData)
+    console.error("Invalid data format:", fetchedData);
   }
 }
+
+
 </script>
 
 <template>
