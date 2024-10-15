@@ -39,6 +39,8 @@ def build_nodes(nodes_data):
             node = MaNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'custom/data/multiply':
             node = MultiplyColumnNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'custom/data/vizualize':
+            node = VizualizeDataNode(node_id, node_type, properties, inputs, outputs)
         else:
             node = Node(node_id, node_type, properties, inputs, outputs)
 
@@ -217,6 +219,48 @@ class MultiplyColumnNode(Node):
             logging.error(f"MultiplyColumnNode {self.id}: Error during multiplication: {e}")
             self.output_values['Result'] = (None, None)
 
+
+class VizualizeDataNode(Node):
+    def execute(self):
+        # Initialize a set of columns to keep, starting with the timestamp
+        columns_to_keep = ['date']  # Assuming 'timestamp' is the name of the time column
+
+        df = None  # Initialize df
+
+        # Loop through all inputs to add relevant columns to the list
+        for input_slot, (origin_node, origin_slot) in self.input_connections.items():
+            output_name = origin_node.outputs[origin_slot]['name']
+            input_data = origin_node.output_values.get(output_name)
+
+            if input_data is None or input_data[0] is None:
+                print(f"VizualizeDataNode {self.id}: Input data is None for input slot {input_slot}")
+                continue
+
+            df, column_name = input_data
+            if df is None or column_name is None:
+                print(f"VizualizeDataNode {self.id}: DataFrame or column name is None for input slot {input_slot}")
+                continue
+
+            # Add the column to the list of columns to keep
+            columns_to_keep.append(column_name)
+
+        # Check if DataFrame exists
+        if df is None:
+            print(f"VizualizeDataNode {self.id}: No valid input DataFrame found.")
+            return
+
+        # Filter DataFrame to only keep the necessary columns
+        try:
+            df_filtered = df[columns_to_keep]
+            # Now, modify the base DataFrame to reflect this filtering
+            df.drop(columns=[col for col in df.columns if col not in columns_to_keep], inplace=True)
+            print(f"VizualizeDataNode {self.id}: Filtered DataFrame:")
+            print(df)
+            self.output_values['Filtered DataFrame'] = df  # Store the modified DataFrame as output
+        except KeyError as e:
+            print(f"VizualizeDataNode {self.id}: Error filtering DataFrame columns: {e}")
+            self.output_values['Filtered DataFrame'] = None
+
 def pve(graph_json):
     # Load JSON data (adjusted dates and symbols)
     data = json.loads(graph_json)
@@ -244,6 +288,7 @@ def pve(graph_json):
                     df, column_name = output_value
                     if df is not None and column_name is not None:
                         # print(df[column_name].head(50))
+                        print(df)
                         return df
                     elif df is not None and column_name is None:
                         print("Column name is None")

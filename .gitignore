@@ -34,3 +34,4 @@ coverage
 backend/nodes/__pycache__
 server.js
 /backend/nodes/__pycache__/
+/backend/research
