@@ -38,6 +38,7 @@ import './custom_nodes/VisualizeDataNode.js'
 import './custom_nodes/indicators/HeikenAshiNode.js'
 import './custom_nodes/MultiplyColumnNode.js'
 import './custom_nodes/indicators/MaNode.js'
+import './custom_nodes/CompareNode.js'
 
 //import './custom_nodes/indicators/RSINode.js'
 // import './custom_nodes/GetAllIndicatorsNode.js'
@@ -70,6 +71,7 @@ onMounted(() => {
   // Initialize the graph and canvas
   graph.value = new LGraph()
   graphCanvas.value = new LGraphCanvas('#mycanvas', graph.value)
+
 
   // // Create VisualizeDataNode
   // const visualizeNode = LiteGraph.createNode('custom/vizualize')

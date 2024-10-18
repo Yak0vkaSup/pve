@@ -175,6 +175,7 @@ function updateChartData(data) {
   if (fetchedData && Array.isArray(fetchedData)) {
     const formattedData = [];
     const maNames = new Set();
+    const signalColumns = []; // To store names of bool_* columns
 
     fetchedData.forEach((candle) => {
       // Use Object.hasOwn() if available, otherwise fall back to hasOwnProperty
@@ -214,7 +215,11 @@ function updateChartData(data) {
       // Identify MA names and other indicators in the candle dynamically
       Object.keys(candle).forEach((key) => {
         if (!["date", "open", "high", "low", "close", "volume", ...haKeys].includes(key)) {
-          maNames.add(key);
+          if (key.startsWith("bool_")) {
+            signalColumns.push(key); // Collect signal column names
+          } else {
+            maNames.add(key);
+          }
         }
       });
     });
@@ -288,10 +293,33 @@ function updateChartData(data) {
         }
       }
     });
+
+    // --- Handle Signal Markers ---
+
+    const markers = [];
+
+    signalColumns.forEach((signalCol) => {
+      fetchedData.forEach((candle) => {
+        if (candle[signalCol]) {
+          markers.push({
+            time: candle.date,
+            position: 'aboveBar', // Position can be 'aboveBar' or 'belowBar'
+            shape: 'arrowUp', // Options: 'arrowUp', 'arrowDown', 'circle', 'square', etc.
+            color: 'rgba(0, 150, 136, 1)', // Customize color
+            text: signalCol.replace('bool_', '').toUpperCase(), // Optional: Display text
+          });
+        }
+      });
+    });
+
+    // Set markers on the candlestick series
+    candleSeries.setMarkers(markers);
+
   } else {
     console.error("Invalid data format:", fetchedData);
   }
 }
+
 
 
 </script>
