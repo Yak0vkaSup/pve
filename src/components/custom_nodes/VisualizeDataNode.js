@@ -7,7 +7,7 @@ export function VizualizeData() {
   this.addInput('High', 'column');
   this.addInput('Low', 'column');
   this.addInput('Close', 'column');
-
+  this.addInput('Signals', 'bool_column');
   // Initialize properties
   this.properties = {
     indicators: [], // List to hold indicator names

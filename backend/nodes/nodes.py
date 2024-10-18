@@ -43,7 +43,8 @@ def build_nodes(nodes_data):
             node = VizualizeDataNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'custom/indicators/heikin_ashi':
             node = HeikinAshiNode(node_id, node_type, properties, inputs, outputs)
-
+        elif node_type == 'custom/data/comparaison':
+            node = ComparaisonNode(node_id, node_type, properties, inputs, outputs)
         else:
             node = Node(node_id, node_type, properties, inputs, outputs)
 
@@ -337,6 +338,86 @@ class HeikinAshiNode(Node):
             self.output_values['HA_Low'] = (None, None)
             self.output_values['HA_Close'] = (None, None)
 
+class ComparaisonNode(Node):
+    def execute(self):
+        # Retrieve input data for two columns
+        inputs = {}
+        input_slots = [0, 1]  # Assuming these are the input slots for the two columns
+        input_names = ['First Input', 'Second Input']
+
+        for slot, name in zip(input_slots, input_names):
+            if slot in self.input_connections:
+                origin_node, origin_slot = self.input_connections[slot]
+                output_name = origin_node.outputs[origin_slot]['name']
+                input_data = origin_node.output_values.get(output_name)
+                if input_data and input_data[0] is not None:
+                    df, column_name = input_data
+                    if column_name in df.columns:
+                        inputs[name] = df[column_name]
+                    else:
+                        logging.warning(f"ComparaisonNode {self.id}: Column {column_name} not found in data.")
+                        inputs[name] = None
+                else:
+                    logging.warning(f"ComparaisonNode {self.id}: Input {name} data is None.")
+                    inputs[name] = None
+            else:
+                logging.warning(f"ComparaisonNode {self.id}: Input {name} not connected.")
+                inputs[name] = None
+
+        # Check that both inputs are present
+        if inputs['First Input'] is None or inputs['Second Input'] is None:
+            logging.warning(f"ComparaisonNode {self.id}: Missing input data.")
+            self.output_values['bool_column'] = (None, None)
+            return
+
+        # Get the comparison operator from the node properties
+        comparison_operator = self.properties.get('operator', '==')
+
+        # Perform the comparison based on the selected operator
+        comparison_result = None
+        try:
+            if comparison_operator == '>':
+                comparison_result = inputs['First Input'] > inputs['Second Input']
+            elif comparison_operator == '>=':
+                comparison_result = inputs['First Input'] >= inputs['Second Input']
+            elif comparison_operator == '<':
+                comparison_result = inputs['First Input'] < inputs['Second Input']
+            elif comparison_operator == '<=':
+                comparison_result = inputs['First Input'] <= inputs['Second Input']
+            elif comparison_operator == '==':
+                comparison_result = inputs['First Input'] == inputs['Second Input']
+            elif comparison_operator == 'crossed up':
+                comparison_result = (inputs['First Input'] > inputs['Second Input']) & \
+                                    (inputs['First Input'].shift(1) <= inputs['Second Input'].shift(1))
+            elif comparison_operator == 'crossed down':
+                comparison_result = (inputs['First Input'] < inputs['Second Input']) & \
+                                    (inputs['First Input'].shift(1) >= inputs['Second Input'].shift(1))
+            else:
+                logging.warning(f"ComparaisonNode {self.id}: Unsupported comparison operator {comparison_operator}")
+                self.output_values['bool_column'] = (None, None)
+                return
+        except Exception as e:
+            logging.error(f"ComparaisonNode {self.id}: Error during comparison: {e}")
+            self.output_values['bool_column'] = (None, None)
+            return
+
+        # Ensure we're adding the bool column to the original DataFrame
+        origin_node, origin_slot = self.input_connections[0]
+        base_df, _ = origin_node.output_values.get(origin_node.outputs[origin_slot]['name'])
+
+        if base_df is None:
+            logging.error(f"ComparaisonNode {self.id}: Base DataFrame is None")
+            self.output_values['bool_column'] = (None, None)
+            return
+
+        # Create the bool column name based on the comparison operator
+        bool_column_name = f"bool_{comparison_operator.replace(' ', '_')}"
+        base_df[bool_column_name] = comparison_result
+
+        # Set outputs
+        self.output_values['bool_column'] = (base_df, bool_column_name)
+        logging.info(f"ComparaisonNode {self.id}: Successfully created comparison column '{bool_column_name}'.")
+
 def pve(graph_json):
     # Load JSON data (adjusted dates and symbols)
     data = json.loads(graph_json)
@@ -364,7 +445,7 @@ def pve(graph_json):
                     df, column_name = output_value
                     if df is not None and column_name is not None:
                         # print(df[column_name].head(50))
-
+                        print(df)
                         for col in df.columns:
                             print(col)
                         return df
