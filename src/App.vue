@@ -1,57 +1,31 @@
 <template>
-  <div class="container">
-    <div class="user_container">
-      <login />
-    </div>
-    <div class="chart-container">
-      <chart />
-    </div>
-    <div class="graph-container">
-      <nodes />
-    </div>
+  <div class="app-container">
+    <Header />
+    <router-view />
+    <Footer />
   </div>
 </template>
 
 <script setup lang="ts">
-import nodes from './components/nodes.vue'
-import chart from './components/chart.vue'
-import login from './components/login.vue'
+import Header from './components/Header.vue';
+import Footer from './components/Footer.vue';
+
 </script>
 
 <style scoped>
-.container {
+.app-container {
   display: flex;
-  flex-direction: column; /* Stack the components vertically */
-  gap: 0.5rem; /* Add space between the components */
-  height: 97vh;
-  /* Use full viewport height */
-}
-.user_container {
-  flex-basis: 10%; /* Set the user container to occupy 15% of the height */
+  flex-direction: column;
+  min-height: 100vh;
+  /* Center the container horizontally */
+  margin: 0 auto;
+  /* Set a maximum width */
+  max-width: 1200px;
+  /* Allow the width to adjust based on viewport */
   width: 100%;
-  min-height: 50px; /* Optionally set a minimum height */
-  height: auto; /* Adjust height dynamically based on content */
-}
-.chart-container {
-  /* height:  100vh; */
-  flex-grow: 1;
-  width: 100%;
-  min-height: 300px;
-  height: 100%; /* Occupy 40% of the screen height */
-}
-
-.graph-container {
-  /* height:  100vh; */
-  flex-grow: 1;
-  width: 100%;
-  min-height: 300px;
-  height: 100%;
-  /* Occupy 60% of the screen height */
-}
-
-canvas {
-  width: 100%;
-  height: 100%;
-  border: 1px solid black; /* Ensure the canvas takes up the full size of its container */
+  /* Ensure padding doesn't affect total width */
+  box-sizing: border-box;
+  /* Optional padding */
+  padding: 0 20px;
 }
 </style>

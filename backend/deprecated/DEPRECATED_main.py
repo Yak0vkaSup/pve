@@ -1,22 +1,16 @@
-from time import perf_counter
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 import psycopg2
-import pandas as pd
-from datetime import datetime, timedelta
 # from compiler import compile
 import time
 import hashlib
 import hmac
-import uuid
-import base64
 import binascii
 import uuid
 import json
-from nodes.nodes import pve
-from flask_socketio import join_room, leave_room, disconnect
+from backend.deprecated.nodes import pve
+from flask_socketio import join_room, disconnect
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 socketio = SocketIO(app,
@@ -320,7 +314,7 @@ def save_graph():
 
 @app.route('/api/get-saved-graphs', methods=['GET'])
 def get_saved_graphs():
-    user_id = request.args.get('user_id')
+    user_id = request.args.get('id')
     user_token = request.args.get('token')
 
     # Verify user token
@@ -388,6 +382,7 @@ def compile_graph():
     try:
         # Extract request data
         request_data = request.get_json()
+        print(request)
         # Extract user details
         user_id = request_data.get('user_id')
         user_token = request_data.get('token')
@@ -419,6 +414,7 @@ def compile_graph():
 
         # Convert DataFrame to JSON serializable format
         # Ensure that 'date' is in UNIX timestamp (seconds)
+
         df['date'] = df['date'].astype(int) // 10**9
         df = df.fillna(value=0)
         data = df.to_dict('records')

@@ -40,7 +40,7 @@ pip install -r requirements.txt
 ### 5. Run the Flask server:
 
 ```bash
-python main.py
+python DEPRECATED_main.py
 ```
 
 ### 6. Deactivate the virtual environment (when done):

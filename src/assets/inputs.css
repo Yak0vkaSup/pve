@@ -1,0 +1,35 @@
+.button-container {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+button,
+input,
+select {
+  padding: 10px 20px;
+  background-color: #222222; /* Same background color as buttons */
+  color: #fff; /* White text color for contrast */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 0px; /* Space below the element */
+  margin-right: 10px; /* Space to the right of the element */
+}
+
+input,
+select {
+  width: auto; /* Set width automatically based on content, similar to button size */
+}
+
+button:hover,
+input:hover,
+select:hover {
+  background-color: #353535; /* Darker grey when hovered */
+}
+
+input::placeholder {
+  color: white; /* Placeholder text color */
+}
