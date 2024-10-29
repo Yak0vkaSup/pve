@@ -30,8 +30,18 @@ coverage
 *.tsbuildinfo
 
 # Backend venv
+__pycache__/
+deprecated/
 /Backend/venv
 backend/deprecated/nodes/__pycache__
 server.js
 /backend/deprecated/nodes/__pycache__/
 /backend/research
+/backend/config.cpython-310.pyc
+/backend/pve/__pycache__/
+/backend/pve/app/__pycache__/
+/backend/pve/app/models/__pycache__/
+/backend/pve/app/nodes/__pycache__/
+/backend/pve/app/routes/__pycache__/
+/backend/pve/app/utils/__pycache__/
+/backend/pve/app/websocket/__pycache__/
