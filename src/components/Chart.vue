@@ -75,41 +75,44 @@ onMounted(() => {
   // Get user ID and token from local storage
   const userId = localStorage.getItem('userId')
   const userToken = localStorage.getItem('userToken')
+  if (!userId || !userToken) {
+    console.error("User ID or token is missing. Redirecting to login page...")
+  }
+  else {
+    // Initialize Socket.IO client with query parameters
+    socket = io('https://pve.finance', {
+      path: '/api/ws/socket.io',
+      query: {
+        user_id: userId,
+        token: userToken
+      },
+      transports: ['websocket']
+    })
+    socket.on('connect', () => {
+      console.log('Connected to server via WebSocket')
+    })
 
-  // Initialize Socket.IO client with query parameters
-  socket = io('https://pve.finance', {
-    path: '/api/ws/socket.io',
-    query: {
-      user_id: userId,
-      token: userToken
-    },
-    transports: ['websocket']
-  })
-  socket.on('connect', () => {
-    console.log('Connected to server via WebSocket')
-  })
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server')
+    })
 
-  socket.on('disconnect', () => {
-    console.log('Disconnected from server')
-  })
+    socket.on('reconnect_attempt', () => {
+      console.log('Attempting to reconnect...')
+    })
 
-  socket.on('reconnect_attempt', () => {
-    console.log('Attempting to reconnect...')
-  })
+    socket.on('connect_error', (error) => {
+      console.error('Connection error:', error)
+    })
 
-  socket.on('connect_error', (error) => {
-    console.error('Connection error:', error)
-  })
-
-  socket.on('update_chart', (response) => {
-    console.log('Response from server:', response)
-    if (response.status === 'success') {
-      updateChartData(response.data)
-    } else {
-      console.error('Error updating chart:', response.message)
-    }
-  })
-
+    socket.on('update_chart', (response) => {
+      console.log('Response from server:', response)
+      if (response.status === 'success') {
+        updateChartData(response.data)
+      } else {
+        console.error('Error updating chart:', response.message)
+      }
+    })
+  }
   // Resize chart on window resize
   window.addEventListener('resize', () => {
     chartInstance.resize(chartContainer.value.clientWidth, chartContainer.value.clientHeight)
@@ -223,7 +226,24 @@ function updateChartData(data) {
         }
       });
     });
+    const markers = [];
 
+    signalColumns.forEach((signalCol) => {
+      fetchedData.forEach((candle) => {
+        if (candle[signalCol]) {
+          markers.push({
+            time: candle.date,
+            position: 'belowBar', // Position can be 'aboveBar' or 'belowBar'
+            shape: 'circle', // Options: 'arrowUp', 'arrowDown', 'circle', 'square', etc.
+            color: 'rgba(0, 150, 136, 1)', // Customize color
+            // Optional: Display text
+          });
+        }
+      });
+    });
+
+    // Set markers on the candlestick series
+    candleSeries.setMarkers(markers);
     // Update maSettings with new MAs or indicators
     maNames.forEach((maName) => {
       if (!maSettings[maName]) {
@@ -294,26 +314,6 @@ function updateChartData(data) {
       }
     });
 
-    // --- Handle Signal Markers ---
-
-    const markers = [];
-
-    signalColumns.forEach((signalCol) => {
-      fetchedData.forEach((candle) => {
-        if (candle[signalCol]) {
-          markers.push({
-            time: candle.date,
-            position: 'aboveBar', // Position can be 'aboveBar' or 'belowBar'
-            shape: 'arrowUp', // Options: 'arrowUp', 'arrowDown', 'circle', 'square', etc.
-            color: 'rgba(0, 150, 136, 1)', // Customize color
-            text: signalCol.replace('bool_', '').toUpperCase(), // Optional: Display text
-          });
-        }
-      });
-    });
-
-    // Set markers on the candlestick series
-    candleSeries.setMarkers(markers);
 
   } else {
     console.error("Invalid data format:", fetchedData);

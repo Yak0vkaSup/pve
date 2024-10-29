@@ -158,7 +158,7 @@ function fetchSavedGraphs() {
   const userId = localStorage.getItem('userId')
   const userToken = localStorage.getItem('userToken')
 
-  fetch(`https://pve.finance/api/get-saved-graphs?user_id=${userId}&token=${userToken}`)
+  fetch(`https://pve.finance/api/get-saved-graphs?id=${userId}&token=${userToken}`)
     .then((response) => response.json())
     .then((data) => {
       if (data.status === 'success') {
@@ -275,39 +275,4 @@ canvas {
   border: 1px solid black;
 }
 
-.button-container {
-  display: flex;
-  justify-content: flex-start;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-button,
-input,
-select {
-  padding: 10px 20px;
-  background-color: #222222; /* Same background color as buttons */
-  color: white; /* White text color for contrast */
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-bottom: 0px; /* Space below the element */
-  margin-right: 10px; /* Space to the right of the element */
-}
-
-input,
-select {
-  width: auto; /* Set width automatically based on content, similar to button size */
-}
-
-button:hover,
-input:hover,
-select:hover {
-  background-color: #353535; /* Darker grey when hovered */
-}
-
-input::placeholder {
-  color: white; /* Placeholder text color */
-}
 </style>

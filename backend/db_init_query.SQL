@@ -5,8 +5,6 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(255),
     usertoken UUID,
     auth_date TIMESTAMP,
-    key VARCHAR(255),
-    key_secret VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS candles (

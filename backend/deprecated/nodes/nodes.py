@@ -61,12 +61,18 @@ def build_connections(links_data, nodes):
         if not hasattr(target_node, 'input_connections'):
             target_node.input_connections = {}
         target_node.input_connections[target_slot] = (origin_node, origin_slot)
+
+        # Log the connection
+        logging.debug(f"Connecting Node {origin_id} Output Slot {origin_slot} ('{origin_node.outputs[origin_slot]['name']}') "
+                      f"to Node {target_id} Input Slot {target_slot}")
+
         # Map the output links as well (optional)
         if not hasattr(origin_node, 'output_connections'):
             origin_node.output_connections = {}
         if origin_slot not in origin_node.output_connections:
             origin_node.output_connections[origin_slot] = []
         origin_node.output_connections[origin_slot].append((target_node, target_slot))
+
 
 def execute_graph(sorted_node_ids, nodes):
     for node_id in sorted_node_ids:
@@ -226,15 +232,16 @@ class MultiplyColumnNode(Node):
 
 class VizualizeDataNode(Node):
     def execute(self):
-        # Initialize a set of columns to keep, starting with the timestamp
-        columns_to_keep = ['date', 'open', 'high', 'low', 'close']  # Assuming 'timestamp' is the name of the time column
+        # Initialize a set of columns to keep, starting with the fixed columns
+        columns_to_keep = ['date', 'open', 'high', 'low', 'close']
 
-        df = None  # Initialize df
+        base_df = None  # Initialize the base DataFrame
 
-        # Loop through all inputs to add relevant columns to the list
+        # Loop through all inputs to add relevant columns to the list and merge DataFrames
         for input_slot, (origin_node, origin_slot) in self.input_connections.items():
             output_name = origin_node.outputs[origin_slot]['name']
             input_data = origin_node.output_values.get(output_name)
+            print(f"Input Data for slot {input_slot}: {input_data}")
 
             if input_data is None or input_data[0] is None:
                 print(f"VizualizeDataNode {self.id}: Input data is None for input slot {input_slot}")
@@ -248,22 +255,44 @@ class VizualizeDataNode(Node):
             # Add the column to the list of columns to keep
             columns_to_keep.append(column_name)
 
-        # Check if DataFrame exists
-        if df is None:
+            if base_df is None:
+                # Set the first valid DataFrame as the base
+                base_df = df.copy()
+                print(f"VizualizeDataNode {self.id}: Base DataFrame set with columns {base_df.columns.tolist()}")
+            else:
+                # Merge the current DataFrame with the base DataFrame on 'date'
+                try:
+                    base_df = base_df.merge(df[['date', column_name]], on='date', how='left')
+                    print(f"VizualizeDataNode {self.id}: Merged column '{column_name}' into base DataFrame.")
+                except KeyError as e:
+                    print(f"VizualizeDataNode {self.id}: Error merging DataFrame on 'date': {e}")
+                    continue
+
+        # Check if a base DataFrame exists after processing all inputs
+        if base_df is None:
             print(f"VizualizeDataNode {self.id}: No valid input DataFrame found.")
+            self.output_values['Filtered DataFrame'] = None
             return
 
-        # Filter DataFrame to only keep the necessary columns
+        # Ensure all required columns are present
+        missing_columns = [col for col in columns_to_keep if col not in base_df.columns]
+        if missing_columns:
+            print(f"VizualizeDataNode {self.id}: Missing columns after merge: {missing_columns}")
+            # Depending on requirements, you might want to add these columns with default values
+            for col in missing_columns:
+                base_df[col] = None  # or some default value
+            print(f"VizualizeDataNode {self.id}: Added missing columns with default values.")
+
+        # Filter the base DataFrame to only keep the necessary columns
         try:
-            df_filtered = df[columns_to_keep]
-            # Now, modify the base DataFrame to reflect this filtering
-            df.drop(columns=[col for col in df.columns if col not in columns_to_keep], inplace=True)
-            print(f"VizualizeDataNode {self.id}: Filtered DataFrame:")
-            print(df)
-            self.output_values['Filtered DataFrame'] = df  # Store the modified DataFrame as output
+            df_filtered = base_df[columns_to_keep]
+            print(f"VizualizeDataNode {self.id}: Filtered DataFrame with columns {df_filtered.columns.tolist()}:")
+            print(df_filtered)
+            self.output_values['Filtered DataFrame'] = df_filtered  # Store the filtered DataFrame as output
         except KeyError as e:
             print(f"VizualizeDataNode {self.id}: Error filtering DataFrame columns: {e}")
             self.output_values['Filtered DataFrame'] = None
+
 
 class HeikinAshiNode(Node):
     def execute(self):
@@ -355,13 +384,13 @@ class ComparaisonNode(Node):
                     if column_name in df.columns:
                         inputs[name] = df[column_name]
                     else:
-                        logging.warning(f"ComparaisonNode {self.id}: Column {column_name} not found in data.")
+                        logging.warning(f"ComparaisonNode {self.id}: Column '{column_name}' not found in data.")
                         inputs[name] = None
                 else:
-                    logging.warning(f"ComparaisonNode {self.id}: Input {name} data is None.")
+                    logging.warning(f"ComparaisonNode {self.id}: Input '{name}' data is None.")
                     inputs[name] = None
             else:
-                logging.warning(f"ComparaisonNode {self.id}: Input {name} not connected.")
+                logging.warning(f"ComparaisonNode {self.id}: Input '{name}' not connected.")
                 inputs[name] = None
 
         # Check that both inputs are present
@@ -393,7 +422,7 @@ class ComparaisonNode(Node):
                 comparison_result = (inputs['First Input'] < inputs['Second Input']) & \
                                     (inputs['First Input'].shift(1) >= inputs['Second Input'].shift(1))
             else:
-                logging.warning(f"ComparaisonNode {self.id}: Unsupported comparison operator {comparison_operator}")
+                logging.warning(f"ComparaisonNode {self.id}: Unsupported comparison operator '{comparison_operator}'.")
                 self.output_values['bool_column'] = (None, None)
                 return
         except Exception as e:
@@ -401,22 +430,27 @@ class ComparaisonNode(Node):
             self.output_values['bool_column'] = (None, None)
             return
 
-        # Ensure we're adding the bool column to the original DataFrame
+        # **Important Change: Do NOT modify the original DataFrame in place**
+        # Instead, create a new DataFrame to hold the boolean column
         origin_node, origin_slot = self.input_connections[0]
         base_df, _ = origin_node.output_values.get(origin_node.outputs[origin_slot]['name'])
 
         if base_df is None:
-            logging.error(f"ComparaisonNode {self.id}: Base DataFrame is None")
+            logging.error(f"ComparaisonNode {self.id}: Base DataFrame is None.")
             self.output_values['bool_column'] = (None, None)
             return
 
+        # Create a new DataFrame copy to avoid modifying the original
+        new_df = base_df.copy()
+
         # Create the bool column name based on the comparison operator
         bool_column_name = f"bool_{comparison_operator.replace(' ', '_')}"
-        base_df[bool_column_name] = comparison_result
+        new_df[bool_column_name] = comparison_result
 
         # Set outputs
-        self.output_values['bool_column'] = (base_df, bool_column_name)
+        self.output_values['bool_column'] = (new_df, bool_column_name)
         logging.info(f"ComparaisonNode {self.id}: Successfully created comparison column '{bool_column_name}'.")
+
 
 def pve(graph_json):
     # Load JSON data (adjusted dates and symbols)

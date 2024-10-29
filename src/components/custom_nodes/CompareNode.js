@@ -3,19 +3,13 @@ import { LiteGraph } from 'litegraph.js';
 export function ComparaisonNode() {
   // Add two inputs for comparison, specifying the slot colors
   this.addInput('First Input', 'column', {
-    color_on: "#77F",  // Blue when connected
-    color_off: "#BBB"  // Light gray when not connected
   });
 
   this.addInput('Second Input', 'column', {
-    color_on: "#77F",  // Blue when connected
-    color_off: "#BBB"  // Light gray when not connected
   });
 
   // Add an output for the boolean result, specifying the slot colors
   this.addOutput('Bool Output', 'bool_column', {
-    color_on: "#FF0000",  // Red when connected
-    color_off: "#FFAAAA"  // Lighter red when not connected
   });
 
   // Define properties (the comparison operator)
