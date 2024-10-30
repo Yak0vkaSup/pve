@@ -38,4 +38,4 @@ export function ComparaisonNode() {
 ComparaisonNode.title = 'Comparaison';
 
 // Register the node with LiteGraph
-LiteGraph.registerNodeType('custom/data/comparaison', ComparaisonNode);
+LiteGraph.registerNodeType('custom/data/comparison', ComparaisonNode);

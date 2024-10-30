@@ -9,8 +9,8 @@
 <style scoped>
 .footer {
   color: #fff;
+  position: relative;
   text-align: center;
   padding: 1rem;
-  margin-top: 30px;
 }
 </style>

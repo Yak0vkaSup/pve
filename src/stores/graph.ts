@@ -1,0 +1,407 @@
+// src/stores/graphStore.ts
+
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
+import { LGraph, LGraphCanvas } from 'litegraph.js'
+import 'litegraph.js/css/litegraph.css'
+import axios from 'axios'
+
+// Import your custom nodes
+import '../components/custom_nodes/GetDataFromDbNode.js'
+import '../components/custom_nodes/VisualizeDataNode.js'
+import '../components/custom_nodes/indicators/HeikenAshiNode.js'
+import '../components/custom_nodes/MultiplyColumnNode.js'
+import '../components/custom_nodes/indicators/MaNode.js'
+import '../components/custom_nodes/CompareNode.js'
+
+// Define interfaces for different API responses
+
+// Interface for Bybit API response
+interface BybitTickersResponse {
+  retCode: number
+  retMsg: string
+  result: {
+    list: Ticker[]
+  }
+}
+
+// Interface for individual ticker
+interface Ticker {
+  symbol: string
+  turnover24h: string
+  // Add other relevant properties if needed
+}
+
+// Interface for Graph data
+interface GraphData {
+  id: number
+  name: string
+  // Add other relevant properties based on your API response
+}
+
+// Generic API response interface for internal APIs
+interface ApiResponse<T> {
+  status: string
+  message?: string
+  graphs?: T
+  graph_data?: any // Replace 'any' with a specific type if possible
+  // Add other fields based on your API
+}
+
+export const useGraphStore = defineStore('graph', () => {
+  // State Variables with Proper Types
+  const graph: Ref<LGraph | null> = ref(null)
+  const graphCanvas: Ref<LGraphCanvas | null> = ref(null)
+  const graphName: Ref<string> = ref('')
+  const savedGraphs: Ref<GraphData[]> = ref([])
+  const selectedGraph: Ref<string> = ref('')
+  const symbolOptions: Ref<string[]> = ref(['BTCUSDT', 'ETHUSDT', 'BNBUSDT'])
+  const startDate: Ref<string> = ref('')
+  const endDate: Ref<string> = ref('')
+  const timeframe: Ref<string> = ref('')
+  const symbol: Ref<string> = ref('')
+
+  /**
+   * Initializes the graph and canvas.
+   * @param canvasElement - The HTMLCanvasElement to initialize LiteGraphCanvas with.
+   */
+  const initializeGraph = (canvasElement: HTMLCanvasElement): void => {
+    graph.value = new LGraph()
+    graphCanvas.value = new LGraphCanvas(canvasElement, graph.value)
+    graph.value.start()
+  }
+
+  /**
+   * Resizes the canvas to fit its parent container.
+   */
+  const resizeCanvas = (): void => {
+    if (graphCanvas.value && graph.value) {
+      const canvasElement = graphCanvas.value.canvas
+      const parentElement = canvasElement.parentElement
+
+      if (parentElement) {
+        const style = getComputedStyle(parentElement)
+        const width =
+          parentElement.clientWidth -
+          parseFloat(style.paddingLeft) -
+          parseFloat(style.paddingRight)
+        const height =
+          parentElement.clientHeight -
+          parseFloat(style.paddingTop) -
+          parseFloat(style.paddingBottom)
+
+        // Set the canvas's width and height attributes to match the display size
+        canvasElement.width = width
+        canvasElement.height = height
+      }
+
+      // Inform LiteGraphCanvas about the size change
+      graphCanvas.value.resize()
+    }
+  }
+
+  /**
+   * Fetches symbols with turnover greater than the specified amount.
+   * @param turnover - The turnover threshold.
+   * @returns An array of symbol strings.
+   */
+  const getSymbolsByTurnover = async (turnover: number): Promise<string[]> => {
+    try {
+      const response = await axios.get<BybitTickersResponse>(
+        'https://api.bybit.com/v5/market/tickers',
+        {
+          params: { category: 'linear' },
+        }
+      )
+
+      if (response.data.retCode !== 0) {
+        console.error('Failed to get tickers info:', response.data.retMsg)
+        return []
+      }
+
+      const tickers: Ticker[] = response.data.result.list
+
+      const filteredSymbols = tickers
+        .filter((ticker: Ticker) => parseFloat(ticker.turnover24h) > turnover)
+        .map((ticker: Ticker) => ticker.symbol)
+
+      console.info(
+        `Symbols with turnover greater than ${turnover}:`,
+        filteredSymbols
+      )
+      return filteredSymbols
+    } catch (error) {
+      console.error('Error fetching symbols:', error)
+      return []
+    }
+  }
+
+  /**
+   * Populates the symbol dropdown with fetched symbols.
+   */
+  const populateSymbolDropdown = async (): Promise<void> => {
+    const symbols = await getSymbolsByTurnover(50000000)
+    symbolOptions.value =
+      symbols.length > 0 ? symbols : ['BTCUSDT', 'ETHUSDT', 'BNBUSDT']
+  }
+
+  /**
+   * Fetches saved graphs from the server.
+   */
+  const fetchSavedGraphs = async (): Promise<void> => {
+    const userId = localStorage.getItem('userId')
+    const userToken = localStorage.getItem('userToken')
+
+    if (!userId || !userToken) {
+      console.error('User not authenticated')
+      return
+    }
+
+    try {
+      const response = await axios.get<ApiResponse<GraphData[]>>(
+        'https://pve.finance/api/get-saved-graphs',
+        {
+          params: { id: userId, token: userToken },
+        }
+      )
+
+      if (response.data.status === 'success' && response.data.graphs) {
+        savedGraphs.value = response.data.graphs
+      } else {
+        console.error('Error fetching saved graphs:', response.data.message)
+      }
+    } catch (error) {
+      console.error('Error fetching saved graphs:', error)
+    }
+  }
+
+  /**
+   * Loads a graph from the server based on the selected graph name.
+   */
+  const loadGraphFromServer = async (): Promise<void> => {
+    const userId = localStorage.getItem('userId')
+    const userToken = localStorage.getItem('userToken')
+
+    if (!userId || !userToken) {
+      alert('User not authenticated')
+      return
+    }
+
+    if (!selectedGraph.value) {
+      alert('Please select a graph to load')
+      return
+    }
+
+    const requestData = {
+      user_id: userId,
+      token: userToken,
+      name: selectedGraph.value,
+    }
+
+    try {
+      const response = await axios.post<ApiResponse<any>>(
+        'https://pve.finance/api/load-graph',
+        requestData,
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+
+      if (response.data.status === 'success' && response.data.graph_data) {
+        if (graph.value) {
+          graph.value.clear()
+          graph.value.configure(response.data.graph_data)
+          graph.value.start()
+          resizeCanvas()
+        }
+      } else {
+        console.error('Error loading graph:', response.data.message)
+      }
+    } catch (error) {
+      console.error('Error loading graph:', error)
+    }
+  }
+
+  /**
+   * Saves the current graph to the server.
+   */
+  const saveGraphToServer = async (): Promise<void> => {
+    if (!graphName.value) {
+      alert('Please enter a graph name.')
+      return
+    }
+
+    if (!graph.value) {
+      alert('Graph not initialized.')
+      return
+    }
+
+    const serializedGraph = graph.value.serialize()
+    const userId = localStorage.getItem('userId')
+    const userToken = localStorage.getItem('userToken')
+
+    if (!userId || !userToken) {
+      alert('User not authenticated')
+      return
+    }
+
+    const requestData = {
+      user_id: userId,
+      token: userToken,
+      name: graphName.value,
+      graph_data: serializedGraph,
+    }
+
+    try {
+      const response = await axios.post<ApiResponse<null>>(
+        'https://pve.finance/api/save-graph',
+        requestData,
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+
+      if (response.data.status === 'success') {
+        alert('Graph saved successfully.')
+        await fetchSavedGraphs()
+      } else {
+        alert(`Error: ${response.data.message}`)
+      }
+    } catch (error) {
+      console.error('Error saving graph:', error)
+    }
+  }
+
+  /**
+   * Deletes the selected graph from the server.
+   */
+  const deleteGraphToServer = async (): Promise<void> => {
+    if (!selectedGraph.value) {
+      alert('Please select a graph to delete')
+      return
+    }
+
+    const userId = localStorage.getItem('userId')
+    const userToken = localStorage.getItem('userToken')
+
+    if (!userId || !userToken) {
+      alert('User not authenticated')
+      return
+    }
+
+    const requestData = {
+      user_id: userId,
+      token: userToken,
+      name: selectedGraph.value,
+    }
+
+    try {
+      const response = await axios.post<ApiResponse<null>>(
+        'https://pve.finance/api/delete-graph',
+        requestData,
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+
+      if (response.data.status === 'success') {
+        alert('Graph deleted successfully.')
+        await fetchSavedGraphs()
+      } else {
+        alert(`Error: ${response.data.message}`)
+      }
+    } catch (error) {
+      console.error('Error deleting graph:', error)
+    }
+  }
+
+  /**
+   * Compiles the selected graph with the specified parameters.
+   */
+  const compileGraph = async (): Promise<void> => {
+    const userId = localStorage.getItem('userId')
+    const userToken = localStorage.getItem('userToken')
+
+    if (!userId || !userToken) {
+      alert('User not authenticated')
+      return
+    }
+
+    const sDate = startDate.value
+    const eDate = endDate.value
+    const tf = timeframe.value
+    const sym = symbol.value
+
+    if (!selectedGraph.value) {
+      alert('Please select a graph to compile')
+      return
+    }
+
+    const requestData = {
+      user_id: userId,
+      token: userToken,
+      name: selectedGraph.value,
+      start_date: sDate,
+      end_date: eDate,
+      timeframe: tf,
+      symbol: sym,
+    }
+
+    try {
+      const response = await axios.post<ApiResponse<null>>(
+        '/api/compile-graph',
+        requestData,
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+
+      if (response.data.status === 'success') {
+        console.log('Compilation started')
+      } else {
+        console.error('Error compiling graph:', response.data.message)
+      }
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }
+
+  /**
+   * Sets default start and end dates.
+   */
+  const setDefaultDates = (): void => {
+    const today = new Date()
+
+    const threeDaysAgo = new Date(today)
+    threeDaysAgo.setDate(today.getDate() - 3)
+
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    startDate.value = threeDaysAgo.toISOString().split('T')[0]
+    endDate.value = tomorrow.toISOString().split('T')[0]
+  }
+
+  return {
+    graph,
+    graphCanvas,
+    graphName,
+    savedGraphs,
+    selectedGraph,
+    symbolOptions,
+    startDate,
+    endDate,
+    timeframe,
+    symbol,
+    initializeGraph,
+    resizeCanvas,
+    populateSymbolDropdown,
+    fetchSavedGraphs,
+    loadGraphFromServer,
+    saveGraphToServer,
+    deleteGraphToServer,
+    compileGraph,
+    setDefaultDates,
+  }
+})

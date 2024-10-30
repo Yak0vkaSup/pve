@@ -27,6 +27,20 @@ def save_graph():
         current_app.logger.error(f"Error saving graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+@graph_bp.route('/api/delete-graph', methods=['POST'])
+@log_request
+@token_required
+def delete_graph():
+    try:
+        request_data = request.get_json()
+        user_id = request_data.get('user_id')
+        graph_name = request_data.get('name')
+        Graph.delete(user_id, graph_name)
+        return jsonify({'status': 'success', 'message': 'Graph saved successfully'})
+    except Exception as e:
+        current_app.logger.error(f"Error saving graph: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 @graph_bp.route('/api/get-saved-graphs', methods=['GET'])
 @log_request
 @token_required

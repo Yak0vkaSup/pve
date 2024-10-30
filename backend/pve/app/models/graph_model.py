@@ -53,3 +53,26 @@ class Graph:
         cursor.close()
         conn.close()
         return graph[0] if graph else None
+
+    @staticmethod
+    def delete(user_id, graph_name):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Check if graph exists before attempting to delete
+        query = "SELECT id FROM user_graphs WHERE user_id = %s AND name = %s"
+        cursor.execute(query, (user_id, graph_name))
+        graph = cursor.fetchone()
+
+        if graph:
+            # Delete the graph if it exists
+            delete_query = "DELETE FROM user_graphs WHERE user_id = %s AND name = %s"
+            cursor.execute(delete_query, (user_id, graph_name))
+            conn.commit()
+            result = True
+        else:
+            result = False
+
+        cursor.close()
+        conn.close()
+        return result

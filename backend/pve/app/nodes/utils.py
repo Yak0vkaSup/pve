@@ -4,9 +4,9 @@ import pandas_ta as ta
 from ..utils.database import get_db_connection
 import logging
 
-def calculate_ma(df, length, ma_type, calculate_on, ma_multiplier=1.0):
+def calculate_ma(df, length, ma_type, calculate_on):
     ma_function = getattr(ta, ma_type)
-    return ma_function(df[calculate_on], length, talib=True) * ma_multiplier
+    return ma_function(df[calculate_on], length, talib=True)
 
 def fetch_data(symbol, start_date, end_date):
     conn = get_db_connection()

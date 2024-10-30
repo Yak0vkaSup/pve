@@ -1,8 +1,7 @@
 .button-container {
   display: flex;
   justify-content: flex-start;
-  gap: 10px;
-  margin-bottom: 8px;
+
 }
 
 button,
@@ -15,8 +14,9 @@ select {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  margin-bottom: 0px; /* Space below the element */
-  margin-right: 10px; /* Space to the right of the element */
+
+  margin-right: 1vh; /* Space to the right of the element */
+
 }
 
 input,
