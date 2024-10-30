@@ -18,8 +18,19 @@
       </option>
     </select>
 
-    <input type="date" v-model="graphStore.savedGraphs.startDate" class="input-date" placeholder="Start Date" />
-    <input type="date" v-model="graphStore.savedGraphs.endDate" class="input-date" placeholder="End Date" />
+    <!-- src/components/ButtonControls.vue -->
+    <input
+      type="date"
+      v-model="graphStore.startDate"
+      class="input-date"
+      placeholder="Start Date"
+    />
+    <input
+      type="date"
+      v-model="graphStore.endDate"
+      class="input-date"
+      placeholder="End Date"
+    />
 
 <!--    <select v-model="graphStore.savedGraphs.timeframe" class="select-timeframe">-->
 <!--      <option value="1min">1 Minute</option>-->
@@ -28,9 +39,9 @@
 <!--      &lt;!&ndash; Add more options as needed &ndash;&gt;-->
 <!--    </select>-->
 
-    <select v-model="graphStore.savedGraphs.symbol" class="select-symbol">
+    <select v-model="graphStore.symbol" class="select-symbol">
       <option disabled value="">Select a symbol</option>
-      <option v-for="symbol in graphStore.savedGraphs.symbolOptions" :key="symbol" :value="symbol">
+      <option v-for="symbol in graphStore.symbolOptions" :key="symbol" :value="symbol">
         {{ symbol }}
       </option>
     </select>

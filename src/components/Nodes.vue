@@ -15,13 +15,18 @@ const handleResize = () => {
   graphStore.resizeCanvas()
 }
 
-onMounted(() => {
+onMounted(async () => {
   graphStore.initializeGraph(canvas.value)
   graphStore.populateSymbolDropdown()
   graphStore.setDefaultDates()
   graphStore.fetchSavedGraphs()
   handleResize()
+  await graphStore.fetchSavedGraphs()
+  if (graphStore.selectedGraph) {
+    await graphStore.compileGraph()
+  }
   window.addEventListener('resize', handleResize)
+
 })
 
 onBeforeUnmount(() => {

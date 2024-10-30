@@ -24,5 +24,6 @@ CREATE TABLE user_graphs (
     user_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL, 
     graph_data JSONB NOT NULL, 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP
 );

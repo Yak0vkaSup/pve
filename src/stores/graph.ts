@@ -15,7 +15,7 @@ import '../components/custom_nodes/MultiplyColumnNode.js'
 import '../components/custom_nodes/indicators/MaNode.js'
 import '../components/custom_nodes/CompareNode.js'
 
-// Define interfaces for different API responses
+// Define interfaces
 
 // Interface for Bybit API response
 interface BybitTickersResponse {
@@ -33,15 +33,16 @@ interface Ticker {
   // Add other relevant properties if needed
 }
 
-// Interface for Graph data
+// Interface for Graph data (internal API)
 interface GraphData {
   id: number
   name: string
+  modified_at: string
   // Add other relevant properties based on your API response
 }
 
 // Generic API response interface for internal APIs
-interface ApiResponse<T> {
+interface InternalApiResponse<T> {
   status: string
   message?: string
   graphs?: T
@@ -159,7 +160,7 @@ export const useGraphStore = defineStore('graph', () => {
     }
 
     try {
-      const response = await axios.get<ApiResponse<GraphData[]>>(
+      const response = await axios.get<InternalApiResponse<GraphData[]>>(
         'https://pve.finance/api/get-saved-graphs',
         {
           params: { id: userId, token: userToken },
@@ -168,6 +169,17 @@ export const useGraphStore = defineStore('graph', () => {
 
       if (response.data.status === 'success' && response.data.graphs) {
         savedGraphs.value = response.data.graphs
+
+        // Sort by modified_at descending and set the most recent as default
+        const sortedGraphs = savedGraphs.value.sort(
+          (a, b) => new Date(b.modified_at).getTime() - new Date(a.modified_at).getTime()
+        )
+
+        if (sortedGraphs.length > 0) {
+          selectedGraph.value = sortedGraphs[0].name
+          graphName.value = sortedGraphs[0].name
+          await loadGraphFromServer() // Load the default graph
+        }
       } else {
         console.error('Error fetching saved graphs:', response.data.message)
       }
@@ -175,7 +187,6 @@ export const useGraphStore = defineStore('graph', () => {
       console.error('Error fetching saved graphs:', error)
     }
   }
-
   /**
    * Loads a graph from the server based on the selected graph name.
    */
@@ -200,7 +211,7 @@ export const useGraphStore = defineStore('graph', () => {
     }
 
     try {
-      const response = await axios.post<ApiResponse<any>>(
+      const response = await axios.post<InternalApiResponse<any>>(
         'https://pve.finance/api/load-graph',
         requestData,
         {
@@ -254,7 +265,7 @@ export const useGraphStore = defineStore('graph', () => {
     }
 
     try {
-      const response = await axios.post<ApiResponse<null>>(
+      const response = await axios.post<InternalApiResponse<null>>(
         'https://pve.finance/api/save-graph',
         requestData,
         {
@@ -297,7 +308,7 @@ export const useGraphStore = defineStore('graph', () => {
     }
 
     try {
-      const response = await axios.post<ApiResponse<null>>(
+      const response = await axios.post<InternalApiResponse<null>>(
         'https://pve.finance/api/delete-graph',
         requestData,
         {
@@ -349,7 +360,7 @@ export const useGraphStore = defineStore('graph', () => {
     }
 
     try {
-      const response = await axios.post<ApiResponse<null>>(
+      const response = await axios.post<InternalApiResponse<null>>(
         '/api/compile-graph',
         requestData,
         {

@@ -53,6 +53,7 @@ def get_saved_graphs():
         current_app.logger.error(f"Error fetching graphs: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+
 @graph_bp.route('/api/load-graph', methods=['POST'])
 @log_request
 @token_required
