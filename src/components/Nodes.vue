@@ -22,9 +22,9 @@ onMounted(async () => {
   graphStore.fetchSavedGraphs()
   handleResize()
   await graphStore.fetchSavedGraphs()
-  if (graphStore.selectedGraph) {
-    await graphStore.compileGraph()
-  }
+  // if (graphStore.selectedGraph) {
+  //   await graphStore.compileGraph()
+  // }
   window.addEventListener('resize', handleResize)
 
 })

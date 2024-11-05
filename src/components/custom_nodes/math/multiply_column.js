@@ -10,4 +10,4 @@ export function MultiplyColumnNode() {
 
 MultiplyColumnNode.title = 'Multiply column'
 
-LiteGraph.registerNodeType('tools/multipy_column', MultiplyColumnNode)
+LiteGraph.registerNodeType('math/multipy_column', MultiplyColumnNode)

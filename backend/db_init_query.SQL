@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(255),
     username VARCHAR(255),
     usertoken UUID,
-    auth_date TIMESTAMP,
+    auth_date TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS candles (
@@ -25,5 +25,8 @@ CREATE TABLE user_graphs (
     name VARCHAR(255) NOT NULL, 
     graph_data JSONB NOT NULL, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP
+    modified_at TIMESTAMP,
+    symbol VARCHAR(20),
+    start_date TIMESTAMP,
+    end_date TIMESTAMP
 );

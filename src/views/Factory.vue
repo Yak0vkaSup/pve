@@ -28,9 +28,11 @@ import Buttons from '../components/NodesSettings.vue';
   max-width: 100vw;
 }
 
-.chart-container,
-.graph-container {
+.chart-container {
   min-height: 40vh;
+}
+.graph-container {
+  min-height: 50vh;
 }
 
 canvas {

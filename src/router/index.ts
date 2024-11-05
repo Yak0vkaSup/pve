@@ -6,6 +6,7 @@ import Home from '../views/Home.vue';
 import UserProfile from '../views/UserProfile.vue';
 import Factory from '../views/Factory.vue';
 import Port from '../views/Port.vue';
+import Docs from '../views/Docs.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -29,6 +30,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/port',
     name: 'Port',
     component: Port,
+    meta: { requiresAuth: false },
+  },
+  {
+    path: '/docs',
+    name: 'Docs',
+    component: Docs,
     meta: { requiresAuth: false },
   },
 ];

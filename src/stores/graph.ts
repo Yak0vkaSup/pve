@@ -19,14 +19,23 @@ import '../components/custom_nodes/set/integer.js'
 import '../components/custom_nodes/set/string.js'
 
 import '../components/custom_nodes/tools/add_column.js'
-import '../components/custom_nodes/tools/multiply_column.js'
+import '../components/custom_nodes/tools/add_condition.js'
+import '../components/custom_nodes/math/multiply_column.js'
 import '../components/custom_nodes/tools/get_column.js'
+
+import '../components/custom_nodes/logic/_if.js'
+import '../components/custom_nodes/logic/_and.js'
+import '../components/custom_nodes/logic/_or.js'
+
+import '../components/custom_nodes/compare/cross_over.js'
+import '../components/custom_nodes/compare/equal.js'
+import '../components/custom_nodes/indicators/EmaNode.js'
 
 // import '../components/custom_nodes/GetDataFromDbNode.js'
 // import '../components/custom_nodes/VisualizeDataNode.js'
 // import '../components/custom_nodes/indicators/HeikenAshiNode.js'
 // import '../components/custom_nodes/MultiplyColumnNode.js'
-// import '../components/custom_nodes/indicators/MaNode.js'
+// import '../components/custom_nodes/indicators/EmaNode.js'
 // import '../components/custom_nodes/CompareNode.js'
 
 
@@ -41,28 +50,27 @@ interface BybitTickersResponse {
   }
 }
 
-// Interface for individual ticker
 interface Ticker {
   symbol: string
   turnover24h: string
-  // Add other relevant properties if needed
 }
 
-// Interface for Graph data (internal API)
+
 interface GraphData {
   id: number
   name: string
   modified_at: string
-  // Add other relevant properties based on your API response
 }
 
-// Generic API response interface for internal APIs
+
 interface InternalApiResponse<T> {
-  status: string
-  message?: string
+  status: string;
+  message?: string;
   graphs?: T
-  graph_data?: any // Replace 'any' with a specific type if possible
-  // Add other fields based on your API
+  graph_data?: T;
+  start_date?: string;
+  end_date?: string;
+  symbol?: string;
 }
 
 export const useGraphStore = defineStore('graph', () => {
@@ -83,7 +91,7 @@ export const useGraphStore = defineStore('graph', () => {
    * @param canvasElement - The HTMLCanvasElement to initialize LiteGraphCanvas with.
    */
   const initializeGraph = (canvasElement: HTMLCanvasElement): void => {
-    const customLinkTypeColors = {
+    const customLinkTypeColors: Record<string, string>  = {
         integer: "#d2ffb0",
         string: "#f3b0ff",
         boolean: "#F77",
@@ -94,9 +102,10 @@ export const useGraphStore = defineStore('graph', () => {
     graph.value = new LGraph()
     graphCanvas.value = new LGraphCanvas(canvasElement, graph.value)
 
-    graphCanvas.value.default_connection_color_byType  = customLinkTypeColors
-    graphCanvas.value.default_connection_color_byTypeOff  = customLinkTypeColors
-
+    if (graphCanvas.value) {
+      (graphCanvas.value as any).default_connection_color_byType = customLinkTypeColors;
+      (graphCanvas.value as any).default_connection_color_byTypeOff = customLinkTypeColors;
+    }
     Object.assign(LGraphCanvas.link_type_colors, customLinkTypeColors);
 
     graph.value.start()
@@ -247,7 +256,6 @@ export const useGraphStore = defineStore('graph', () => {
           headers: { 'Content-Type': 'application/json' },
         }
       )
-
       if (response.data.status === 'success' && response.data.graph_data) {
         if (graph.value) {
           graph.value.clear()
@@ -255,6 +263,18 @@ export const useGraphStore = defineStore('graph', () => {
           graph.value.start()
           resizeCanvas()
         }
+        if (response.data.start_date) {
+          startDate.value = response.data.start_date.split('T')[0] // Extract date part
+        }
+
+        if (response.data.end_date) {
+          endDate.value = response.data.end_date.split('T')[0] // Extract date part
+        }
+
+        if (response.data.symbol) {
+          symbol.value = response.data.symbol
+        }
+
       } else {
         console.error('Error loading graph:', response.data.message)
       }
@@ -285,12 +305,20 @@ export const useGraphStore = defineStore('graph', () => {
       alert('User not authenticated')
       return
     }
+    const sDate = startDate.value
+    const eDate = endDate.value
+    const tf = timeframe.value
+    const sym = symbol.value
 
     const requestData = {
       user_id: userId,
       token: userToken,
       name: graphName.value,
       graph_data: serializedGraph,
+      start_date: sDate,
+      end_date: eDate,
+      timeframe: tf,
+      symbol: sym,
     }
 
     try {

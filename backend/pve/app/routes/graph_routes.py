@@ -17,11 +17,15 @@ def save_graph():
         user_id = request_data.get('user_id')
         graph_name = request_data.get('name')
         graph_data = request_data.get('graph_data')
+        start_date = request_data.get('start_date')
+        end_date = request_data.get('end_date')
+        symbol = request_data.get('symbol')
+
         if isinstance(graph_data, dict):
             graph_json = json.dumps(graph_data)
         else:
             graph_json = graph_data
-        Graph.save_or_update(user_id, graph_name, graph_json)
+        Graph.save_or_update(user_id, graph_name, graph_json, start_date, end_date, symbol)
         return jsonify({'status': 'success', 'message': 'Graph saved successfully'})
     except Exception as e:
         current_app.logger.error(f"Error saving graph: {str(e)}")
@@ -48,6 +52,7 @@ def get_saved_graphs():
     try:
         user_id = request.args.get('id')
         graphs = Graph.get_all_by_user(user_id)
+        print(graphs)
         return jsonify({'status': 'success', 'graphs': graphs})
     except Exception as e:
         current_app.logger.error(f"Error fetching graphs: {str(e)}")
@@ -63,11 +68,23 @@ def load_graph():
         user_id = request_data.get('user_id')
         graph_name = request_data.get('name')
 
-        graph_data = Graph.load(user_id, graph_name)
-        if not graph_data:
+        graph_record = Graph.load(user_id, graph_name)
+
+        if not graph_record:
             return jsonify({'status': 'error', 'message': 'Graph not found'}), 404
 
-        return jsonify({'status': 'success', 'graph_data': graph_data})
+        graph_data, start_date, end_date, symbol = graph_record
+        start_date_str = start_date.isoformat()
+        end_date_str = end_date.isoformat()
+
+        response_payload = {
+            'status': 'success',
+            'graph_data': graph_data,
+            'start_date': start_date_str,
+            'end_date': end_date_str,
+            'symbol': symbol
+        }
+        return jsonify(response_payload)
     except Exception as e:
         current_app.logger.error(f"Error loading graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500

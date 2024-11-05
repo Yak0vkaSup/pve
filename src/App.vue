@@ -17,8 +17,6 @@ import Footer from './components/Footer.vue';
   display: flex;
   flex-direction: column;
   margin: 0;
-  width: 100vw;
-  height: 100vh;
   box-sizing: border-box;
 
 }

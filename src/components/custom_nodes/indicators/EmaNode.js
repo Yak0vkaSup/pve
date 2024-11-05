@@ -1,18 +1,18 @@
 // Import LiteGraph
 import { LiteGraph } from 'litegraph.js'
 
-export function RSINode() {
+export function EmaNode() {
   // this.addInput('Data', 'number')
   this.addInput('Column', 'column')
   this.addInput('Window', 'integer')
 
-  this.addOutput('RSI', 'column')
+  this.addOutput('EMA', 'column')
 
   this.serialize_widgets = true
 }
 
 // Set the title for the node
-RSINode.title = 'RSI'
+EmaNode.title = 'EMA'
 
 // Register the node with LiteGraph
-LiteGraph.registerNodeType('indicators/rsi', RSINode)
+LiteGraph.registerNodeType('indicators/ema', EmaNode)

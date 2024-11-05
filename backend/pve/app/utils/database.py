@@ -10,7 +10,7 @@ def get_db_connection():
             user=current_app.config['DB_USER'],
             password=current_app.config['DB_PASSWORD']
         )
-        current_app.logger.info("Database connection established")
+        # current_app.logger.info("Database connection established")
         return conn
     except Exception as e:
         current_app.logger.error(f"Database connection error: {e}")

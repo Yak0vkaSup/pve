@@ -11,6 +11,9 @@
         <li>
           <router-link to="/port">Port</router-link>
         </li>
+        <li>
+          <router-link to="/docs">Docs</router-link>
+        </li>
       </ul>
       <div class="auth-section">
         <button v-if="!authStore.isAuthenticated" @click="showLogin = true">Login</button>
@@ -53,6 +56,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 3vh;
 }
 
 .logo a {
