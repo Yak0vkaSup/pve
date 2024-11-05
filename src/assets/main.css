@@ -1,5 +1,6 @@
 @import './base.css';
 @import './nodes.css';
+@import './inputs.css';
 
 #app {
   margin: 0 auto;

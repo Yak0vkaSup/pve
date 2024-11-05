@@ -3,17 +3,32 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Ref } from 'vue'
-import { LGraph, LGraphCanvas } from 'litegraph.js'
+import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js'
 import 'litegraph.js/css/litegraph.css'
 import axios from 'axios'
 
 // Import your custom nodes
-import '../components/custom_nodes/GetDataFromDbNode.js'
-import '../components/custom_nodes/VisualizeDataNode.js'
-import '../components/custom_nodes/indicators/HeikenAshiNode.js'
-import '../components/custom_nodes/MultiplyColumnNode.js'
-import '../components/custom_nodes/indicators/MaNode.js'
-import '../components/custom_nodes/CompareNode.js'
+import '../components/custom_nodes/get/open.js'
+import '../components/custom_nodes/get/high.js'
+import '../components/custom_nodes/get/low.js'
+import '../components/custom_nodes/get/close.js'
+import '../components/custom_nodes/get/volume.js'
+
+import '../components/custom_nodes/set/float.js'
+import '../components/custom_nodes/set/integer.js'
+import '../components/custom_nodes/set/string.js'
+
+import '../components/custom_nodes/tools/add_column.js'
+import '../components/custom_nodes/tools/multiply_column.js'
+import '../components/custom_nodes/tools/get_column.js'
+
+// import '../components/custom_nodes/GetDataFromDbNode.js'
+// import '../components/custom_nodes/VisualizeDataNode.js'
+// import '../components/custom_nodes/indicators/HeikenAshiNode.js'
+// import '../components/custom_nodes/MultiplyColumnNode.js'
+// import '../components/custom_nodes/indicators/MaNode.js'
+// import '../components/custom_nodes/CompareNode.js'
+
 
 // Define interfaces
 
@@ -68,8 +83,22 @@ export const useGraphStore = defineStore('graph', () => {
    * @param canvasElement - The HTMLCanvasElement to initialize LiteGraphCanvas with.
    */
   const initializeGraph = (canvasElement: HTMLCanvasElement): void => {
+    const customLinkTypeColors = {
+        integer: "#d2ffb0",
+        string: "#f3b0ff",
+        boolean: "#F77",
+        float: "#b0e0ff",
+        column: "#fffdb0"
+    };
+
     graph.value = new LGraph()
     graphCanvas.value = new LGraphCanvas(canvasElement, graph.value)
+
+    graphCanvas.value.default_connection_color_byType  = customLinkTypeColors
+    graphCanvas.value.default_connection_color_byTypeOff  = customLinkTypeColors
+
+    Object.assign(LGraphCanvas.link_type_colors, customLinkTypeColors);
+
     graph.value.start()
   }
 

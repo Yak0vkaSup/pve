@@ -5,7 +5,7 @@ import { useAuthStore } from '../stores/auth';
 import Home from '../views/Home.vue';
 import UserProfile from '../views/UserProfile.vue';
 import Factory from '../views/Factory.vue';
-
+import Port from '../views/Port.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -23,6 +23,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/factory',
     name: 'Factory',
     component: Factory,
+    meta: { requiresAuth: false },
+  },
+  {
+    path: '/port',
+    name: 'Port',
+    component: Port,
     meta: { requiresAuth: false },
   },
 ];

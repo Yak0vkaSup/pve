@@ -3,11 +3,13 @@ import { LiteGraph } from 'litegraph.js'
 
 export function MaNode() {
   // this.addInput('Data', 'number')
-  this.addInput('Close', 'column')
-  this.addOutput('MA', 'column')
+  this.addInput('Column', 'column')
+  this.addInput('Window', 'integer')
+  this.addInput('Name', 'column')
+
+  this.addOutput('Result', 'column')
 
   this.properties = {
-    windows: 7,
     mode: 'ema'
   }
 
@@ -29,4 +31,4 @@ export function MaNode() {
 MaNode.title = 'MA'
 
 // Register the node with LiteGraph
-LiteGraph.registerNodeType('custom/indicators/ma', MaNode)
+LiteGraph.registerNodeType('indicators/ma', MaNode)
