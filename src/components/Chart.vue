@@ -1,12 +1,15 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, reactive, watch } from 'vue'
 import { createChart } from 'lightweight-charts'
-import io from 'socket.io-client'
+import { useWebSocketStore } from '@/stores/websocket';
 
 const chartContainer = ref(null)
 let chartInstance
 let candleSeries
 let socket
+
+// Access the WebSocket store
+const wsStore = useWebSocketStore();
 
 // Reactive object to store MA settings
 const maSettings = reactive({})
@@ -40,7 +43,6 @@ watch(maSettings, (newSettings) => {
 }, { deep: true })
 
 onMounted(() => {
-  // Initialize the chart
   chartInstance = createChart(chartContainer.value, {
     width: chartContainer.value.clientWidth,
     height: chartContainer.value.clientHeight,
@@ -71,48 +73,15 @@ onMounted(() => {
     wickDownColor: '#f44336',
     wickUpColor: '#4caf50'
   })
-
-  // Get user ID and token from local storage
-  const userId = localStorage.getItem('userId')
-  const userToken = localStorage.getItem('userToken')
-  if (!userId || !userToken) {
-    console.error("User ID or token is missing. Redirecting to login page...")
+  if (!wsStore.isConnected) {
+    wsStore.initializeWebSocket();
   }
-  else {
-    // Initialize Socket.IO client with query parameters
-    socket = io('https://pve.finance', {
-      path: '/api/ws/socket.io',
-      query: {
-        user_id: userId,
-        token: userToken
-      },
-      transports: ['websocket']
-    })
-    socket.on('connect', () => {
-      console.log('Connected to server via WebSocket')
-    })
-
-    socket.on('disconnect', () => {
-      console.log('Disconnected from server')
-    })
-
-    socket.on('reconnect_attempt', () => {
-      console.log('Attempting to reconnect...')
-    })
-
-    socket.on('connect_error', (error) => {
-      console.error('Connection error:', error)
-    })
-
-    socket.on('update_chart', (response) => {
-      console.log('Response from server:', response)
-      if (response.status === 'success') {
-        updateChartData(response.data)
-      } else {
-        console.error('Error updating chart:', response.message)
-      }
-    })
-  }
+    // Watch for chartData updates from the WebSocket store
+  watch(() => wsStore.chartData, (newData) => {
+    if (newData) {
+      updateChartData(newData);
+    }
+  });
   // Resize chart on window resize
   window.addEventListener('resize', () => {
     chartInstance.resize(chartContainer.value.clientWidth, chartContainer.value.clientHeight)

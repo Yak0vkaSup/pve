@@ -18,7 +18,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/profile',
     name: 'UserProfile',
     component: UserProfile,
-    meta: { requiresAuth: false },
+    meta: { requiresAuth: true },
   },
   {
     path: '/factory',
@@ -30,7 +30,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/port',
     name: 'Port',
     component: Port,
-    meta: { requiresAuth: false },
+    meta: { requiresAuth: true },
   },
   {
     path: '/docs',
@@ -49,8 +49,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    // Redirect unauthenticated users to the Home page
     next({ name: 'Home' });
+    authStore.logout();
   } else {
     next();
   }

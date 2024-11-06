@@ -8,6 +8,6 @@ export function GetOpenNode() {
   this.serialize_widgets = true
 }
 
-GetOpenNode.title = 'Get close price'
+GetOpenNode.title = 'Get open price'
 
 LiteGraph.registerNodeType('get/open', GetOpenNode)

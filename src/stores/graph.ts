@@ -261,7 +261,7 @@ export const useGraphStore = defineStore('graph', () => {
           graph.value.clear()
           graph.value.configure(response.data.graph_data)
           graph.value.start()
-          resizeCanvas()
+          // resizeCanvas()
         }
         if (response.data.start_date) {
           startDate.value = response.data.start_date.split('T')[0] // Extract date part

@@ -9,7 +9,7 @@ def setup_logging(app):
     handler.setFormatter(formatter)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
-    app.logger.setLevel(logging.INFO)
+    # app.logger.setLevel(logging.INFO)
 
 def log_request(f):
     @wraps(f)

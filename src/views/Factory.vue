@@ -9,6 +9,9 @@
     <div class="graph-container">
       <Nodes />
     </div>
+    <div class="console-container">
+      <Logs  />
+    </div>
   </main>
 </template>
 
@@ -16,6 +19,7 @@
 import Chart from '../components/Chart.vue';
 import Nodes from '../components/Nodes.vue';
 import Buttons from '../components/NodesSettings.vue';
+import Logs from '../components/Logs.vue';
 </script>
 
 <style scoped>

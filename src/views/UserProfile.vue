@@ -101,7 +101,6 @@ onMounted(() => {
 // Function to handle logout
 const handleLogout = () => {
   authStore.logout();
-  toast.success('Logged out successfully!');
   router.push({ name: 'Home' });
 };
 

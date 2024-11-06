@@ -20,15 +20,16 @@ def save_user_token(user_data, token):
         # Update token
         update_query = """
             UPDATE users
-            SET usertoken = %s
+            SET usertoken = %s,
+                last_auth = CURRENT_TIMESTAMP
             WHERE id = %s
         """
         cursor.execute(update_query, (token, user_id))
     else:
         # Insert new user
         insert_query = """
-            INSERT INTO users (id, first_name, last_name, username, usertoken)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO users (id, first_name, last_name, username, usertoken, auth_date)
+            VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
         """
         cursor.execute(insert_query, (user_id, first_name, last_name, username, token))
 
@@ -64,7 +65,7 @@ def token_required(f):
             return jsonify({'status': 'error', 'message': 'Token or user ID is missing'}), 403
 
         if not verify_user_token(user_id, user_token):
-            return jsonify({'status': 'error', 'message': 'Invalid user token or user ID'}), 403
+            return jsonify({'status': 'error', 'message': 'Session expired or invalid token'}), 401
 
         return f(*args, **kwargs)
     return decorated
