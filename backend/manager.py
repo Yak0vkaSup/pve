@@ -72,15 +72,26 @@ def insert_data(df, symbol):
         cur = conn.cursor()
 
         records = df.to_dict('records')
-        values = [(symbol, record['timestamp'], record['open'], record['high'], record['low'], record['close'],
+        values = [(symbol,
+                   record['timestamp'],
+                   record['open'],
+                   record['high'],
+                   record['low'],
+                   record['close'],
                    record['volume']) for record in records]
 
         insert_query = """
-        INSERT INTO candles (symbol, timestamp, open, high, low, close, volume) 
-        VALUES %s 
-        ON CONFLICT (symbol, timestamp) 
-        DO UPDATE SET open = EXCLUDED.open, high = EXCLUDED.high, low = EXCLUDED.low, close = EXCLUDED.close, volume = EXCLUDED.volume;
+        INSERT INTO candles (symbol, "timestamp", open, high, low, close, volume)
+        VALUES %s
+        ON CONFLICT (symbol, "timestamp") 
+        DO UPDATE SET 
+            open = EXCLUDED.open,
+            high = EXCLUDED.high,
+            low = EXCLUDED.low,
+            close = EXCLUDED.close,
+            volume = EXCLUDED.volume;
         """
+
         execute_values(cur, insert_query, values)
         conn.commit()
         cur.close()
@@ -207,6 +218,6 @@ if __name__ == '__main__':
     #     i += 1
     # update_symbol(symbols[21])
     print(symbols)
-    num_days = 30 # last days
+    num_days = 90 # last days
     update_all_symbols(symbols, num_days)
-    update_symbols_continuously(symbols)
+    # update_symbols_continuously(symbols)

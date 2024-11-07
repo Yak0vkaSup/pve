@@ -78,3 +78,10 @@ def delete_column(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
 def multiply_column(column: pd.Series, factor: Union[int, float]) -> pd.Series:
     return column * factor
 
+@type_check
+def ema(column: pd.Series, window: int) -> pd.Series:
+    return ta.ema(column, window)
+
+@type_check
+def super_trend(high: pd.Series, low: pd.Series, close: pd.Series,  window: int) -> pd.Series:
+    return ta.supertrend(high, low, close, window)

@@ -15,7 +15,9 @@ from .utils import (
     get_volume,
     add_column,
     delete_column,
-    multiply_column
+    multiply_column,
+    ema,
+    super_trend,
 )
 
 # Configure logging for this module
@@ -54,11 +56,61 @@ class GetOpenNode(Node):
             logger.error(f"GetOpenNode {self.id}: DataFrame is None.")
             self.output_values['open'] = None
 
+class GetCloseNode(Node):
+    def execute(self):
+        df = Node.get_df()
+        if df is not None:
+            close_series = get_close(df)
+            self.output_values['close'] = close_series
+            logger.info(f"GetCloseNode {self.id}: Output 'close' set.")
+        else:
+            logger.error(f"GetCloseNode {self.id}: DataFrame is None.")
+            self.output_values['close'] = None
+
+class GetHighNode(Node):
+    def execute(self):
+        df = Node.get_df()
+        if df is not None:
+            high_series = get_high(df)
+            self.output_values['high'] = high_series
+            logger.info(f"GetHighNode {self.id}: Output 'high' set.")
+        else:
+            logger.error(f"GetHighNode {self.id}: DataFrame is None.")
+            self.output_values['high'] = None
+
+class GetLowNode(Node):
+    def execute(self):
+        df = Node.get_df()
+        if df is not None:
+            low_series = get_low(df)
+            self.output_values['low'] = low_series
+            logger.info(f"GetLowNode {self.id}: Output 'low' set.")
+        else:
+            logger.error(f"GetLowNode {self.id}: DataFrame is None.")
+            self.output_values['low'] = None
+
+class GetVolumeNode(Node):
+    def execute(self):
+        df = Node.get_df()
+        if df is not None:
+            volume_series = get_volume(df)
+            self.output_values['volume'] = volume_series
+            logger.info(f"GetVolumeNode {self.id}: Output 'volume' set.")
+        else:
+            logger.error(f"GetVolumeNode {self.id}: DataFrame is None.")
+            self.output_values['volume'] = None
+
 class SetFloatNode(Node):
     def execute(self):
         float_value = self.properties.get('value', 1.0)
         logger.info(f"SetFloatNode {self.id}: Set float value to {float_value}.")
         self.output_values['Float'] = float_value
+
+class SetIntegerNode(Node):
+    def execute(self):
+        integer_value = self.properties.get('value', 3)
+        logger.info(f"SetIntegerNode {self.id}: Set integer value to {integer_value}.")
+        self.output_values['Integer'] = integer_value
 
 class SetStringNode(Node):
     def execute(self):
@@ -69,8 +121,8 @@ class SetStringNode(Node):
 class MultiplyColumnNode(Node):
     def execute(self):
         print(self.input_values)
-        source_column = self.input_values.get(0)  # Assuming input slot 0 is the source Series
-        factor = self.input_values.get(1)  # Assuming input slot 1 is the coefficient (float)
+        source_column = self.input_values.get(0)
+        factor = self.input_values.get(1)
 
         if source_column is None:
             logger.error(f"MultiplyColumnNode {self.id}: Source column is None.")
@@ -90,15 +142,65 @@ class MultiplyColumnNode(Node):
             logger.error(f"MultiplyColumnNode {self.id}: {e}")
             self.output_values['Result'] = None
 
+class EMANode(Node):
+    def execute(self):
+        source_column = self.input_values.get(0)
+        window = self.input_values.get(1)
+
+        if source_column is None:
+            logger.error(f"EMANode {self.id}: Source column is None.")
+            self.output_values['EMA'] = None  # Changed 'Result' to 'EMA'
+            return
+
+        if window is None:
+            logger.error(f"EMANode {self.id}: Window is None.")
+            self.output_values['EMA'] = None  # Changed 'Result' to 'EMA'
+            return
+
+        try:
+            ema_series = ema(source_column, window)
+            self.output_values['EMA'] = ema_series  # Changed 'Result' to 'EMA'
+            logger.info(f"EMANode {self.id}: EMA column '{source_column.name}' with {window}.")
+        except Exception as e:
+            logger.error(f"EMANode {self.id}: {e}")
+            self.output_values['EMA'] = None  # Changed 'Result' to 'EMA'
+
+class SuperTrendNode(Node):
+    def execute(self):
+        high = self.input_values.get(0)
+        low = self.input_values.get(1)
+        close = self.input_values.get(2)
+        window = self.input_values.get(3)
+
+        if high is None or low is None or close is None:
+            logger.error(f"SuperTrendNode {self.id}: Source column is None.")
+            self.output_values['SuperTrend'] = None  # Changed 'Result' to 'EMA'
+            return
+
+        if window is None:
+            logger.error(f"SuperTrendNode {self.id}: Window is None.")
+            self.output_values['SuperTrend'] = None  # Changed 'Result' to 'EMA'
+            return
+
+        try:
+            supertrend_series = super_trend(high, low, close, window)
+            self.output_values['SuperTrend'] = supertrend_series  # Changed 'Result' to 'EMA'
+            logger.info(f"SuperTrendNode {self.id}: SuperTrend column with {window}.")
+        except Exception as e:
+            logger.error(f"EMANode {self.id}: {e}")
+            self.output_values['SuperTrend'] = None  # Changed 'Result' to 'EMA'
+
 
 
 class AddColumnNode(Node):
     def execute(self):
         df = Node.get_df()
         if df is not None:
-            source_series = self.input_values.get(0)  # Input slot 0: Column (pd.Series)
-            column_name = self.input_values.get(1)     # Input slot 1: Name (str)
 
+            source_series = self.input_values.get(0)
+            column_name = self.input_values.get(1)
+            print(self.input_values)
+            print(column_name)
             if source_series is None:
                 logger.error(f"AddColumnNode {self.id}: Source column is None.")
                 return
@@ -130,6 +232,14 @@ def build_nodes(nodes_data):
 
         if node_type == 'get/open':
             node = GetOpenNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'get/close':
+            node = GetCloseNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'get/high':
+            node = GetHighNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'get/low':
+            node = GetLowNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'get/volume':
+            node = GetVolumeNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'tools/add_column':
             node = AddColumnNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'math/multiply_column':
@@ -138,6 +248,10 @@ def build_nodes(nodes_data):
             node = SetFloatNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'set/string':
             node = SetStringNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'set/integer':
+            node = SetIntegerNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'indicators/ema':
+            node = EMANode(node_id, node_type, properties, inputs, outputs)
         else:
             logger.warning(f"Unknown node type: {node_type}")
             node = Node(node_id, node_type, properties, inputs, outputs)
