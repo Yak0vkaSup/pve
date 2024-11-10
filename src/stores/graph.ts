@@ -29,13 +29,13 @@ import '../components/custom_nodes/logic/_or.js'
 
 import '../components/custom_nodes/compare/cross_over.js'
 import '../components/custom_nodes/compare/equal.js'
-import '../components/custom_nodes/indicators/EmaNode.js'
+import '../components/custom_nodes/indicators/MaNode.js'
 
 // import '../components/custom_nodes/GetDataFromDbNode.js'
 // import '../components/custom_nodes/VisualizeDataNode.js'
 // import '../components/custom_nodes/indicators/HeikenAshiNode.js'
 // import '../components/custom_nodes/MultiplyColumnNode.js'
-// import '../components/custom_nodes/indicators/EmaNode.js'
+// import '../components/custom_nodes/indicators/MaNode.js'
 // import '../components/custom_nodes/CompareNode.js'
 
 

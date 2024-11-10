@@ -79,8 +79,9 @@ def multiply_column(column: pd.Series, factor: Union[int, float]) -> pd.Series:
     return column * factor
 
 @type_check
-def ema(column: pd.Series, window: int) -> pd.Series:
-    return ta.ema(column, window)
+def ma(name: str, column: pd.Series, window: int) -> pd.Series:
+    return ta.ma(name, column, length=window)
+
 
 @type_check
 def super_trend(high: pd.Series, low: pd.Series, close: pd.Series,  window: int) -> pd.Series:

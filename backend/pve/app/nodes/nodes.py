@@ -16,7 +16,7 @@ from .utils import (
     add_column,
     delete_column,
     multiply_column,
-    ema,
+    ma,
     super_trend,
 )
 
@@ -142,28 +142,32 @@ class MultiplyColumnNode(Node):
             logger.error(f"MultiplyColumnNode {self.id}: {e}")
             self.output_values['Result'] = None
 
-class EMANode(Node):
+class MANode(Node):
     def execute(self):
         source_column = self.input_values.get(0)
         window = self.input_values.get(1)
-
+        type = self.properties.get('ma_type', 'ema')
         if source_column is None:
             logger.error(f"EMANode {self.id}: Source column is None.")
-            self.output_values['EMA'] = None  # Changed 'Result' to 'EMA'
+            self.output_values['MA'] = None
+            self.output_values['Default name'] = None
             return
 
         if window is None:
             logger.error(f"EMANode {self.id}: Window is None.")
-            self.output_values['EMA'] = None  # Changed 'Result' to 'EMA'
+            self.output_values['MA'] = None
+            self.output_values['Default name'] = None
             return
 
         try:
-            ema_series = ema(source_column, window)
-            self.output_values['EMA'] = ema_series  # Changed 'Result' to 'EMA'
-            logger.info(f"EMANode {self.id}: EMA column '{source_column.name}' with {window}.")
+            ma_series = ma(type, source_column, window)
+            self.output_values['MA'] = ma_series
+            self.output_values['Default name'] = type + '_' + str(window) + '_' + str(source_column.name)
+            print(f"+-+ {type + '_' + str(window) + str(source_column.name)}")
+            logger.info(f"MANode {self.id}: {type} column '{source_column.name}' with {window}.")
         except Exception as e:
-            logger.error(f"EMANode {self.id}: {e}")
-            self.output_values['EMA'] = None  # Changed 'Result' to 'EMA'
+            logger.error(f"MANode {self.id}: {e}")
+            self.output_values['MA'] = None
 
 class SuperTrendNode(Node):
     def execute(self):
@@ -250,8 +254,8 @@ def build_nodes(nodes_data):
             node = SetStringNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'set/integer':
             node = SetIntegerNode(node_id, node_type, properties, inputs, outputs)
-        elif node_type == 'indicators/ema':
-            node = EMANode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'indicators/ma':
+            node = MANode(node_id, node_type, properties, inputs, outputs)
         else:
             logger.warning(f"Unknown node type: {node_type}")
             node = Node(node_id, node_type, properties, inputs, outputs)
