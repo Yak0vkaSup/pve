@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 import pandas_ta as ta
 import json
+import time
 from flask import current_app
 from ..socketio_setup import socketio
 
@@ -325,7 +326,7 @@ def execute_graph(sorted_node_ids, nodes):
 
 def process_graph(graph_json, start_date, end_date, symbol):
     logger.info("Starting graph processing")
-
+    start_time = time.time()
     # Check if graph_data is a string (JSON), and load it if necessary
     if isinstance(graph_json, str):
         data = json.loads(graph_json)
@@ -357,4 +358,7 @@ def process_graph(graph_json, start_date, end_date, symbol):
     else:
         logger.error("No valid output DataFrame found after processing")
 
+    end_time = time.time()
+    execution_time = (end_time - start_time) * 1000
+    logger.info(f"Execution time: {execution_time} ms")
     return final_df

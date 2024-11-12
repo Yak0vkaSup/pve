@@ -1,3 +1,5 @@
+SET timezone = 'UTC';
+
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,
     first_name VARCHAR(255),
@@ -6,6 +8,18 @@ CREATE TABLE IF NOT EXISTS users (
     usertoken UUID,
     auth_date TIMESTAMP,
     last_auth TIMESTAMP
+);
+
+CREATE TABLE user_graphs (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    graph_data JSONB NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP,
+    symbol VARCHAR(20),
+    start_date TIMESTAMP,
+    end_date TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS candles (
@@ -18,16 +32,4 @@ CREATE TABLE IF NOT EXISTS candles (
 	close NUMERIC,
 	volume NUMERIC,
 	UNIQUE(symbol, timestamp)
-);
-
-CREATE TABLE user_graphs (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    name VARCHAR(255) NOT NULL, 
-    graph_data JSONB NOT NULL, 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP,
-    symbol VARCHAR(20),
-    start_date TIMESTAMP,
-    end_date TIMESTAMP
 );
