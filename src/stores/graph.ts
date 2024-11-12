@@ -71,6 +71,7 @@ interface InternalApiResponse<T> {
   start_date?: string;
   end_date?: string;
   symbol?: string;
+  timeframe?: string;
 }
 
 export const useGraphStore = defineStore('graph', () => {
@@ -83,7 +84,7 @@ export const useGraphStore = defineStore('graph', () => {
   const symbolOptions: Ref<string[]> = ref(['BTCUSDT', 'ETHUSDT', 'BNBUSDT'])
   const startDate: Ref<string> = ref('')
   const endDate: Ref<string> = ref('')
-  const timeframe: Ref<string> = ref('')
+  const timeframe: Ref<string> = ref('1min')
   const symbol: Ref<string> = ref('')
 
   /**
@@ -275,6 +276,9 @@ export const useGraphStore = defineStore('graph', () => {
           symbol.value = response.data.symbol
         }
 
+        if (response.data.timeframe) {
+          timeframe.value = response.data.timeframe
+        }
       } else {
         console.error('Error loading graph:', response.data.message)
       }

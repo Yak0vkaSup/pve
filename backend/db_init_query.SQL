@@ -18,6 +18,7 @@ CREATE TABLE user_graphs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP,
     symbol VARCHAR(20),
+    timeframe VARCHAR(20),
     start_date TIMESTAMP,
     end_date TIMESTAMP
 );

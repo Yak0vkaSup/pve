@@ -4,7 +4,7 @@ import json
 
 class Graph:
     @staticmethod
-    def save_or_update(user_id, graph_name, graph_data, start_date, end_date, symbol):
+    def save_or_update(user_id, graph_name, graph_data, start_date, end_date, symbol, timeframe):
         conn = get_db_connection()
         cursor = conn.cursor()
 
@@ -21,7 +21,8 @@ class Graph:
                     symbol = %s,
                     start_date = %s,
                     end_date = %s,
-                    modified_at = CURRENT_TIMESTAMP
+                    modified_at = CURRENT_TIMESTAMP,
+                    timeframe = %s
                 WHERE user_id = %s AND name = %s
             """
             cursor.execute(update_query, (
@@ -29,6 +30,7 @@ class Graph:
                 symbol,
                 start_date,
                 end_date,
+                timeframe,
                 user_id,
                 graph_name
             ))
@@ -42,10 +44,11 @@ class Graph:
                     symbol, 
                     start_date, 
                     end_date, 
+                    timeframe,
                     created_at, 
                     modified_at
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             """
             cursor.execute(insert_query, (
                 user_id,
@@ -53,7 +56,8 @@ class Graph:
                 graph_data,
                 symbol,
                 start_date,
-                end_date
+                end_date,
+                timeframe,
             ))
         conn.commit()
         cursor.close()
@@ -74,7 +78,7 @@ class Graph:
     def load(user_id, graph_name):
         conn = get_db_connection()
         cursor = conn.cursor()
-        query = "SELECT graph_data, start_date, end_date, symbol FROM user_graphs WHERE user_id = %s AND name = %s"
+        query = "SELECT graph_data, start_date, end_date, symbol, timeframe FROM user_graphs WHERE user_id = %s AND name = %s"
         cursor.execute(query, (user_id, graph_name))
         graph = cursor.fetchone()
         cursor.close()

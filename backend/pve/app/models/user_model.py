@@ -2,22 +2,18 @@
 from ..utils.database import get_db_connection
 
 class User:
-    def __init__(self, user_id, first_name, last_name, username, usertoken, key=None, key_secret=None):
+    def __init__(self, user_id, first_name, last_name, username, usertoken):
         self.id = user_id
         self.first_name = first_name
         self.last_name = last_name
         self.username = username
         self.usertoken = usertoken
-        self.key = key
-        self.key_secret = key_secret
 
     def to_dict(self):
         return {
             'first_name': self.first_name,
             'last_name': self.last_name,
             'username': self.username,
-            'key': self.key,
-            'key_secret': self.key_secret
         }
 
     def update(self, data):
@@ -25,14 +21,12 @@ class User:
         cursor = conn.cursor()
         update_query = """
             UPDATE users
-            SET first_name = %s, last_name = %s, key = %s, key_secret = %s
+            SET first_name = %s, last_name = %s
             WHERE id = %s
         """
         cursor.execute(update_query, (
             data.get('first_name'),
             data.get('last_name'),
-            data.get('key'),
-            data.get('key_secret'),
             self.id
         ))
         conn.commit()
@@ -44,7 +38,7 @@ class User:
         conn = get_db_connection()
         cursor = conn.cursor()
         query = """
-            SELECT id, first_name, last_name, username, usertoken, key, key_secret
+            SELECT id, first_name, last_name, username, usertoken
             FROM users
             WHERE id = %s
         """

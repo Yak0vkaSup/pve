@@ -24,7 +24,7 @@
     "socket.io-client": "^4.7.5",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3",
-    "vue-toastification": "^2.0.0-rc.5"
+    "vue3-toastify": "^0.2.4"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",

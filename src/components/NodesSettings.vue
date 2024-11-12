@@ -32,12 +32,12 @@
       placeholder="End Date"
     />
 
-<!--    <select v-model="graphStore.savedGraphs.timeframe" class="select-timeframe">-->
-<!--      <option value="1min">1 Minute</option>-->
-<!--      <option value="5min">5 Minutes</option>-->
-<!--      <option value="15min">15 Minutes</option>-->
-<!--      &lt;!&ndash; Add more options as needed &ndash;&gt;-->
-<!--    </select>-->
+    <select v-model="graphStore.timeframe" class="select-timeframe">
+      <option value="1min">1 Min</option>
+      <option value="5min">5 Min</option>
+      <option value="15min">15 Min</option>
+      <option value="30min">30 Min</option>
+    </select>
 
     <select v-model="graphStore.symbol" class="select-symbol">
       <option disabled value="">Select a symbol</option>

@@ -7,6 +7,9 @@ from ..nodes.nodes import process_graph
 from ..socketio_setup import socketio
 import json
 import logging
+import pandas as pd
+import threading
+
 graph_bp = Blueprint('graph_bp', __name__)
 
 @graph_bp.route('/api/save-graph', methods=['POST'])
@@ -21,12 +24,13 @@ def save_graph():
         start_date = request_data.get('start_date')
         end_date = request_data.get('end_date')
         symbol = request_data.get('symbol')
+        timeframe = request_data.get('timeframe')
 
         if isinstance(graph_data, dict):
             graph_json = json.dumps(graph_data)
         else:
             graph_json = graph_data
-        Graph.save_or_update(user_id, graph_name, graph_json, start_date, end_date, symbol)
+        Graph.save_or_update(user_id, graph_name, graph_json, start_date, end_date, symbol, timeframe)
         return jsonify({'status': 'success', 'message': 'Graph saved successfully'})
     except Exception as e:
         current_app.logger.error(f"Error saving graph: {str(e)}")
@@ -73,7 +77,7 @@ def load_graph():
         if not graph_record:
             return jsonify({'status': 'error', 'message': 'Graph not found'}), 404
 
-        graph_data, start_date, end_date, symbol = graph_record
+        graph_data, start_date, end_date, symbol, timeframe = graph_record
         start_date_str = start_date.isoformat()
         end_date_str = end_date.isoformat()
 
@@ -82,13 +86,13 @@ def load_graph():
             'graph_data': graph_data,
             'start_date': start_date_str,
             'end_date': end_date_str,
-            'symbol': symbol
+            'symbol': symbol,
+            'timeframe': timeframe
         }
         return jsonify(response_payload)
     except Exception as e:
         current_app.logger.error(f"Error loading graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-import threading
 
 thread_local = threading.local()
 class LogCaptureHandler(logging.Handler):
@@ -119,6 +123,7 @@ def compile_graph():
         start_date = graph_data[1]
         end_date = graph_data[2]
         symbol = graph_data[3]
+        timeframe = graph_data[4]
 
         if isinstance(graph, dict):
             graph_json = json.dumps(graph)
@@ -138,7 +143,7 @@ def compile_graph():
         logger = logging.getLogger('app.nodes.nodes')
         logger.addHandler(log_capture_handler)
 
-        df = process_graph(graph_json, start_date, end_date, symbol)
+        df = process_graph(graph_json, start_date, end_date, symbol, timeframe)
 
         logger.removeHandler(log_capture_handler)
         if hasattr(thread_local, 'user_id'):

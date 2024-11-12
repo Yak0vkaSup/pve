@@ -33,3 +33,7 @@ select:hover {
 input::placeholder {
   color: white; /* Placeholder text color */
 }
+
+/*.Toastify__toast-container {*/
+/*  background-color: #353535;*/
+/*}*/

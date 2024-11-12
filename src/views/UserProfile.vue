@@ -56,8 +56,6 @@
         </div>
       </form>
     </div>
-    <!-- Optional: Toast Notifications -->
-    <!-- Example: <ToastContainer /> -->
   </div>
 </template>
 
@@ -66,12 +64,12 @@ import { ref, reactive, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import defaultProfileImage from '../assets/default.png';
 import { useRouter } from 'vue-router';
-import { useToast } from 'vue-toastification'; // For toast notifications
-import '../assets/inputs.css'
+import { toast, type ToastOptions } from 'vue3-toastify';
+import '../assets/inputs.css';
+
 // Initialize stores and utilities
 const authStore = useAuthStore();
 const router = useRouter();
-const toast = useToast();
 
 // Define reactive form data
 const form = reactive({
@@ -88,6 +86,12 @@ const errors = reactive({
 
 // Reactive states for loading
 const isSubmitting = ref(false);
+
+// Define common ToastOptions
+const toastOptions: ToastOptions = {
+  autoClose: 1000,
+  position: toast.POSITION.BOTTOM_RIGHT,
+};
 
 // Initialize form with user data
 onMounted(() => {
@@ -126,7 +130,7 @@ function validateForm(): boolean {
 // Function to save user data
 async function saveUserData() {
   if (!validateForm()) {
-    toast.error('Please fix the errors in the form.');
+    toast.error('Please fix the errors in the form.', toastOptions);
     return;
   }
 
@@ -135,7 +139,7 @@ async function saveUserData() {
   const userToken = localStorage.getItem('userToken');
 
   if (!userToken) {
-    toast.error('User token not found. Please log in again.');
+    toast.error('User token not found. Please log in again.', toastOptions);
     isSubmitting.value = false;
     authStore.logout();
     router.push({ name: 'Home' });
@@ -167,17 +171,17 @@ async function saveUserData() {
         authStore.userInfo.first_name = form.first_name;
         authStore.userInfo.last_name = form.last_name;
       }
-      toast.success('Profile updated successfully!');
-      // Optionally, redirect to another page after a delay
+      toast.success('Profile updated successfully!', toastOptions);
+
       setTimeout(() => {
         router.push({ name: 'Home' });
       }, 2000);
     } else {
-      toast.error(data.message || 'Failed to update profile.');
+      toast.error(data.message || 'Failed to update profile.', toastOptions);
     }
   } catch (error) {
     console.error('Error updating user data:', error);
-    toast.error('An unexpected error occurred. Please try again later.');
+    toast.error('An unexpected error occurred. Please try again later.', toastOptions);
   } finally {
     isSubmitting.value = false;
   }
@@ -242,7 +246,6 @@ async function saveUserData() {
   color: #f44336;
   font-size: 0.875rem;
 }
-
 
 @media (min-width: 768px) {
   .profile-content {

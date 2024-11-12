@@ -121,7 +121,7 @@ class SetStringNode(Node):
 
 class MultiplyColumnNode(Node):
     def execute(self):
-        print(self.input_values)
+
         source_column = self.input_values.get(0)
         factor = self.input_values.get(1)
 
@@ -164,7 +164,6 @@ class MANode(Node):
             ma_series = ma(type, source_column, window)
             self.output_values['MA'] = ma_series
             self.output_values['Default name'] = type + '_' + str(window) + '_' + str(source_column.name)
-            print(f"+-+ {type + '_' + str(window) + str(source_column.name)}")
             logger.info(f"MANode {self.id}: {type} column '{source_column.name}' with {window}.")
         except Exception as e:
             logger.error(f"MANode {self.id}: {e}")
@@ -204,8 +203,7 @@ class AddColumnNode(Node):
 
             source_series = self.input_values.get(0)
             column_name = self.input_values.get(1)
-            print(self.input_values)
-            print(column_name)
+
             if source_series is None:
                 logger.error(f"AddColumnNode {self.id}: Source column is None.")
                 return
@@ -324,7 +322,7 @@ def execute_graph(sorted_node_ids, nodes):
         node.execute()
 
 
-def process_graph(graph_json, start_date, end_date, symbol):
+def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     logger.info("Starting graph processing")
     start_time = time.time()
     # Check if graph_data is a string (JSON), and load it if necessary
@@ -340,7 +338,22 @@ def process_graph(graph_json, start_date, end_date, symbol):
 
     df = fetch_data(symbol, start_date, end_date)
 
-    Node.set_df(df)
+
+    df['date'] = pd.to_datetime(df['date'])
+    df.set_index('date', inplace=True)
+
+    # And here we need to resample it based on timeframe
+    df_resampled = df.resample(timeframe).agg({
+        'open': 'first',
+        'high': 'max',
+        'low': 'min',
+        'close': 'last',
+        'volume': 'sum',
+    })
+
+    df_resampled.reset_index(inplace=True)
+
+    Node.set_df(df_resampled)
 
     nodes = build_nodes(data['nodes'])
     build_connections(data['links'], nodes)
