@@ -143,52 +143,30 @@ watch(maSettings, (newSettings) => {
 }, { deep: true })
 
 function updateChartData(data) {
-  fetchedData = data;
+  fetchedData = data.slice();
   if (fetchedData && Array.isArray(fetchedData)) {
     const formattedData = [];
     const maNames = new Set();
-    const signalColumns = []; // To store names of bool_* columns
+    const signalColumns = new Set();
 
     fetchedData.forEach((candle) => {
       // Use Object.hasOwn() if available, otherwise fall back to hasOwnProperty
       const hasOwn = Object.hasOwn || Object.prototype.hasOwnProperty.call;
 
-      // Find Heikin Ashi data columns dynamically (like HA_Close_x0.9)
-      const haKeys = Object.keys(candle).filter(key => key.startsWith("HA_"));
-
-      if (haKeys.length >= 4) {
-        // Assume the standard names exist in the form of HA_Open, HA_High, HA_Low, and HA_Close
-        const openKey = haKeys.find(key => key.startsWith("HA_Open"));
-        const highKey = haKeys.find(key => key.startsWith("HA_High"));
-        const lowKey = haKeys.find(key => key.startsWith("HA_Low"));
-        const closeKey = haKeys.find(key => key.startsWith("HA_Close"));
-
-        // Use Heikin Ashi data if all keys exist
-        if (openKey && highKey && lowKey && closeKey) {
-          formattedData.push({
-            time: candle.date, // The API returns Unix timestamp
-            open: candle[openKey],
-            high: candle[highKey],
-            low: candle[lowKey],
-            close: candle[closeKey],
-          });
-        }
-      } else {
-        // Fallback to normal OHLC if Heikin Ashi isn't available
-        formattedData.push({
-          time: candle.date, // The API returns Unix timestamp
-          open: candle.open,
-          high: candle.high,
-          low: candle.low,
-          close: candle.close,
-        });
-      }
+      // Fallback to normal OHLC if Heikin Ashi isn't available
+      formattedData.push({
+        time: candle.date, // The API returns Unix timestamp
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+      });
 
       // Identify MA names and other indicators in the candle dynamically
       Object.keys(candle).forEach((key) => {
-        if (!["date", "open", "high", "low", "close", "volume", ...haKeys].includes(key)) {
+        if (!["date", "open", "high", "low", "close", "volume"].includes(key)) {
           if (key.startsWith("$")) {
-            signalColumns.push(key); // Collect signal column names
+            signalColumns.add(key);
           } else {
             maNames.add(key);
           }
@@ -213,6 +191,7 @@ function updateChartData(data) {
 
     // Set markers on the candlestick series
     candleSeries.setMarkers(markers);
+
     // Update maSettings with new MAs or indicators
     maNames.forEach((maName) => {
       if (!maSettings[maName]) {

@@ -313,6 +313,82 @@ class GetConditionNode(Node):
             logger.error(f"GetConditionNode {self.id}: Error retrieving condition: {e}")
             self.output_values['Condition'] = None
 
+class SmallerNode(Node):
+    def execute(self):
+        column_a = self.input_values.get(0)  # First input column
+        column_b = self.input_values.get(1)  # Second input column
+
+        if column_a is None or column_b is None:
+            logger.error(f"SmallerNode {self.id}: One or both input columns are None.")
+            self.output_values['Condition'] = None
+            return
+
+        try:
+            # Check if column_a is smaller than column_b
+            condition = column_a < column_b
+            self.output_values['Condition'] = condition
+            logger.info(f"SmallerNode {self.id}: Successfully computed smaller condition.")
+        except Exception as e:
+            logger.error(f"SmallerNode {self.id}: Error computing smaller condition: {e}")
+            self.output_values['Condition'] = None
+class OrNode(Node):
+    def execute(self):
+        condition_a = self.input_values.get(0)  # First input condition
+        condition_b = self.input_values.get(1)  # Second input condition
+
+        if condition_a is None or condition_b is None:
+            logger.error(f"OrNode {self.id}: One or both input conditions are None.")
+            self.output_values['Condition'] = None
+            return
+
+        try:
+            # Perform logical OR operation
+            result = condition_a | condition_b
+            self.output_values['Condition'] = result
+            logger.info(f"OrNode {self.id}: Successfully computed OR condition.")
+        except Exception as e:
+            logger.error(f"OrNode {self.id}: Error computing OR condition: {e}")
+            self.output_values['Condition'] = None
+
+
+class AndNode(Node):
+    def execute(self):
+        condition_a = self.input_values.get(0)  # First input condition
+        condition_b = self.input_values.get(1)  # Second input condition
+
+        if condition_a is None or condition_b is None:
+            logger.error(f"AndNode {self.id}: One or both input conditions are None.")
+            self.output_values['Condition'] = None
+            return
+
+        try:
+            # Perform logical AND operation
+            result = condition_a & condition_b
+            self.output_values['Condition'] = result
+            logger.info(f"AndNode {self.id}: Successfully computed AND condition.")
+        except Exception as e:
+            logger.error(f"AndNode {self.id}: Error computing AND condition: {e}")
+            self.output_values['Condition'] = None
+
+
+class NotNode(Node):
+    def execute(self):
+        condition = self.input_values.get(0)  # Input condition
+
+        if condition is None:
+            logger.error(f"NotNode {self.id}: Input condition is None.")
+            self.output_values['Condition'] = None
+            return
+
+        try:
+            # Perform logical NOT operation
+            result = ~condition
+            self.output_values['Condition'] = result
+            logger.info(f"NotNode {self.id}: Successfully computed NOT condition.")
+        except Exception as e:
+            logger.error(f"NotNode {self.id}: Error computing NOT condition: {e}")
+            self.output_values['Condition'] = None
+
 # Graph Processing Functions
 def build_nodes(nodes_data):
     nodes = {}
@@ -333,8 +409,7 @@ def build_nodes(nodes_data):
             node = GetLowNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'get/volume':
             node = GetVolumeNode(node_id, node_type, properties, inputs, outputs)
-        elif node_type == 'tools/add_column':
-            node = AddColumnNode(node_id, node_type, properties, inputs, outputs)
+
         elif node_type == 'math/multiply_column':
             node = MultiplyColumnNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'set/float':
@@ -345,14 +420,27 @@ def build_nodes(nodes_data):
             node = SetIntegerNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'indicators/ma':
             node = MANode(node_id, node_type, properties, inputs, outputs)
+
         elif node_type == 'compare/cross_over':
             node = CrossOverNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'compare/equal':
             node = EqualNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'compare/smaller':
+            node = SmallerNode(node_id, node_type, properties, inputs, outputs)
+
+        elif node_type == 'tools/add_column':
+            node = AddColumnNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'tools/get_condition':
             node = GetConditionNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'tools/add_condition':
             node = AddConditionNode(node_id, node_type, properties, inputs, outputs)
+
+        elif node_type == 'logic/and':
+            node = AndNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'logic/or':
+            node = OrNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'logic/not':
+            node = NotNode(node_id, node_type, properties, inputs, outputs)
         else:
             logger.warning(f"Unknown node type: {node_type}")
             node = Node(node_id, node_type, properties, inputs, outputs)

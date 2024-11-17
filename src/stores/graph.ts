@@ -20,15 +20,19 @@ import '../components/custom_nodes/set/string.js'
 
 import '../components/custom_nodes/tools/add_column.js'
 import '../components/custom_nodes/tools/add_condition.js'
-import '../components/custom_nodes/math/multiply_column.js'
 import '../components/custom_nodes/tools/get_column.js'
+
+import '../components/custom_nodes/math/multiply_column.js'
 
 import '../components/custom_nodes/logic/_if.js'
 import '../components/custom_nodes/logic/_and.js'
 import '../components/custom_nodes/logic/_or.js'
+import '../components/custom_nodes/logic/_not.js'
 
 import '../components/custom_nodes/compare/cross_over.js'
 import '../components/custom_nodes/compare/equal.js'
+import '../components/custom_nodes/compare/smaller.js'
+
 import '../components/custom_nodes/indicators/MaNode.js'
 
 // import '../components/custom_nodes/GetDataFromDbNode.js'

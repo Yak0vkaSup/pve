@@ -1,8 +1,7 @@
 // Import LiteGraph
 import { LiteGraph } from 'litegraph.js'
 
-export function AndNode() {
-  this.addInput('Condition', 'boolean')
+export function NotNode() {
   this.addInput('Condition', 'boolean')
 
   this.addOutput('Condition', 'boolean')
@@ -10,6 +9,6 @@ export function AndNode() {
   this.serialize_widgets = true
 }
 
-AndNode.title = 'AND'
+NotNode.title = 'NOT'
 
-LiteGraph.registerNodeType('logic/and', AndNode)
+LiteGraph.registerNodeType('logic/not', NotNode)

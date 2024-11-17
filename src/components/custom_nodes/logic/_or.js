@@ -5,8 +5,7 @@ export function OrNode() {
   this.addInput('Condition', 'boolean')
   this.addInput('Condition', 'boolean')
 
-  this.addOutput('True', 'boolean')
-  this.addOutput('False', 'boolean')
+  this.addOutput('Condition', 'boolean')
 
   this.serialize_widgets = true
 }
