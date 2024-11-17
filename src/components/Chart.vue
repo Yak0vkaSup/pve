@@ -7,6 +7,7 @@ const chartContainer = ref(null)
 let chartInstance
 let candleSeries
 let socket
+let volumeSeries
 
 // Access the WebSocket store
 const wsStore = useWebSocketStore();
@@ -73,6 +74,26 @@ onMounted(() => {
     wickDownColor: '#f44336',
     wickUpColor: '#4caf50'
   })
+
+  // Add histogram series for volume
+  volumeSeries = chartInstance.addHistogramSeries({
+    priceFormat: {
+      type: 'volume',
+    },
+    priceScaleId: '', // Place volume on a separate price scale
+  });
+  volumeSeries.priceScale().applyOptions({
+    scaleMargins: {
+        top: 0.7, // highest point of the series will be 70% away from the top
+        bottom: 0,
+    },
+  });
+  candleSeries.priceScale().applyOptions({
+    scaleMargins: {
+        top: 0.1, // highest point of the series will be 10% away from the top
+        bottom: 0.2, // lowest point will be 20% away from the bottom
+    },
+  });
   if (!wsStore.isConnected) {
     wsStore.initializeWebSocket();
   }
@@ -146,20 +167,30 @@ function updateChartData(data) {
   fetchedData = data.slice();
   if (fetchedData && Array.isArray(fetchedData)) {
     const formattedData = [];
+    const volumeData = [];
     const maNames = new Set();
     const signalColumns = new Set();
 
     fetchedData.forEach((candle) => {
-      // Use Object.hasOwn() if available, otherwise fall back to hasOwnProperty
-      const hasOwn = Object.hasOwn || Object.prototype.hasOwnProperty.call;
 
-      // Fallback to normal OHLC if Heikin Ashi isn't available
+      const volume = candle.volume;
+
+      const colorcandles = candle.close > candle.open ? 'rgba(76, 175, 80, 0.2)'  : 'rgba(244, 67, 54, 0.2)'; // Semi-transparent colors
+      const colorvolume = candle.close > candle.open ? 'rgba(76, 175, 80, 0.1)'  : 'rgba(244, 67, 54, 0.1)'; // Semi-transparent colors
+
       formattedData.push({
         time: candle.date, // The API returns Unix timestamp
         open: candle.open,
         high: candle.high,
         low: candle.low,
         close: candle.close,
+        color: colorcandles,
+      });
+
+      volumeData.push({
+        time: candle.date,
+        value: volume,
+        color: colorvolume,
       });
 
       // Identify MA names and other indicators in the candle dynamically
@@ -181,9 +212,9 @@ function updateChartData(data) {
           markers.push({
             time: candle.date,
             position: 'belowBar', // Position can be 'aboveBar' or 'belowBar'
-            shape: 'circle', // Options: 'arrowUp', 'arrowDown', 'circle', 'square', etc.
+            shape: 'arrowUp', // Options: 'arrowUp', 'arrowDown', 'circle', 'square', etc.
             color: 'rgba(0, 150, 136, 1)', // Customize color
-            // Optional: Display text
+            lineWidth: 5,
           });
         }
       });
@@ -219,6 +250,7 @@ function updateChartData(data) {
 
     // Update the candlestick data
     candleSeries.setData(formattedData);
+    volumeSeries.setData(volumeData);
 
     // For each MA or indicator, create or update the line series
     Object.keys(maSettings).forEach((maName) => {
