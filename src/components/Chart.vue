@@ -187,7 +187,7 @@ function updateChartData(data) {
       // Identify MA names and other indicators in the candle dynamically
       Object.keys(candle).forEach((key) => {
         if (!["date", "open", "high", "low", "close", "volume", ...haKeys].includes(key)) {
-          if (key.startsWith("bool_")) {
+          if (key.startsWith("$")) {
             signalColumns.push(key); // Collect signal column names
           } else {
             maNames.add(key);

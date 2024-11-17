@@ -223,6 +223,96 @@ class AddColumnNode(Node):
         else:
             logger.error(f"AddColumnNode {self.id}: DataFrame is None.")
 
+class CrossOverNode(Node):
+    def execute(self):
+        column_a = self.input_values.get(0)  # First input column
+        column_b = self.input_values.get(1)  # Second input column
+
+        if column_a is None or column_b is None:
+            logger.error(f"CrossOverNode {self.id}: One or both input columns are None.")
+            self.output_values['Condition'] = None
+            return
+
+        try:
+            # Check if column_a crosses over column_b (previously less, now greater)
+            condition = (column_a.shift(1) < column_b.shift(1)) & (column_a > column_b)
+            self.output_values['Condition'] = condition
+            logger.info(f"CrossOverNode {self.id}: Successfully computed crossover condition.")
+        except Exception as e:
+            logger.error(f"CrossOverNode {self.id}: Error computing crossover condition: {e}")
+            self.output_values['Condition'] = None
+
+
+class EqualNode(Node):
+    def execute(self):
+        column_a = self.input_values.get(0)  # First input column
+        column_b = self.input_values.get(1)  # Second input column
+
+        if column_a is None or column_b is None:
+            logger.error(f"EqualNode {self.id}: One or both input columns are None.")
+            self.output_values['Condition'] = None
+            return
+
+        try:
+            # Check if column_a is equal to column_b
+            condition = column_a == column_b
+            self.output_values['Condition'] = condition
+            logger.info(f"EqualNode {self.id}: Successfully computed equality condition.")
+        except Exception as e:
+            logger.error(f"EqualNode {self.id}: Error computing equality condition: {e}")
+            self.output_values['Condition'] = None
+
+
+class AddConditionNode(Node):
+    def execute(self):
+        condition = self.input_values.get(0)  # Input condition
+        condition_name = self.input_values.get(1)  # Input for condition name
+
+        if condition is None:
+            logger.error(f"AddConditionNode {self.id}: Condition is None.")
+            return
+
+        if condition_name is None:
+            logger.error(f"AddConditionNode {self.id}: Condition name is None.")
+            return
+
+        try:
+            # Add condition to the global DataFrame with the given name
+            df = Node.get_df()
+            if df is not None:
+                updated_df = df.copy()
+                condition_name = '$' + condition_name
+                updated_df[condition_name] = condition
+                Node.set_df(updated_df)
+                logger.info(f"AddConditionNode {self.id}: Successfully added condition '{condition_name}'.")
+            else:
+                logger.error(f"AddConditionNode {self.id}: DataFrame is None.")
+        except Exception as e:
+            logger.error(f"AddConditionNode {self.id}: Error adding condition: {e}")
+
+
+class GetConditionNode(Node):
+    def execute(self):
+        condition_name = self.input_values.get(0)  # Input for condition name
+
+        if condition_name is None:
+            logger.error(f"GetConditionNode {self.id}: Condition name is None.")
+            self.output_values['Condition'] = None
+            return
+
+        try:
+            # Retrieve condition from the global DataFrame by name
+            df = Node.get_df()
+            if df is not None and condition_name in df:
+                self.output_values['Condition'] = df[condition_name]
+                logger.info(f"GetConditionNode {self.id}: Successfully retrieved condition '{condition_name}'.")
+            else:
+                logger.error(f"GetConditionNode {self.id}: Condition '{condition_name}' not found in DataFrame.")
+                self.output_values['Condition'] = None
+        except Exception as e:
+            logger.error(f"GetConditionNode {self.id}: Error retrieving condition: {e}")
+            self.output_values['Condition'] = None
+
 # Graph Processing Functions
 def build_nodes(nodes_data):
     nodes = {}
@@ -255,6 +345,14 @@ def build_nodes(nodes_data):
             node = SetIntegerNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'indicators/ma':
             node = MANode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'compare/cross_over':
+            node = CrossOverNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'compare/equal':
+            node = EqualNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'tools/get_condition':
+            node = GetConditionNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'tools/add_condition':
+            node = AddConditionNode(node_id, node_type, properties, inputs, outputs)
         else:
             logger.warning(f"Unknown node type: {node_type}")
             node = Node(node_id, node_type, properties, inputs, outputs)
@@ -367,7 +465,7 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     final_df = Node.get_df()
 
     if final_df is not None:
-        logger.info("Processing complete. Retrieved final DataFrame from shared Node.df.")
+        logger.info("Processing complete. Retrieved final Data...")
     else:
         logger.error("No valid output DataFrame found after processing")
 

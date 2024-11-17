@@ -13,7 +13,7 @@ import traceback
 DB_NAME = os.getenv('DB_NAME', 'postgres')
 DB_USER = os.getenv('DB_USER', 'postgres')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'postgres')
-DB_HOST = os.getenv('DB_HOST', '192.168.1.153')
+DB_HOST = os.getenv('DB_HOST', '192.168.1.171')
 DB_PORT = int(os.getenv('DB_PORT', 5432))
 
 # Configure logging
@@ -221,9 +221,11 @@ async def update_symbol(symbol, days):
         if last_timestamp is None:
             start_time = pd.Timestamp.now(tz=timezone.utc) - timedelta(days=days)
         else:
-            start_time = pd.Timestamp.now(tz=timezone.utc) - timedelta(minutes=3)
+            start_time = pd.Timestamp(last_timestamp, tz=timezone.utc) - timedelta(minutes=3)
         end_time = pd.Timestamp.now(tz=timezone.utc)
-
+        # print(type(last_timestamp), type(start_time), type(end_time))
+        # print(last_timestamp, start_time, end_time)
+        # exit()
         if start_time >= end_time:
             logger.info(f"No new data to fetch for {symbol}")
             return
