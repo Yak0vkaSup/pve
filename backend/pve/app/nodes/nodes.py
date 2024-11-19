@@ -5,6 +5,8 @@ import pandas_ta as ta
 import json
 import time
 from flask import current_app
+import asyncio
+import telegram
 from ..socketio_setup import socketio
 
 from .utils import (
@@ -100,6 +102,29 @@ class GetVolumeNode(Node):
         else:
             logger.error(f"GetVolumeNode {self.id}: DataFrame is None.")
             self.output_values['volume'] = None
+
+class GetLastValueNode(Node):
+    def execute(self):
+        series = self.input_values.get(0)  # Input series (pd.Series)
+
+        if series is None or not isinstance(series, pd.Series):
+            logger.error(f"GetLastValueNode {self.id}: Input is not a valid pandas Series.")
+            self.output_values['Value'] = None
+            return
+
+        try:
+            # Retrieve the second-to-last value
+            if len(series) < 2:
+                logger.error(f"GetLastValueNode {self.id}: Series is too short to retrieve the last completed value.")
+                self.output_values['Value'] = None
+                return
+
+            last_value = series.iloc[-2]  # Second-to-last value (last completed time point)
+            self.output_values['Value'] = last_value
+            logger.info(f"GetLastValueNode {self.id}: Successfully retrieved last completed value: {last_value}.")
+        except Exception as e:
+            logger.error(f"GetLastValueNode {self.id}: Error retrieving last value: {e}")
+            self.output_values['Value'] = None
 
 class SetFloatNode(Node):
     def execute(self):
@@ -389,6 +414,66 @@ class NotNode(Node):
             logger.error(f"NotNode {self.id}: Error computing NOT condition: {e}")
             self.output_values['Condition'] = None
 
+class IfNode(Node):
+    def execute(self):
+        condition_series = self.input_values.get(0)  # Input condition (pd.Series of boolean values)
+
+        if condition_series is None or not isinstance(condition_series, pd.Series):
+            logger.error(f"IfNode {self.id}: Condition is not a valid pandas Series.")
+            self.output_values['True'] = None
+            self.output_values['False'] = None
+            return
+
+        try:
+            # Retrieve the last completed minute's value (second-to-last index in the series)
+            if len(condition_series) < 2:
+                logger.error(f"IfNode {self.id}: Condition Series is too short to evaluate.")
+                self.output_values['True'] = None
+                self.output_values['False'] = None
+                return
+
+            last_value = condition_series.iloc[-2]  # Second-to-last value (last completed minute)
+
+            if last_value:
+                logger.info(f"IfNode {self.id}: Last completed condition evaluated to True.")
+                self.output_values['True'] = True  # Execution flow for True branch
+                self.output_values['False'] = None
+            else:
+                logger.info(f"IfNode {self.id}: Last completed condition evaluated to False.")
+                self.output_values['True'] = None
+                self.output_values['False'] = True  # Execution flow for False branch
+        except Exception as e:
+            logger.error(f"IfNode {self.id}: Error evaluating condition: {e}")
+            self.output_values['True'] = None
+            self.output_values['False'] = None
+
+class SendMessageNode(Node):
+    def execute(self):
+        exec = self.input_values.get(0)
+        message = self.input_values.get(1)  # Input message
+        user_id = self.input_values.get(2)  # Input user ID
+
+        if exec is None:
+            logger.info(f"SendMessageNode {self.id}: Condition not met, stop of execution.")
+            return
+
+        if message is None or user_id is None:
+            logger.error(f"SendMessageNode {self.id}: Message or UserID is None.")
+            return
+
+        try:
+            # Retrieve the bot token from the app configuration
+            bot_token = current_app.config['TELEGRAM_BOT_TOKEN']
+            bot = telegram.Bot(bot_token)
+
+            # Send the message to the user
+            asyncio.run(bot.send_message(chat_id=user_id, text=message))
+            logger.info(f"SendMessageNode {self.id}: Message successfully sent to user {user_id}.")
+            self.output_values['Exec'] = True
+        except Exception as e:
+            logger.error(f"SendMessageNode {self.id}: Error sending message: {e}")
+            self.output_values['Exec'] = None
+
 # Graph Processing Functions
 def build_nodes(nodes_data):
     nodes = {}
@@ -409,6 +494,8 @@ def build_nodes(nodes_data):
             node = GetLowNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'get/volume':
             node = GetVolumeNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'get/last_value':
+            node = GetLastValueNode(node_id, node_type, properties, inputs, outputs)
 
         elif node_type == 'math/multiply_column':
             node = MultiplyColumnNode(node_id, node_type, properties, inputs, outputs)
@@ -441,8 +528,14 @@ def build_nodes(nodes_data):
             node = OrNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'logic/not':
             node = NotNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'logic/if':
+            node = IfNode(node_id, node_type, properties, inputs, outputs)
+
+        elif node_type == 'telegram/send_message':
+            node = SendMessageNode(node_id, node_type, properties, inputs, outputs)
+
         else:
-            logger.warning(f"Unknown node type: {node_type}")
+            logger.error(f"Unknown node type: {node_type}")
             node = Node(node_id, node_type, properties, inputs, outputs)
 
         nodes[node_id] = node
@@ -551,6 +644,22 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     execute_graph(sorted_node_ids, nodes)
 
     final_df = Node.get_df()
+
+    # take_profit_pct = 0.01
+    # price = final_df['close']
+    # entries = final_df['$Condition']
+    #
+    # pf = vbt.Portfolio.from_signals(
+    #     close=price,
+    #     entries=entries,
+    #     tp_stop=take_profit_pct,
+    #     size=1
+    # )
+    #
+    # # Display the result
+    # print(pf.stats())
+    # print(pf.orders.records_readable)
+    # pf.plot().show()
 
     if final_df is not None:
         logger.info("Processing complete. Retrieved final Data...")

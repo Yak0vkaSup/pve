@@ -4,8 +4,8 @@ import { LiteGraph } from 'litegraph.js'
 export function IfNode() {
   this.addInput('Condition', 'boolean')
 
-  this.addOutput('True', 'boolean')
-  this.addOutput('False', 'boolean')
+  this.addOutput('True', 'exec')
+  this.addOutput('False', 'exec')
 
   this.serialize_widgets = true
 }

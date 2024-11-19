@@ -59,7 +59,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
     });
 
     socket.value.on('update_chart', (response: any) => {
-      console.log('Response from server:', response);
       if (response.status === 'success') {
         chartData.value = response.data;
       } else {

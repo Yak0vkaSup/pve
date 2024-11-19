@@ -13,6 +13,7 @@ import '../components/custom_nodes/get/high.js'
 import '../components/custom_nodes/get/low.js'
 import '../components/custom_nodes/get/close.js'
 import '../components/custom_nodes/get/volume.js'
+import '../components/custom_nodes/get/last_value.js'
 
 import '../components/custom_nodes/set/float.js'
 import '../components/custom_nodes/set/integer.js'
@@ -34,6 +35,10 @@ import '../components/custom_nodes/compare/equal.js'
 import '../components/custom_nodes/compare/smaller.js'
 
 import '../components/custom_nodes/indicators/MaNode.js'
+
+import '../components/custom_nodes/telegram/send_message.js'
+
+
 
 // import '../components/custom_nodes/GetDataFromDbNode.js'
 // import '../components/custom_nodes/VisualizeDataNode.js'
@@ -101,7 +106,8 @@ export const useGraphStore = defineStore('graph', () => {
         string: "#f3b0ff",
         boolean: "#F77",
         float: "#b0e0ff",
-        column: "#fffdb0"
+        column: "#fffdb0",
+        exec: "#dff4fb",
     };
 
     graph.value = new LGraph()

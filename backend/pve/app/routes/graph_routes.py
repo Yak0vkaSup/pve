@@ -150,7 +150,7 @@ def compile_graph():
             del thread_local.user_id
 
         if df is not None:
-            df['date'] = df['date'].astype(int) // 10**9
+            df['date'] = df['date'].astype('int64') // 10 ** 9
             df = df.fillna(value=0)
             print(df.tail())
             data = df.to_dict('records')
