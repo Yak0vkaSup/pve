@@ -36,7 +36,6 @@ deprecated/
 backend/deprecated/nodes/__pycache__
 server.js
 /backend/deprecated/nodes/__pycache__/
-/backend/research
 /backend/config.cpython-310.pyc
 /backend/pve/__pycache__/
 /backend/pve/app/__pycache__/
