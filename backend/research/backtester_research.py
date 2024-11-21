@@ -16,9 +16,11 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 session = HTTP(testnet=False)
 
+
 def get_date_delta_days_ago(delta):
     date_days_ago = datetime.now() - timedelta(delta)
     return date_days_ago.strftime('%Y-%m-%d')
+
 
 class Position:
     def __init__(self, side):
@@ -149,7 +151,8 @@ class Bybit:
                     if instrument['symbol'] == symbol:
                         step_size = decimal.Decimal(str(instrument['lotSizeFilter']['qtyStep']))
                         price_step = decimal.Decimal(str(instrument['priceFilter']['tickSize']))
-                        logging.info(f"Fetched step size and price step for {symbol}: qtyStep = {step_size}, priceStep = {price_step}")
+                        logging.info(
+                            f"Fetched step size and price step for {symbol}: qtyStep = {step_size}, priceStep = {price_step}")
                         return step_size, price_step
             else:
                 logging.error(f"Failed to fetch step sizes: {response['retMsg']}")
@@ -165,7 +168,8 @@ class Bybit:
                 logging.error("Failed to get tickers info")
                 filtered_symbols = [ticker['symbol'] for ticker in response['result']['list'] if
                                     float(ticker['turnover24h']) > turnover]
-                logging.info( f"Symbols with turnover greater than {turnover}$: {filtered_symbols}, Total number: {len(filtered_symbols)}")
+                logging.info(
+                    f"Symbols with turnover greater than {turnover}$: {filtered_symbols}, Total number: {len(filtered_symbols)}")
                 return filtered_symbols
             else:
                 logging.error(f"Failed to get tickers info: {response['retMsg']}")
@@ -180,7 +184,8 @@ class Bybit:
                 logging.error("Failed to get tickers info")
                 filtered_symbols = [ticker['symbol'] for ticker in response['result']['list'] if
                                     float(ticker['volume24h']) > volume]
-                logging.info(f"Symbols with volume greater than 100M: {filtered_symbols}, Total number: {len(filtered_symbols)}")
+                logging.info(
+                    f"Symbols with volume greater than 100M: {filtered_symbols}, Total number: {len(filtered_symbols)}")
                 return filtered_symbols
             else:
                 logging.error(f"Failed to get tickers info: {response['retMsg']}")
@@ -190,7 +195,8 @@ class Bybit:
 
 
 class DCA:
-    def __init__(self, initial_price, order_size_usdt, step_percentage, num_orders, martingale_factor, bybit_instance, symbol):
+    def __init__(self, initial_price, order_size_usdt, step_percentage, num_orders, martingale_factor, bybit_instance,
+                 symbol):
         self.initial_price = decimal.Decimal(str(initial_price))
         self.step_percentage = decimal.Decimal(str(step_percentage))
         self.num_orders = num_orders
@@ -208,7 +214,6 @@ class DCA:
         self.short_orders = []
         self.long_avg_price = None
         self.short_avg_price = None
-
 
     def fetch_steps_and_validate(self, order_size_usdt):
         """
@@ -234,7 +239,6 @@ class DCA:
         if base_order_size < min_order_qty:
             logging.warning(f"Adjusting order size to meet minimum order quantity: {min_order_qty}")
             base_order_size = min_order_qty
-
 
         if base_order_size < min_order_qty:
             logging.error("Adjusted order size is still below the minimum requirement.")
@@ -272,7 +276,8 @@ class DCA:
             self.long_orders.append({'price': float(adjusted_long_price), 'qty': float(adjusted_qty)})
             self.short_orders.append({'price': float(adjusted_short_price), 'qty': float(adjusted_qty)})
 
-            logging.debug(f"Order {i + 1}: Long price = {adjusted_long_price}, Short price = {adjusted_short_price}, Qty = {adjusted_qty}")
+            logging.debug(
+                f"Order {i + 1}: Long price = {adjusted_long_price}, Short price = {adjusted_short_price}, Qty = {adjusted_qty}")
 
     def place_long_orders(self):
         for order in self.long_orders:
@@ -341,7 +346,7 @@ def calculate_average_entry_price(executed_orders):
     return average_price, total_qty
 
 
-def backtest(df, symbol, bybit, config):
+def backtest(df, entries, symbol, bybit, config):
     logging.debug("Backtest started with config: %s", config)
     start_time = time.time()
     in_position = False
@@ -363,14 +368,15 @@ def backtest(df, symbol, bybit, config):
     # Add entry, exit, and order executed columns initialized to False
     df['entry'] = False
     df['exit'] = False
+    df['_signal_'] = entries
 
     for i in range(config['num_orders']):
-        df[f'order_executed_{i + 1}'] = False
+        df[f'£order_executed_{i + 1}'] = False
 
     for index, row in df.iterrows():
         if index == df.index[0]:
             continue
-        yo = row['$Alert']
+        yo = row['___signal']
 
         # Entry condition
         if yo and not in_position:
@@ -396,13 +402,13 @@ def backtest(df, symbol, bybit, config):
                 )
                 dca.calculate_orders()
 
-                logging.debug(f"Calculated DCA orders: Long Orders = {dca.long_orders}, Short Orders = {dca.short_orders}")
+                logging.debug(
+                    f"Calculated DCA orders: Long Orders = {dca.long_orders}, Short Orders = {dca.short_orders}")
                 current_dca_orders = dca.get_orders('long')  # Example: Using long orders for this test
                 df.at[index, 'entry'] = True
                 logging.debug("DCA orders calculated. Long orders: %s, Short orders: %s", dca.long_orders,
                               dca.short_orders)
 
-                df.at[index, 'entry'] = True
                 dca.calculate_orders()
 
                 # Calculate total USDT required for the DCA grid and log
@@ -435,14 +441,15 @@ def backtest(df, symbol, bybit, config):
                     current_avg_entry_prices.append({'price': last_avg_price, 'index': index})
                     all_avg_entry_prices.append({'price': last_avg_price, 'index': index})
 
-
             if not order_executed and last_avg_price is not None:
                 current_avg_entry_prices.append({'price': last_avg_price, 'index': index})
                 all_avg_entry_prices.append({'price': last_avg_price, 'index': index})
 
             # Exit if no orders executed in the last `candles_to_close` candles
-            if (df.index.get_loc(index) - df.index.get_loc(entry_candle_index)) >= config['candles_to_close'] and not current_executed_orders:
-                logging.debug(f"No orders executed in the last {config['candles_to_close']} candles, closing position at index {index}")
+            if (df.index.get_loc(index) - df.index.get_loc(entry_candle_index)) >= config[
+                'candles_to_close'] and not current_executed_orders:
+                logging.debug(
+                    f"No orders executed in the last {config['candles_to_close']} candles, closing position at index {index}")
                 in_position = False
                 plot_end_index = index
                 plot_segments.append((plot_start_index, plot_end_index))
@@ -458,8 +465,10 @@ def backtest(df, symbol, bybit, config):
 
             # Calculate position profit
             if last_avg_price is not None:
-                absolute_profit, percentage_profit = calculate_position_profit(last_avg_price, last_total_qty, row['close'])
-                all_profits.append({'absolute_profit': absolute_profit, 'percentage_profit': percentage_profit, 'index': index})
+                absolute_profit, percentage_profit = calculate_position_profit(last_avg_price, last_total_qty,
+                                                                               row['close'])
+                all_profits.append(
+                    {'absolute_profit': absolute_profit, 'percentage_profit': percentage_profit, 'index': index})
 
                 # Exit condition based on profit target
                 if percentage_profit >= config['profit_target']:
@@ -480,15 +489,20 @@ def backtest(df, symbol, bybit, config):
     end_time = time.time()
     logging.info(f"Backtest time taken: {end_time - start_time:.2f} seconds")
     print(df.head(50))
+    df.drop('_signal_', axis=1, inplace=True)
+    df.drop('entry', axis=1, inplace=True)
 
-    all_profits_pve = plot_orders(df, all_dca_orders, all_executed_orders, all_avg_entry_prices, all_profits, symbol, plot_segments, num_orders)
+    # all_profits_pve = plot_orders(df, all_dca_orders, all_executed_orders, all_avg_entry_prices, all_profits, symbol,
+    #                               plot_segments, num_orders)
 
-    return all_profits_pve
+    return df
+
 
 def calculate_position_profit(avg_price, total_qty, current_price):
     absolute_profit = (current_price - avg_price) * total_qty
     percentage_profit = (absolute_profit / (avg_price * total_qty)) * 100
     return absolute_profit, percentage_profit
+
 
 def plot_orders(df, all_dca_orders, executed_orders, avg_entry_prices, profits, symbol, plot_segments, num_orders):
     # Создаем фигуру с двумя графиками, при этом второй график будет меньше по высоте
@@ -543,7 +557,6 @@ def plot_orders(df, all_dca_orders, executed_orders, avg_entry_prices, profits, 
     if profits:
         cumulative_percentage_profit = 0
 
-
         for segment in plot_segments:
             segment_profits = [profit['percentage_profit'] for profit in profits if
                                segment[0] <= profit['index'] <= segment[1]]
@@ -563,12 +576,12 @@ def plot_orders(df, all_dca_orders, executed_orders, avg_entry_prices, profits, 
     #     go.Scatter(x=df.index, y=df['rsi21'], mode='lines', name='RSI',
     #                line=dict(color='green', width=2)), row=2, col=1)
 
-        # profit_x = [profit['index'] for profit in profits]
-        # profit_y = [profit['percentage_profit'] for profit in profits]
-        #
-        # fig.add_trace(
-        #     go.Scatter(x=profit_x, y=profit_y, mode='lines', name='Cumulative Position Profit',
-        #                line=dict(color='green', width=2)), row=2, col=1)
+    # profit_x = [profit['index'] for profit in profits]
+    # profit_y = [profit['percentage_profit'] for profit in profits]
+    #
+    # fig.add_trace(
+    #     go.Scatter(x=profit_x, y=profit_y, mode='lines', name='Cumulative Position Profit',
+    #                line=dict(color='green', width=2)), row=2, col=1)
 
     # Настраиваем внешний вид графиков
     fig.update_layout(
@@ -587,6 +600,7 @@ def plot_orders(df, all_dca_orders, executed_orders, avg_entry_prices, profits, 
 
     return all_profits
 
+
 def random_search(df, symbol, bybit, n_iter=100):
     best_config = None
     best_profit = float('-inf')
@@ -595,9 +609,9 @@ def random_search(df, symbol, bybit, n_iter=100):
         config = {
             'profit_target': round(random.uniform(0.5, 3.0), 1),
             'first_order_size_usdt': int(random.uniform(10, 10)),
-            'step_percentage': round(random.uniform(0.3, 3.0),1),
+            'step_percentage': round(random.uniform(0.3, 3.0), 1),
             'num_orders': int(random.randint(10, 25)),
-            'martingale_factor': round(random.uniform(1.1, 2.0),2),
+            'martingale_factor': round(random.uniform(1.1, 2.0), 2),
             'candles_to_close': int(random.randint(30, 80))
         }
 
@@ -612,11 +626,12 @@ def random_search(df, symbol, bybit, n_iter=100):
             best_profit = total_profit
             best_config = config
 
-        print(f"Iteration {_+1}/{n_iter} - Current Profit: {total_profit} - Best Profit: {best_profit} Config: {config}",)
+        print(
+            f"Iteration {_ + 1}/{n_iter} - Current Profit: {total_profit} - Best Profit: {best_profit} Config: {config}", )
 
     return best_config, best_profit
 
-def main():
+if __name__ == '__main__':
     api_key = ""
     api_secret = ""
     bybit = Bybit(api_key, api_secret)
@@ -632,9 +647,8 @@ def main():
         'martingale_factor': 1.25,
         'candles_to_close': 3000}
 
-    backtest(df, 'BTCUSDT', bybit, config)
+    pve = backtest(df, df['$Alert'], 'BTCUSDT',  bybit, config)
+    for col in pve.columns:
+        print(col)
 
-    exit()
-
-if __name__ == '__main__':
-    main()
+    print(pve.head(50))

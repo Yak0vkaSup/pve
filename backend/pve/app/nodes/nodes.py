@@ -7,6 +7,7 @@ import time
 from flask import current_app
 import asyncio
 import telegram
+from .backtest import backtest, Bybit
 from ..socketio_setup import socketio
 
 from .utils import (
@@ -28,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 class Node:
     df = None
+    symbol = None
     def __init__(self, node_id, node_type, properties, inputs, outputs):
         self.id = node_id
         self.type = node_type
@@ -47,6 +49,13 @@ class Node:
     def get_df(cls):
         return cls.df
 
+    @classmethod
+    def set_symbol(cls, symbol):
+        cls.symbol = symbol
+
+    @classmethod
+    def get_symbol(cls):
+        return cls.symbol
 
 class GetOpenNode(Node):
     def execute(self):
@@ -329,6 +338,7 @@ class GetConditionNode(Node):
             # Retrieve condition from the global DataFrame by name
             df = Node.get_df()
             if df is not None and condition_name in df:
+                condition_name = '$' + condition_name
                 self.output_values['Condition'] = df[condition_name]
                 logger.info(f"GetConditionNode {self.id}: Successfully retrieved condition '{condition_name}'.")
             else:
@@ -337,6 +347,29 @@ class GetConditionNode(Node):
         except Exception as e:
             logger.error(f"GetConditionNode {self.id}: Error retrieving condition: {e}")
             self.output_values['Condition'] = None
+
+class GetColumnNode(Node):
+    def execute(self):
+        column_name = self.input_values.get(0)  # Input for column name
+
+        if column_name is None:
+            logger.error(f"GetColumnNode {self.id}: Column name is None.")
+            self.output_values['Column'] = None
+            return
+
+        try:
+            # Retrieve the column from the global DataFrame by name
+            df = Node.get_df()
+            if df is not None and column_name in df.columns:
+                self.output_values['Column'] = df[column_name]
+                logger.info(f"GetColumnNode {self.id}: Successfully retrieved column '{column_name}'.")
+            else:
+                logger.error(f"GetColumnNode {self.id}: Column '{column_name}' not found in DataFrame.")
+                self.output_values['Column'] = None
+        except Exception as e:
+            logger.error(f"GetColumnNode {self.id}: Error retrieving column: {e}")
+            self.output_values['Column'] = None
+
 
 class SmallerNode(Node):
     def execute(self):
@@ -474,6 +507,54 @@ class SendMessageNode(Node):
             logger.error(f"SendMessageNode {self.id}: Error sending message: {e}")
             self.output_values['Exec'] = None
 
+class SimpleBacktestNode(Node):
+    def execute(self):
+        # Retrieve input values
+        inputs = {
+            "signals": self.input_values.get(0),
+            "profit_target": self.input_values.get(1),
+            "num_orders": self.input_values.get(2),
+            "martingale_factor": self.input_values.get(3),
+            "candles_to_close": self.input_values.get(4),
+            "step_percentage": self.input_values.get(5),
+            "first_order_size": self.input_values.get(6),
+        }
+
+        # Validate all inputs
+        missing_inputs = [key for key, value in inputs.items() if value is None]
+        if missing_inputs:
+            logger.error(f"SimpleBacktestNode {self.id}: Missing inputs: {', '.join(missing_inputs)}.")
+            return
+
+        if not isinstance(inputs["signals"], pd.Series):
+            logger.error(f"SimpleBacktestNode {self.id}: Signals must be a pandas Series.")
+            return
+
+        # Retrieve DataFrame and symbol
+        df, symbol = Node.get_df(), Node.get_symbol()
+        if df is None or symbol is None:
+            logger.error(f"SimpleBacktestNode {self.id}: Missing DataFrame or symbol.")
+            return
+
+        try:
+            # Run backtest with configuration
+            config = {
+                "profit_target": inputs["profit_target"],
+                "first_order_size_usdt": inputs["first_order_size"],
+                "step_percentage": inputs["step_percentage"],
+                "num_orders": inputs["num_orders"],
+                "martingale_factor": inputs["martingale_factor"],
+                "candles_to_close": inputs["candles_to_close"],
+            }
+            bybit = Bybit("", "")  # Replace with actual credentials
+            pve = backtest(df, inputs["signals"], symbol, bybit, config)
+
+            # Log and output the backtest result
+            logger.info(f"SimpleBacktestNode {self.id}: Backtest executed successfully.")
+            self.output_values["Backtest Result"] = pve
+        except Exception as e:
+            logger.error(f"SimpleBacktestNode {self.id}: Error executing backtest: {e}")
+
 # Graph Processing Functions
 def build_nodes(nodes_data):
     nodes = {}
@@ -519,6 +600,8 @@ def build_nodes(nodes_data):
             node = AddColumnNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'tools/get_condition':
             node = GetConditionNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'tools/get_column':
+            node = GetColumnNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'tools/add_condition':
             node = AddConditionNode(node_id, node_type, properties, inputs, outputs)
 
@@ -533,6 +616,9 @@ def build_nodes(nodes_data):
 
         elif node_type == 'telegram/send_message':
             node = SendMessageNode(node_id, node_type, properties, inputs, outputs)
+
+        elif node_type == 'backtest/simple_backtest':
+            node = SimpleBacktestNode(node_id, node_type, properties, inputs, outputs)
 
         else:
             logger.error(f"Unknown node type: {node_type}")
@@ -617,7 +703,6 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
 
     df = fetch_data(symbol, start_date, end_date)
 
-
     df['date'] = pd.to_datetime(df['date'])
     df.set_index('date', inplace=True)
 
@@ -633,6 +718,7 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     df_resampled.reset_index(inplace=True)
 
     Node.set_df(df_resampled)
+    Node.set_symbol(symbol)
 
     nodes = build_nodes(data['nodes'])
     build_connections(data['links'], nodes)
@@ -644,22 +730,8 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     execute_graph(sorted_node_ids, nodes)
 
     final_df = Node.get_df()
+    # final_df.to_csv('test_out.csv', index=False)
 
-    # take_profit_pct = 0.01
-    # price = final_df['close']
-    # entries = final_df['$Condition']
-    #
-    # pf = vbt.Portfolio.from_signals(
-    #     close=price,
-    #     entries=entries,
-    #     tp_stop=take_profit_pct,
-    #     size=1
-    # )
-    #
-    # # Display the result
-    # print(pf.stats())
-    # print(pf.orders.records_readable)
-    # pf.plot().show()
 
     if final_df is not None:
         logger.info("Processing complete. Retrieved final Data...")

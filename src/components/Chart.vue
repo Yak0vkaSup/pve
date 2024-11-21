@@ -169,53 +169,68 @@ function updateChartData(data) {
     const formattedData = [];
     const volumeData = [];
     const maNames = new Set();
-    const signalColumns = new Set();
+    const markers = [];
+
+    // Define the prefix mappings
+    const prefixMappings = {
+      "$": {
+        position: 'belowBar',
+        shape: 'circle',
+        color: 'rgba(0, 150, 136, 1)',
+        lineWidth: 3,
+      },
+      "£": {
+        position: 'belowBar',
+        shape: 'arrowUp',
+        color: 'rgb(34,255,0)',
+        lineWidth: 5,
+      },
+      "@": {
+        position: 'aboveBar',
+        shape: 'arrowDown',
+        color: 'rgb(255,0,0)',
+        lineWidth: 5,
+      },
+      // Add more mappings as needed
+    };
 
     fetchedData.forEach((candle) => {
-
       const volume = candle.volume;
-
-      const colorcandles = candle.close > candle.open ? 'rgba(76, 175, 80, 0.2)'  : 'rgba(244, 67, 54, 0.2)'; // Semi-transparent colors
-      const colorvolume = candle.close > candle.open ? 'rgba(76, 175, 80, 0.1)'  : 'rgba(244, 67, 54, 0.1)'; // Semi-transparent colors
+      const isUpCandle = candle.close > candle.open;
+      const colorCandle = isUpCandle ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)';
+      const colorVolume = isUpCandle ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)';
 
       formattedData.push({
-        time: candle.date, // The API returns Unix timestamp
+        time: candle.date,
         open: candle.open,
         high: candle.high,
         low: candle.low,
         close: candle.close,
-        color: colorcandles,
+        color: colorCandle,
       });
 
       volumeData.push({
         time: candle.date,
         value: volume,
-        color: colorvolume,
+        color: colorVolume,
       });
 
-      // Identify MA names and other indicators in the candle dynamically
+      // Process markers and MA names dynamically
       Object.keys(candle).forEach((key) => {
         if (!["date", "open", "high", "low", "close", "volume"].includes(key)) {
-          if (key.startsWith("$")) {
-            signalColumns.add(key);
-          } else {
-            maNames.add(key);
-          }
-        }
-      });
-    });
-    const markers = [];
+          const prefix = Object.keys(prefixMappings).find((p) => key.startsWith(p));
 
-    signalColumns.forEach((signalCol) => {
-      fetchedData.forEach((candle) => {
-        if (candle[signalCol]) {
-          markers.push({
-            time: candle.date,
-            position: 'belowBar', // Position can be 'aboveBar' or 'belowBar'
-            shape: 'arrowUp', // Options: 'arrowUp', 'arrowDown', 'circle', 'square', etc.
-            color: 'rgba(0, 150, 136, 1)', // Customize color
-            lineWidth: 5,
-          });
+          if (prefix) {
+            if (candle[key]) {
+              const markerProps = prefixMappings[prefix];
+              markers.push({
+                time: candle.date,
+                ...markerProps,
+              });
+            }
+          } else {
+            maNames.add(key); // Treat as MA name if no prefix matches
+          }
         }
       });
     });
@@ -223,13 +238,12 @@ function updateChartData(data) {
     // Set markers on the candlestick series
     candleSeries.setMarkers(markers);
 
-    // Update maSettings with new MAs or indicators
+    // Update MA settings with new MAs or indicators
     maNames.forEach((maName) => {
       if (!maSettings[maName]) {
-        // Assign saved color or generate a new one
         maSettings[maName] = {
           color: savedMaColors[maName] || getRandomColor(),
-          visible: true, // By default, MAs/indicators are visible
+          visible: true,
         };
       }
     });
@@ -245,20 +259,19 @@ function updateChartData(data) {
       }
     });
 
-    // Ensure the data is sorted by time (ascending order)
+    // Ensure the data is sorted by time
     formattedData.sort((a, b) => a.time - b.time);
 
-    // Update the candlestick data
+    // Update the candlestick and volume data
     candleSeries.setData(formattedData);
     volumeSeries.setData(volumeData);
 
-    // For each MA or indicator, create or update the line series
+    // Update or create line series for MAs
     Object.keys(maSettings).forEach((maName) => {
       const settings = maSettings[maName];
 
       if (settings.visible) {
         if (!lineSeriesMap[maName]) {
-          // Create a new line series for the MA or indicator
           const lineSeries = chartInstance.addLineSeries({
             color: settings.color,
             lineWidth: 2,
@@ -266,35 +279,27 @@ function updateChartData(data) {
           });
           lineSeriesMap[maName] = lineSeries;
         } else {
-          // Update line series options if needed
           lineSeriesMap[maName].applyOptions({
             color: settings.color,
           });
         }
 
-        // Prepare data for this MA or indicator
         const maData = fetchedData
-          .filter(candle => candle[maName] !== undefined)
+          .filter((candle) => candle[maName] !== undefined)
           .map((candle) => ({
             time: candle.date,
             value: candle[maName],
           }));
 
-        // Ensure the data is sorted
         maData.sort((a, b) => a.time - b.time);
-
-        // Update the line series data
         lineSeriesMap[maName].setData(maData);
       } else {
-        // If MA/indicator is not visible, remove its series if it exists
         if (lineSeriesMap[maName]) {
           chartInstance.removeSeries(lineSeriesMap[maName]);
           delete lineSeriesMap[maName];
         }
       }
     });
-
-
   } else {
     console.error("Invalid data format:", fetchedData);
   }

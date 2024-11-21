@@ -152,7 +152,6 @@ def compile_graph():
         if df is not None:
             df['date'] = df['date'].astype('int64') // 10 ** 9
             df = df.fillna(value=0)
-            print(df.tail())
             data = df.to_dict('records')
             user_id=str(user_id)
             socketio.emit('update_chart', {'status': 'success', 'data': data}, to=user_id, namespace='/')
