@@ -36,18 +36,12 @@ import '../components/custom_nodes/compare/equal.js'
 import '../components/custom_nodes/compare/smaller.js'
 
 import '../components/custom_nodes/indicators/MaNode.js'
+import '../components/custom_nodes/indicators/BollingerNode.js'
 
 import '../components/custom_nodes/telegram/send_message.js'
+
 import '../components/custom_nodes/backtest/simple_backtest.js'
-
-
-
-// import '../components/custom_nodes/GetDataFromDbNode.js'
-// import '../components/custom_nodes/VisualizeDataNode.js'
-// import '../components/custom_nodes/indicators/HeikenAshiNode.js'
-// import '../components/custom_nodes/MultiplyColumnNode.js'
-// import '../components/custom_nodes/indicators/MaNode.js'
-// import '../components/custom_nodes/CompareNode.js'
+import '../components/custom_nodes/backtest/advanced_backtest.js'
 
 
 // Define interfaces

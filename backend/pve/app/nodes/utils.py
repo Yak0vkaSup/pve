@@ -87,4 +87,8 @@ def ma(name: str, column: pd.Series, window: int) -> pd.Series:
 def super_trend(high: pd.Series, low: pd.Series, close: pd.Series,  window: int) -> pd.Series:
     return ta.supertrend(high, low, close, window)
 
+@type_check
+def bollinger(close: pd.Series, window: int):
+    return ta.bbands(close, window, talib=True)
+
 symbols_db = ['1000000MOGUSDT', '1000BONKUSDT', '1000FLOKIUSDT', '1000NEIROCTOUSDT', '1000PEPEUSDT', '1000XUSDT', 'AAVEUSDT', 'ACTUSDT', 'ADAUSDT', 'APEUSDT', 'APTUSDT', 'ARBUSDT', 'ATOMUSDT', 'AVAXUSDT', 'BANUSDT', 'BCHUSDT', 'BNBUSDT', 'BOMEUSDT', 'BRETTUSDT', 'BTCPERP', 'BTCUSDT', 'CATIUSDT', 'CRVUSDT', 'DEGENUSDT', 'DOGEUSDT', 'DOGSUSDT', 'DOTUSDT', 'DRIFTUSDT', 'EIGENUSDT', 'ENAUSDT', 'ETCUSDT', 'ETHFIUSDT', 'ETHUSDT', 'FTMUSDT', 'GALAUSDT', 'GOATUSDT', 'GRASSUSDT', 'HBARUSDT', 'INJUSDT', 'JUPUSDT', 'KASUSDT', 'LDOUSDT', 'LINKUSDT', 'LTCUSDT', 'MEWUSDT', 'MOODENGUSDT', 'NEARUSDT', 'NEIROETHUSDT', 'NOTUSDT', 'OMUSDT', 'ONDOUSDT', 'OPUSDT', 'ORDIUSDT', 'PNUTUSDT', 'POLUSDT', 'POPCATUSDT', 'RENDERUSDT', 'SEIUSDT', 'SHIB1000USDT', 'SLERFUSDT', 'SOLUSDT', 'STRKUSDT', 'STXUSDT', 'SUIUSDT', 'TAOUSDT', 'TIAUSDT', 'TONUSDT', 'TROYUSDT', 'UNIUSDT', 'WIFUSDT', 'WLDUSDT', 'XLMUSDT', 'XRPUSDT']

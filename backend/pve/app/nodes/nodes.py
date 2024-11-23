@@ -22,6 +22,7 @@ from .utils import (
     multiply_column,
     ma,
     super_trend,
+    bollinger,
 )
 
 # Configure logging for this module
@@ -228,6 +229,50 @@ class SuperTrendNode(Node):
             logger.error(f"EMANode {self.id}: {e}")
             self.output_values['SuperTrend'] = None  # Changed 'Result' to 'EMA'
 
+class BollingerNode(Node):
+    def execute(self):
+        # Retrieve inputs
+        close = self.input_values.get(0)  # Input 'Close' column (pd.Series)
+        window = self.input_values.get(1)  # Input 'Window' (integer)
+
+        # Validate inputs
+        if close is None or not isinstance(close, pd.Series):
+            logger.error(f"BollingerNode {self.id}: 'Close' input is not a valid pandas Series.")
+            self.output_values['Lower'] = None
+            self.output_values['Mid'] = None
+            self.output_values['Upper'] = None
+            self.output_values['Bandwidth'] = None
+            self.output_values['Percent'] = None
+            return
+
+        if window is None or not isinstance(window, int):
+            logger.error(f"BollingerNode {self.id}: 'Window' input is not a valid integer.")
+            self.output_values['Lower'] = None
+            self.output_values['Mid'] = None
+            self.output_values['Upper'] = None
+            self.output_values['Bandwidth'] = None
+            self.output_values['Percent'] = None
+            return
+
+        try:
+            # Calculate Bollinger Bands
+            bollinger_df = bollinger(close, window)
+
+            # Extract individual columns from the DataFrame as Series
+            self.output_values['Lower'] = bollinger_df['BBL_{}_2.0'.format(window)]
+            self.output_values['Mid'] = bollinger_df['BBM_{}_2.0'.format(window)]
+            self.output_values['Upper'] = bollinger_df['BBU_{}_2.0'.format(window)]
+            self.output_values['Bandwidth'] = bollinger_df['BBB_{}_2.0'.format(window)]
+            self.output_values['Percent'] = bollinger_df['BBP_{}_2.0'.format(window)]
+
+            logger.info(f"BollingerNode {self.id}: Successfully calculated Bollinger Bands.")
+        except Exception as e:
+            logger.error(f"BollingerNode {self.id}: Error calculating Bollinger Bands: {e}")
+            self.output_values['Lower'] = None
+            self.output_values['Mid'] = None
+            self.output_values['Upper'] = None
+            self.output_values['Bandwidth'] = None
+            self.output_values['Percent'] = None
 
 
 class AddColumnNode(Node):
@@ -507,7 +552,7 @@ class SendMessageNode(Node):
             logger.error(f"SendMessageNode {self.id}: Error sending message: {e}")
             self.output_values['Exec'] = None
 
-class SimpleBacktestNode(Node):
+class AdvancedBacktestNode(Node):
     def execute(self):
         # Retrieve input values
         inputs = {
@@ -518,6 +563,51 @@ class SimpleBacktestNode(Node):
             "candles_to_close": self.input_values.get(4),
             "step_percentage": self.input_values.get(5),
             "first_order_size": self.input_values.get(6),
+        }
+
+        # Validate all inputs
+        missing_inputs = [key for key, value in inputs.items() if value is None]
+        if missing_inputs:
+            logger.error(f"AdvancedBacktestNode {self.id}: Missing inputs: {', '.join(missing_inputs)}.")
+            return
+
+        if not isinstance(inputs["signals"], pd.Series):
+            logger.error(f"AdvancedBacktestNode {self.id}: Signals must be a pandas Series.")
+            return
+
+        # Retrieve DataFrame and symbol
+        df, symbol = Node.get_df(), Node.get_symbol()
+        if df is None or symbol is None:
+            logger.error(f"AdvancedBacktestNode {self.id}: Missing DataFrame or symbol.")
+            return
+
+        try:
+            # Run backtest with configuration
+            config = {
+                "profit_target": inputs["profit_target"],
+                "first_order_size_usdt": inputs["first_order_size"],
+                "step_percentage": inputs["step_percentage"],
+                "num_orders": inputs["num_orders"],
+                "martingale_factor": inputs["martingale_factor"],
+                "candles_to_close": inputs["candles_to_close"],
+            }
+            bybit = Bybit("", "")  # Replace with actual credentials
+            pve = backtest(df, inputs["signals"], symbol, bybit, config)
+
+            # Log and output the backtest result
+            logger.info(f"AdvancedBacktestNode {self.id}: Backtest executed successfully.")
+            self.output_values["Backtest Result"] = pve
+        except Exception as e:
+            logger.error(f"AdvancedBacktestNode {self.id}: Error executing backtest: {e}")
+
+class SimpleBacktestNode(Node):
+    def execute(self):
+        # Retrieve input values
+        inputs = {
+            "signals": self.input_values.get(0),
+            "profit_target": self.input_values.get(1),
+            "candles_to_close": self.input_values.get(2),
+            "first_order_size": self.input_values.get(3),
         }
 
         # Validate all inputs
@@ -541,9 +631,9 @@ class SimpleBacktestNode(Node):
             config = {
                 "profit_target": inputs["profit_target"],
                 "first_order_size_usdt": inputs["first_order_size"],
-                "step_percentage": inputs["step_percentage"],
-                "num_orders": inputs["num_orders"],
-                "martingale_factor": inputs["martingale_factor"],
+                "step_percentage": -0.1,
+                "num_orders": 1,
+                "martingale_factor": 1,
                 "candles_to_close": inputs["candles_to_close"],
             }
             bybit = Bybit("", "")  # Replace with actual credentials
@@ -554,6 +644,7 @@ class SimpleBacktestNode(Node):
             self.output_values["Backtest Result"] = pve
         except Exception as e:
             logger.error(f"SimpleBacktestNode {self.id}: Error executing backtest: {e}")
+
 
 # Graph Processing Functions
 def build_nodes(nodes_data):
@@ -586,8 +677,11 @@ def build_nodes(nodes_data):
             node = SetStringNode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'set/integer':
             node = SetIntegerNode(node_id, node_type, properties, inputs, outputs)
+
         elif node_type == 'indicators/ma':
             node = MANode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'indicators/bollinger':
+            node = BollingerNode(node_id, node_type, properties, inputs, outputs)
 
         elif node_type == 'compare/cross_over':
             node = CrossOverNode(node_id, node_type, properties, inputs, outputs)
@@ -619,7 +713,8 @@ def build_nodes(nodes_data):
 
         elif node_type == 'backtest/simple_backtest':
             node = SimpleBacktestNode(node_id, node_type, properties, inputs, outputs)
-
+        elif node_type == 'backtest/advanced_backtest':
+            node = AdvancedBacktestNode(node_id, node_type, properties, inputs, outputs)
         else:
             logger.error(f"Unknown node type: {node_type}")
             node = Node(node_id, node_type, properties, inputs, outputs)

@@ -151,7 +151,16 @@ def compile_graph():
 
         if df is not None:
             df['date'] = df['date'].astype('int64') // 10 ** 9
-            df = df.fillna(value=0)
+            # df = df.fillna(value=0)
+            # df = df.dropna(how='all', axis=1)
+
+            columns_to_ignore = ['date', 'open', 'high', 'low', 'close', 'volume']
+            ma_columns = [col for col in df.columns if col not in columns_to_ignore]
+            df[ma_columns] = df[ma_columns].astype(object)
+
+            # Replace NaN with None in the MA columns
+            df[ma_columns] = df[ma_columns].where(pd.notna(df[ma_columns]), None)
+
             data = df.to_dict('records')
             user_id=str(user_id)
             socketio.emit('update_chart', {'status': 'success', 'data': data}, to=user_id, namespace='/')

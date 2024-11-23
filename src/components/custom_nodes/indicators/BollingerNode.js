@@ -2,19 +2,20 @@
 import { LiteGraph } from 'litegraph.js'
 
 export function BollingerNode() {
-  // this.addInput('Data', 'number')
-  this.addInput ("Close","dataframe")
-  this.addOutput ("Lower", "dataframe");
-  this.addOutput ("Mid", "dataframe");
-  this.addOutput ("Upper", "dataframe");
+  this.addInput('Close', 'column')
+  this.addInput('Window', 'integer')
 
-  this.properties = { 
-    windows : 7,
-   };
+  this.addOutput ("Lower", "column");
+  this.addOutput ("Mid", "column");
+  this.addOutput ("Upper", "column");
+  this.addOutput ("Bandwidth", "column");
+  this.addOutput ("Percent", "column");
+
+  this.serialize_widgets = true;
 }
 
 // Set the title for the node
 BollingerNode.title = 'Bollinger'
 
 // Register the node with LiteGraph
-LiteGraph.registerNodeType('custom/indicators/bollinger', BollingerNode)
+LiteGraph.registerNodeType('indicators/bollinger', BollingerNode)

@@ -285,11 +285,11 @@ function updateChartData(data) {
         }
 
         const maData = fetchedData
-          .filter((candle) => candle[maName] !== undefined)
+          .filter((candle) => candle[maName] !== null)
           .map((candle) => ({
             time: candle.date,
             value: candle[maName],
-          }));
+        }));
 
         maData.sort((a, b) => a.time - b.time);
         lineSeriesMap[maName].setData(maData);
