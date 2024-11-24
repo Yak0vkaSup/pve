@@ -206,28 +206,45 @@ class MANode(Node):
 
 class SuperTrendNode(Node):
     def execute(self):
+        # Inputs
         high = self.input_values.get(0)
         low = self.input_values.get(1)
         close = self.input_values.get(2)
         window = self.input_values.get(3)
 
+        # Validate inputs
         if high is None or low is None or close is None:
-            logger.error(f"SuperTrendNode {self.id}: Source column is None.")
-            self.output_values['SuperTrend'] = None  # Changed 'Result' to 'EMA'
+            logger.error(f"SuperTrendNode {self.id}: High, Low, or Close is None.")
+            self.set_default_outputs()
             return
 
         if window is None:
             logger.error(f"SuperTrendNode {self.id}: Window is None.")
-            self.output_values['SuperTrend'] = None  # Changed 'Result' to 'EMA'
+            self.set_default_outputs()
             return
 
         try:
-            supertrend_series = super_trend(high, low, close, window)
-            self.output_values['SuperTrend'] = supertrend_series  # Changed 'Result' to 'EMA'
-            logger.info(f"SuperTrendNode {self.id}: SuperTrend column with {window}.")
+            # Compute SuperTrend
+            supertrend_df = super_trend(high, low, close, window)
+
+            # Set outputs
+            self.output_values['Trend'] = supertrend_df[f"SUPERT_{window}_3.0"]
+            self.output_values['Direction'] = supertrend_df[f"SUPERTd_{window}_3.0"]
+            self.output_values['Long'] = supertrend_df[f"SUPERTl_{window}_3.0"]
+            self.output_values['Short'] = supertrend_df[f"SUPERTs_{window}_3.0"]
+
+            logger.info(f"SuperTrendNode {self.id}: Successfully calculated SuperTrend.")
         except Exception as e:
-            logger.error(f"EMANode {self.id}: {e}")
-            self.output_values['SuperTrend'] = None  # Changed 'Result' to 'EMA'
+            logger.error(f"SuperTrendNode {self.id}: Error calculating SuperTrend: {e}")
+            self.set_default_outputs()
+
+    def set_default_outputs(self):
+        """Sets default outputs to None in case of an error."""
+        self.output_values['Trend'] = None
+        self.output_values['Direction'] = None
+        self.output_values['Long'] = None
+        self.output_values['Short'] = None
+
 
 class BollingerNode(Node):
     def execute(self):
@@ -631,7 +648,7 @@ class SimpleBacktestNode(Node):
             config = {
                 "profit_target": inputs["profit_target"],
                 "first_order_size_usdt": inputs["first_order_size"],
-                "step_percentage": -0.1,
+                "step_percentage": 0,
                 "num_orders": 1,
                 "martingale_factor": 1,
                 "candles_to_close": inputs["candles_to_close"],
@@ -682,6 +699,8 @@ def build_nodes(nodes_data):
             node = MANode(node_id, node_type, properties, inputs, outputs)
         elif node_type == 'indicators/bollinger':
             node = BollingerNode(node_id, node_type, properties, inputs, outputs)
+        elif node_type == 'indicators/super_trend':
+            node = SuperTrendNode(node_id, node_type, properties, inputs, outputs)
 
         elif node_type == 'compare/cross_over':
             node = CrossOverNode(node_id, node_type, properties, inputs, outputs)

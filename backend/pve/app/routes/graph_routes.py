@@ -160,7 +160,7 @@ def compile_graph():
 
             # Replace NaN with None in the MA columns
             df[ma_columns] = df[ma_columns].where(pd.notna(df[ma_columns]), None)
-
+            print(df.tail(50))
             data = df.to_dict('records')
             user_id=str(user_id)
             socketio.emit('update_chart', {'status': 'success', 'data': data}, to=user_id, namespace='/')

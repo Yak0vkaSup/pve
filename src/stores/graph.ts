@@ -37,6 +37,7 @@ import '../components/custom_nodes/compare/smaller.js'
 
 import '../components/custom_nodes/indicators/MaNode.js'
 import '../components/custom_nodes/indicators/BollingerNode.js'
+import '../components/custom_nodes/indicators/Supertrend.js'
 
 import '../components/custom_nodes/telegram/send_message.js'
 

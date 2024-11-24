@@ -1,21 +1,24 @@
 // Import LiteGraph
-import { LiteGraph } from 'litegraph.js'
+import { LiteGraph } from 'litegraph.js';
 
 export function SuperTrendNode() {
-  // this.addInput('Data', 'number')
-  this.addInput('High', 'column')
-  this.addInput('Low', 'column')
-  this.addInput('Close', 'column')
+  // Inputs
+  this.addInput('High', 'column');
+  this.addInput('Low', 'column');
+  this.addInput('Close', 'column');
+  this.addInput('Window', 'integer');
 
-  this.addInput('Window', 'integer')
+  // Outputs
+  this.addOutput('Trend', 'column');
+  this.addOutput('Direction', 'column');
+  this.addOutput('Long', 'column');
+  this.addOutput('Short', 'column');
 
-  this.addOutput('SuperTrend', 'column')
-
-  this.serialize_widgets = true
+  this.serialize_widgets = true;
 }
 
 // Set the title for the node
-SuperTrendNode.title = 'SuperTrend'
+SuperTrendNode.title = 'SuperTrend';
 
 // Register the node with LiteGraph
-LiteGraph.registerNodeType('indicators/super_trend', SuperTrendNode)
+LiteGraph.registerNodeType('indicators/super_trend', SuperTrendNode);

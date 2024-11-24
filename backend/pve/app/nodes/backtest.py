@@ -273,15 +273,20 @@ class DCA:
             adjusted_long_price = round(long_price / self.price_step) * self.price_step
             adjusted_short_price = round(short_price / self.price_step) * self.price_step
 
-            self.long_orders.append({'price': float(adjusted_long_price), 'qty': float(adjusted_qty)})
-            self.short_orders.append({'price': float(adjusted_short_price), 'qty': float(adjusted_qty)})
+            self.long_orders.append(
+                {'price': float(adjusted_long_price), 'qty': float(adjusted_qty), 'executed': False})
+            self.short_orders.append(
+                {'price': float(adjusted_short_price), 'qty': float(adjusted_qty), 'executed': False})
 
             logging.debug(
                 f"Order {i + 1}: Long price = {adjusted_long_price}, Short price = {adjusted_short_price}, Qty = {adjusted_qty}")
 
     def place_long_orders(self):
         for order in self.long_orders:
-            success = self.bybit.entry(price=order['price'], side='Buy', qty=order['qty'], order_type='Limit',
+            success = self.bybit.entry(price=order['price'],
+                                       side='Buy',
+                                       qty=order['qty'],
+                                       order_type='Limit',
                                        SYMBOL=self.symbol)
             if success:
                 logging.info(f"Placed long DCA order: Price = {order['price']}, Quantity = {order['qty']}")
@@ -372,6 +377,7 @@ def backtest(df, entries, symbol, bybit, config):
 
     for i in range(config['num_orders']):
         df[f'£order_executed_{i + 1}'] = False
+        df[f'order_{i + 1}'] = float('nan')
 
     for index, row in df.iterrows():
         if index == df.index[0]:
@@ -419,6 +425,14 @@ def backtest(df, entries, symbol, bybit, config):
                 num_orders = dca.num_orders
                 all_dca_orders.extend(current_dca_orders)
 
+                current_pos = df.index.get_loc(index)
+                for i, order in enumerate(current_dca_orders):
+                    if i < config['num_orders']:
+                        if not order['executed']:
+                            df.iloc[current_pos:, df.columns.get_loc(f'order_{i + 1}')] = order['price']
+                        else:
+                            df.iloc[current_pos:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
+
             except ValueError as e:
                 logging.error(f"Failed to initialize DCA: {e}")
                 continue
@@ -426,9 +440,14 @@ def backtest(df, entries, symbol, bybit, config):
 
         elif in_position:
             order_executed = False
+            current_pos = df.index.get_loc(index)
             for i, order in enumerate(current_dca_orders):
-                if row['close'] <= order['price'] and order['price'] not in current_executed_prices:
+                if row['low'] <= order['price'] and order['price'] not in current_executed_prices:
                     order_executed = True
+                    order['executed'] = True
+
+                    df.iloc[current_pos + 1:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
+
                     df.at[index, f'£order_executed_{i + 1}'] = True
                     logging.debug(f"Order executed at {order['price']} for quantity {order['qty']}")
 
@@ -446,10 +465,8 @@ def backtest(df, entries, symbol, bybit, config):
                 all_avg_entry_prices.append({'price': last_avg_price, 'index': index})
 
             # Exit if no orders executed in the last `candles_to_close` candles
-            if (df.index.get_loc(index) - df.index.get_loc(entry_candle_index)) >= config[
-                'candles_to_close'] and not current_executed_orders:
-                logging.debug(
-                    f"No orders executed in the last {config['candles_to_close']} candles, closing position at index {index}")
+            if (df.index.get_loc(index) - df.index.get_loc(entry_candle_index)) >= config['candles_to_close'] and not current_executed_orders:
+                logging.debug(f"No orders executed in the last {config['candles_to_close']} candles, closing position at index {index}")
                 in_position = False
                 plot_end_index = index
                 plot_segments.append((plot_start_index, plot_end_index))
@@ -462,6 +479,10 @@ def backtest(df, entries, symbol, bybit, config):
 
                 # Mark exit as True
                 df.at[index, '@exit'] = True
+                current_pos = df.index.get_loc(index)
+                for i in range(config['num_orders']):
+                    df.iloc[current_pos + 1:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
+
 
             # Calculate position profit
             if last_avg_price is not None:
@@ -485,6 +506,10 @@ def backtest(df, entries, symbol, bybit, config):
 
                     # Mark exit as True
                     df.at[index, '@exit'] = True
+                    current_pos = df.index.get_loc(index)
+                    for i in range(config['num_orders']):
+                        df.iloc[current_pos + 1:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
+
 
     end_time = time.time()
     logging.info(f"Backtest time taken: {end_time - start_time:.2f} seconds")

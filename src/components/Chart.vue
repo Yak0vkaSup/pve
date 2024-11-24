@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, reactive, watch } from 'vue'
 import { createChart } from 'lightweight-charts'
+import { LineType } from 'lightweight-charts'
 import { useWebSocketStore } from '@/stores/websocket';
 
 const chartContainer = ref(null)
@@ -122,7 +123,7 @@ onBeforeUnmount(() => {
 // Watch for changes in MA settings
 watch(maSettings, (newSettings) => {
   Object.keys(newSettings).forEach((maName) => {
-    const settings = newSettings[maName]
+    const settings = newSettings[maName];
 
     if (settings.visible) {
       if (!lineSeriesMap[maName]) {
@@ -130,38 +131,58 @@ watch(maSettings, (newSettings) => {
         const lineSeries = chartInstance.addLineSeries({
           color: settings.color,
           lineWidth: 2,
-          title: maName
-        })
-        lineSeriesMap[maName] = lineSeries
-
-        // Prepare data for this MA
-        const maData = fetchedData
-          .filter(candle => candle[maName] !== undefined)
-          .map((candle) => ({
-            time: candle.date,
-            value: candle[maName]
-          }))
-
-        // Ensure the data is sorted
-        maData.sort((a, b) => a.time - b.time)
-
-        // Update the line series data
-        lineSeriesMap[maName].setData(maData)
-      } else {
-        // Update line series options if needed
-        lineSeriesMap[maName].applyOptions({
-          color: settings.color
-        })
+          title: maName,
+        });
+        lineSeriesMap[maName] = lineSeries;
       }
+
+      // Prepare data for this MA with gap handling
+      const maData = [];
+      let nullCounter = 0;
+      let lastValidValue = null;
+
+      fetchedData.forEach((candle) => {
+        const maValue = candle[maName];
+
+        if (maValue === null || maValue === 0 || maValue === "None") {
+          nullCounter++;
+          if (nullCounter <= 15) {
+            maData.push({
+              time: candle.date,
+              value: lastValidValue, // Extend the last valid value
+              color: "transparent", // Render as transparent to skip visually
+            });
+          }
+        } else {
+          nullCounter = 0; // Reset counter
+          lastValidValue = maValue; // Update the last valid value
+          maData.push({
+            time: candle.date,
+            value: maValue, // Valid value
+          });
+        }
+      });
+
+      // Ensure the data is sorted
+      maData.sort((a, b) => a.time - b.time);
+
+      // Update the line series data
+      lineSeriesMap[maName].setData(maData);
+
+      // Apply any updated options like color
+      lineSeriesMap[maName].applyOptions({
+        color: settings.color,
+      });
     } else {
       // If MA is not visible, remove its series if it exists
       if (lineSeriesMap[maName]) {
-        chartInstance.removeSeries(lineSeriesMap[maName])
-        delete lineSeriesMap[maName]
+        chartInstance.removeSeries(lineSeriesMap[maName]);
+        delete lineSeriesMap[maName];
       }
     }
-  })
-}, { deep: true })
+  });
+}, { deep: true });
+
 
 function updateChartData(data) {
   fetchedData = data.slice();
@@ -278,18 +299,33 @@ function updateChartData(data) {
             title: maName,
           });
           lineSeriesMap[maName] = lineSeries;
-        } else {
-          lineSeriesMap[maName].applyOptions({
-            color: settings.color,
-          });
         }
 
-        const maData = fetchedData
-          .filter((candle) => candle[maName] !== null)
-          .map((candle) => ({
-            time: candle.date,
-            value: candle[maName],
-        }));
+        const maData = [];
+        let nullCounter = 0;
+        let lastValidValue = null;
+
+        fetchedData.forEach((candle) => {
+          const maValue = candle[maName];
+
+          if (maValue === null || maValue === 0 || maValue === "None") {
+            nullCounter++;
+            if (nullCounter <= 15) {
+              maData.push({
+                time: candle.date,
+                value: lastValidValue, // Extend the last valid value
+                color: "transparent", // Render as transparent to skip visually
+              });
+            }
+          } else {
+            nullCounter = 0; // Reset counter
+            lastValidValue = maValue; // Update the last valid value
+            maData.push({
+              time: candle.date,
+              value: maValue, // Valid value
+            });
+          }
+        });
 
         maData.sort((a, b) => a.time - b.time);
         lineSeriesMap[maName].setData(maData);
