@@ -38,6 +38,7 @@ class Bybit:
     def __init__(self, api_key, api_secret):
         self.session = HTTP(api_key=api_key, api_secret=api_secret, recv_window=20000)
         self.__ws = WebSocket(testnet=False, channel_type="linear")
+        self.instrument_info_cache = {}
 
     def get_positions(self, SYMBOL):
         positions = self.session.get_positions(category="linear", symbol=SYMBOL)
@@ -142,23 +143,34 @@ class Bybit:
         except Exception as e:
             logging.error(f"Error fetching filled orders: {e}")
             return []
+    def get_instrument_info(self, symbol):
+        if symbol in self.instrument_info_cache:
+            return self.instrument_info_cache[symbol]
+        else:
+            try:
+                response = self.session.get_instruments_info(category="linear", symbol=symbol)
+                if response['retCode'] == 0:
+                    for instrument in response['result']['list']:
+                        if instrument['symbol'] == symbol:
+                            self.instrument_info_cache[symbol] = instrument
+                            return instrument
+                else:
+                    logging.error(f"Failed to fetch instrument info: {response['retMsg']}")
+            except Exception as e:
+                logging.error(f"An error occurred while fetching instrument info: {e}")
+            return None
 
     def fetch_steps(self, symbol):
-        try:
-            response = self.session.get_instruments_info(category="linear", symbol=symbol)
-            if response['retCode'] == 0:
-                for instrument in response['result']['list']:
-                    if instrument['symbol'] == symbol:
-                        step_size = decimal.Decimal(str(instrument['lotSizeFilter']['qtyStep']))
-                        price_step = decimal.Decimal(str(instrument['priceFilter']['tickSize']))
-                        logging.info(
-                            f"Fetched step size and price step for {symbol}: qtyStep = {step_size}, priceStep = {price_step}")
-                        return step_size, price_step
-            else:
-                logging.error(f"Failed to fetch step sizes: {response['retMsg']}")
-        except Exception as e:
-            logging.error(f"An error occurred while fetching the step sizes: {e}")
-        return None, None
+        instrument = self.get_instrument_info(symbol)
+        if instrument:
+            step_size = decimal.Decimal(str(instrument['lotSizeFilter']['qtyStep']))
+            price_step = decimal.Decimal(str(instrument['priceFilter']['tickSize']))
+            logging.info(
+                f"Fetched step size and price step for {symbol}: qtyStep = {step_size}, priceStep = {price_step}")
+            return step_size, price_step
+        else:
+            logging.error("Failed to fetch step size or tick size.")
+            return None, None
 
     def get_symbols_by_turnover(self, turnover):
         try:
@@ -220,20 +232,16 @@ class DCA:
         Fetch step sizes and validate order constraints.
         Adjust order size if it doesn't meet the minimum requirements.
         """
-        step_size, tick_size = self.bybit.fetch_steps(self.symbol)
-        if not step_size or not tick_size:
-            logging.error("Failed to fetch step size or tick size.")
+        # Fetch step sizes and instrument info from cache
+        instrument = self.bybit.get_instrument_info(self.symbol)
+        if not instrument:
+            logging.error("Failed to fetch instrument info.")
             return None, None, None
 
-        step_size = decimal.Decimal(str(step_size))
-        tick_size = decimal.Decimal(str(tick_size))
+        step_size = decimal.Decimal(str(instrument['lotSizeFilter']['qtyStep']))
+        tick_size = decimal.Decimal(str(instrument['priceFilter']['tickSize']))
+        min_order_qty = decimal.Decimal(str(instrument['lotSizeFilter']['minOrderQty']))
 
-        response = self.bybit.session.get_instruments_info(category="linear", symbol=self.symbol)
-        if response['retCode'] != 0:
-            logging.error(f"Failed to fetch instrument info for {self.symbol}: {response['retMsg']}")
-            return None, None, None
-
-        min_order_qty = decimal.Decimal(str(response['result']['list'][0]['lotSizeFilter']['minOrderQty']))
         base_order_size = decimal.Decimal(str(order_size_usdt)) / self.initial_price
 
         if base_order_size < min_order_qty:
