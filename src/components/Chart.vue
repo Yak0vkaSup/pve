@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, reactive, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, reactive, watch, computed } from 'vue'
 import { createChart } from 'lightweight-charts'
 import { LineType } from 'lightweight-charts'
 import { useWebSocketStore } from '@/stores/websocket';
@@ -34,6 +34,8 @@ function getRandomColor() {
 
 // Load saved MA colors from localStorage
 const savedMaColors = JSON.parse(localStorage.getItem('maColors') || '{}')
+const precision = computed(() => wsStore.precision ?? 2); // Default to 2 if null
+const minMove = computed(() => wsStore.minMove ?? 0.01); // Default to 0.01 if null
 
 // Watcher to save MA colors to localStorage whenever they change
 watch(maSettings, (newSettings) => {
@@ -98,10 +100,21 @@ onMounted(() => {
   if (!wsStore.isConnected) {
     wsStore.initializeWebSocket();
   }
-    // Watch for chartData updates from the WebSocket store
+  // Watch for chartData updates from the WebSocket store
   watch(() => wsStore.chartData, (newData) => {
     if (newData) {
       updateChartData(newData);
+    }
+  });
+  watch([precision, minMove], ([newPrecision, newMinMove]) => {
+    if (candleSeries) {
+      candleSeries.applyOptions({
+        priceFormat: {
+          type: 'price',
+          precision: newPrecision,
+          minMove: newMinMove,
+        },
+      });
     }
   });
   // Resize chart on window resize
@@ -236,7 +249,6 @@ function updateChartData(data) {
         color: colorVolume,
       });
 
-      // Process markers and MA names dynamically
       Object.keys(candle).forEach((key) => {
         if (!["date", "open", "high", "low", "close", "volume"].includes(key)) {
           const prefix = Object.keys(prefixMappings).find((p) => key.startsWith(p));
@@ -244,8 +256,11 @@ function updateChartData(data) {
           if (prefix) {
             if (candle[key]) {
               const markerProps = prefixMappings[prefix];
+              const keyWithoutPrefix = key.substring(prefix.length);
+              const text = `${keyWithoutPrefix}: ${candle[key]}`;
               markers.push({
                 time: candle.date,
+                text: text,
                 ...markerProps,
               });
             }
@@ -255,7 +270,6 @@ function updateChartData(data) {
         }
       });
     });
-
     // Set markers on the candlestick series
     candleSeries.setMarkers(markers);
 

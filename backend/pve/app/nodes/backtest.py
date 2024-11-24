@@ -272,6 +272,8 @@ class DCA:
         """
         Calculate DCA orders based on the initial price, step percentage, and other parameters.
         """
+        self.long_orders.clear()
+        self.short_orders.clear()
         for i in range(self.num_orders):
             long_price = self.initial_price * (1 - (self.step_percentage / 100) * (i + 1))
             short_price = self.initial_price * (1 + (self.step_percentage / 100) * (i + 1))
@@ -342,9 +344,14 @@ class DCA:
         """
         Calculate the total USDT required for the DCA grid (long orders).
         """
-        total_usdt = sum(order['price'] * order['qty'] for order in self.long_orders)
+        total_usdt = decimal.Decimal("0.0")
+        print(self.long_orders, 'pvepvepve')
+        for order in self.long_orders:
+            price = decimal.Decimal(str(order['price']))
+            qty = decimal.Decimal(str(order['qty']))
+            total_usdt += price * qty
         logging.info(f"Total USDT required for the full DCA grid: {total_usdt}")
-        return total_usdt
+        return float(total_usdt)
 
 
 def calculate_average_entry_price(executed_orders):
@@ -456,7 +463,7 @@ def backtest(df, entries, symbol, bybit, config):
 
                     df.iloc[current_pos + 1:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
 
-                    df.at[index, f'£order_executed_{i + 1}'] = True
+                    df.at[index, f'£order_executed_{i + 1}'] = order['qty']
                     logging.debug(f"Order executed at {order['price']} for quantity {order['qty']}")
 
                     current_executed_orders.append({'order': order, 'index': index})
@@ -476,6 +483,7 @@ def backtest(df, entries, symbol, bybit, config):
             if (df.index.get_loc(index) - df.index.get_loc(entry_candle_index)) >= config['candles_to_close'] and not current_executed_orders:
                 logging.debug(f"No orders executed in the last {config['candles_to_close']} candles, closing position at index {index}")
                 in_position = False
+                df.at[index, '@exit'] = last_total_qty
                 plot_end_index = index
                 plot_segments.append((plot_start_index, plot_end_index))
                 current_dca_orders = []
@@ -486,7 +494,7 @@ def backtest(df, entries, symbol, bybit, config):
                 last_total_qty = 0
 
                 # Mark exit as True
-                df.at[index, '@exit'] = True
+
                 current_pos = df.index.get_loc(index)
                 for i in range(config['num_orders']):
                     df.iloc[current_pos + 1:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
@@ -503,6 +511,7 @@ def backtest(df, entries, symbol, bybit, config):
                 if percentage_profit >= config['profit_target']:
                     logging.info(f"Exiting position at index {index} with profit {percentage_profit:.2f}%")
                     in_position = False
+                    df.at[index, '@exit'] = last_total_qty
                     plot_end_index = index
                     plot_segments.append((plot_start_index, plot_end_index))
                     current_dca_orders = []
@@ -512,8 +521,6 @@ def backtest(df, entries, symbol, bybit, config):
                     last_avg_price = None
                     last_total_qty = 0
 
-                    # Mark exit as True
-                    df.at[index, '@exit'] = True
                     current_pos = df.index.get_loc(index)
                     for i in range(config['num_orders']):
                         df.iloc[current_pos + 1:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')

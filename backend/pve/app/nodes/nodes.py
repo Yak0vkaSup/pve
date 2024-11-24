@@ -8,6 +8,8 @@ from flask import current_app
 import asyncio
 import telegram
 from .backtest import backtest, Bybit
+from pybit.unified_trading import HTTP
+import decimal
 from ..socketio_setup import socketio
 
 from .utils import (
@@ -591,6 +593,13 @@ class AdvancedBacktestNode(Node):
         if not isinstance(inputs["signals"], pd.Series):
             logger.error(f"AdvancedBacktestNode {self.id}: Signals must be a pandas Series.")
             return
+        if inputs["step_percentage"] <= 0:
+            logger.error(f"AdvancedBacktestNode {self.id}: Step Percentage must be positive number")
+            return
+
+        if inputs["profit_target"] <= 0:
+            logger.error(f"AdvancedBacktestNode {self.id}: Profit Target must be positive number")
+            return
 
         # Retrieve DataFrame and symbol
         df, symbol = Node.get_df(), Node.get_symbol()
@@ -801,6 +810,34 @@ def execute_graph(sorted_node_ids, nodes):
         node.execute()
 
 
+def get_precision_and_min_move_bybit(symbol):
+    # Initialize the Bybit session (assuming testnet=False)
+    session = HTTP(testnet=False)
+
+    try:
+        # Fetch instrument info using pybit
+        response = session.get_instruments_info(category="linear", symbol=symbol)
+        if response['retCode'] == 0 and response['result']['list']:
+            instrument_info = response['result']['list'][0]
+            tick_size = decimal.Decimal(str(instrument_info['priceFilter']['tickSize']))
+            price_scale = int(instrument_info.get('priceScale', 2))  # Default to 2 if not provided
+
+            # Calculate precision and min_move
+            if tick_size:
+                precision = abs(tick_size.as_tuple().exponent)
+                min_move = float(tick_size)
+            else:
+                precision = price_scale
+                min_move = 1 / (10 ** price_scale)
+
+            return int(precision), min_move
+        else:
+            logger.error(f"Failed to fetch instrument info: {response.get('retMsg', 'Unknown error')}")
+            return 2, 0.01  # Default values
+    except Exception as e:
+        logger.error(f"Error fetching instrument info: {e}")
+        return 2, 0.01  # Default values
+
 def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     logger.info("Starting graph processing")
     start_time = time.time()
@@ -845,7 +882,8 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
 
     final_df = Node.get_df()
     # final_df.to_csv('test_out.csv', index=False)
-
+    precision, min_move = get_precision_and_min_move_bybit(symbol)
+    logger.debug(f"Fetched precision: {precision}, min_move: {min_move} for symbol: {symbol}")
 
     if final_df is not None:
         logger.info("Processing complete. Retrieved final Data...")
@@ -855,4 +893,4 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     end_time = time.time()
     execution_time = (end_time - start_time) * 1000
     logger.info(f"Execution time: {execution_time} ms")
-    return final_df
+    return final_df, precision, min_move

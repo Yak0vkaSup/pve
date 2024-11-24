@@ -47,20 +47,45 @@
     </select>
 
     <button @click="graphStore.compileGraph">Compile</button>
+    <button @click="graphStore.downloadGraph">Download</button>
+    <button @click="triggerFileUpload">Upload</button>
+    <input type="file" ref="fileInput" @change="handleFileUpload" accept=".json" style="display: none" />
   </div>
 </template>
 
 <script setup>
 import { useGraphStore } from '../stores/graph.ts'
+import { ref } from 'vue'
 
 const graphStore = useGraphStore()
+const fileInput = ref(null)
 
 const handleGraphChange = () => {
   graphStore.loadGraphFromServer()
   graphStore.graphName = graphStore.selectedGraph
 }
-</script>
 
+const triggerFileUpload = () => {
+  fileInput.value.click()
+}
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const contents = e.target.result
+      try {
+        const graphData = JSON.parse(contents)
+        graphStore.loadGraphFromFile(graphData)
+      } catch (error) {
+        console.error('Error parsing uploaded graph JSON:', error)
+      }
+    }
+    reader.readAsText(file)
+  }
+}
+</script>
 <style scoped>
 .button-container{
   margin-top: 1vh;

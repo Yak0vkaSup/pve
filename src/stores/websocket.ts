@@ -13,6 +13,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const isConnected = ref(false);
   const logs = ref<LogMessage[]>([]);
   const chartData = ref(null);
+  const precision = ref<number | null>(null);
+  const minMove = ref<number | null>(null);
 
   // Function to initialize the WebSocket connection
   function initializeWebSocket() {
@@ -61,6 +63,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
     socket.value.on('update_chart', (response: any) => {
       if (response.status === 'success') {
         chartData.value = response.data;
+        precision.value = response.precision;
+        minMove.value = response.minMove;
       } else {
         console.error('Error updating chart:', response.message);
       }
@@ -121,6 +125,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
     isConnected,
     logs,
     chartData,
+    precision,
+    minMove,
     initializeWebSocket,
     disconnectWebSocket
   };

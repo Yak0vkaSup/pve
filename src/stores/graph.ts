@@ -461,6 +461,67 @@ export const useGraphStore = defineStore('graph', () => {
     startDate.value = threeDaysAgo.toISOString().split('T')[0]
     endDate.value = tomorrow.toISOString().split('T')[0]
   }
+    const downloadGraph = (): void => {
+    if (!graph.value) {
+      alert('Graph not initialized.')
+      return
+    }
+
+    const serializedGraph = graph.value.serialize()
+    const graphData = {
+      graph: serializedGraph,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      timeframe: timeframe.value,
+      symbol: symbol.value,
+    }
+
+    const dataStr =
+      'data:text/json;charset=utf-8,' +
+      encodeURIComponent(JSON.stringify(graphData, null, 2))
+    const downloadAnchorNode = document.createElement('a')
+    downloadAnchorNode.setAttribute('href', dataStr)
+    downloadAnchorNode.setAttribute(
+      'download',
+      (graphName.value || 'graph') + '.json'
+    )
+    document.body.appendChild(downloadAnchorNode)
+    downloadAnchorNode.click()
+    downloadAnchorNode.remove()
+  }
+
+  /**
+   * Loads a graph from a JSON file and updates the settings.
+   * @param graphData - The graph data object parsed from JSON.
+   */
+  const loadGraphFromFile = (graphData: any): void => {
+    if (graph.value) {
+      graph.value.clear()
+      graph.value.configure(graphData.graph)
+      graph.value.start()
+    }
+
+    if (graphData.startDate) {
+      startDate.value = graphData.startDate
+    }
+
+    if (graphData.endDate) {
+      endDate.value = graphData.endDate
+    }
+
+    if (graphData.symbol) {
+      symbol.value = graphData.symbol
+    }
+
+    if (graphData.timeframe) {
+      timeframe.value = graphData.timeframe
+    }
+
+    // Update the graph name if it exists in the data
+    if (graphData.graphName) {
+      graphName.value = graphData.graphName
+    }
+  }
 
   return {
     graph,
@@ -482,5 +543,7 @@ export const useGraphStore = defineStore('graph', () => {
     deleteGraphToServer,
     compileGraph,
     setDefaultDates,
+    downloadGraph,
+    loadGraphFromFile,
   }
 })

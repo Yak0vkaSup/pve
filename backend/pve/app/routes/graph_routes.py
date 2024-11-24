@@ -143,7 +143,7 @@ def compile_graph():
         logger = logging.getLogger('app.nodes.nodes')
         logger.addHandler(log_capture_handler)
 
-        df = process_graph(graph_json, start_date, end_date, symbol, timeframe)
+        df, precision, min_move = process_graph(graph_json, start_date, end_date, symbol, timeframe)
 
         logger.removeHandler(log_capture_handler)
         if hasattr(thread_local, 'user_id'):
@@ -163,7 +163,14 @@ def compile_graph():
             print(df.tail(50))
             data = df.to_dict('records')
             user_id=str(user_id)
-            socketio.emit('update_chart', {'status': 'success', 'data': data}, to=user_id, namespace='/')
+
+            socketio.emit('update_chart', {
+                'status': 'success',
+                'data': data,
+                'precision': precision,
+                'minMove': min_move
+            }, to=user_id, namespace='/')
+
             return jsonify({'status': 'success', 'message': 'Compiled and data sent to chart'})
         else:
             return jsonify({'status': 'error', 'message': 'Failed to process graph'}), 500
