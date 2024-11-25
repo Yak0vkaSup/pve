@@ -530,9 +530,6 @@ def backtest(df, entries, symbol, bybit, config):
     df.drop('_signal_', axis=1, inplace=True)
     df.drop('entry', axis=1, inplace=True)
 
-    # all_profits_pve = plot_orders(df, all_dca_orders, all_executed_orders, all_avg_entry_prices, all_profits, symbol,
-    #                               plot_segments, num_orders)
-
     return df
 
 
