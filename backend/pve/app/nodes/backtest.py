@@ -1,11 +1,9 @@
 from datetime import datetime, timedelta
 from pandas import read_csv
-import plotly.graph_objects as go
 import time
 import decimal
 from pybit.unified_trading import HTTP
 from pybit.unified_trading import WebSocket
-from plotly.subplots import make_subplots
 import logging
 import random
 
@@ -542,104 +540,6 @@ def calculate_position_profit(avg_price, total_qty, current_price):
     absolute_profit = (current_price - avg_price) * total_qty
     percentage_profit = (absolute_profit / (avg_price * total_qty)) * 100
     return absolute_profit, percentage_profit
-
-
-def plot_orders(df, all_dca_orders, executed_orders, avg_entry_prices, profits, symbol, plot_segments, num_orders):
-    # Создаем фигуру с двумя графиками, при этом второй график будет меньше по высоте
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True,
-                        row_heights=[0.7, 0.3],  # Устанавливаем высоту графиков
-                        subplot_titles=(f'{symbol} Price and Orders', 'Position Profit'))
-
-    # Первый график: цена и ордера
-    fig.add_trace(go.Scatter(x=df.index, y=df['close'], mode='lines', name='Close Price'), row=1, col=1)
-
-    order_index = 0
-    for segment in plot_segments:
-        segment_df = df.loc[segment[0]:segment[1]]
-
-        # Plot only the relevant orders for this segment
-        segment_orders = all_dca_orders[order_index:order_index + num_orders]
-        for order in segment_orders:
-            fig.add_trace(go.Scatter(x=[segment_df.index[0], segment_df.index[-1]], y=[order['price'], order['price']],
-                                     mode='lines',
-                                     name=f'Buy Order @ {order["price"]}'), row=1, col=1)
-
-        # Move to the next set of orders for the next segment
-        order_index += num_orders
-
-        for executed in executed_orders:
-            if segment[0] <= executed['index'] <= segment[1]:
-                order = executed['order']
-                execution_index = executed['index']
-                fig.add_trace(go.Scatter(x=[execution_index], y=[order['price']], mode='markers',
-                                         name=f'Executed Order @ {order["price"]} for qty {order["qty"]}',
-                                         marker=dict(color='green', size=10)), row=1, col=1)
-
-    if avg_entry_prices:
-        for segment in plot_segments:
-            segment_avg_prices = [price for price in avg_entry_prices if segment[0] <= price['index'] <= segment[1]]
-            if segment_avg_prices:
-                ladder_x = []
-                ladder_y = []
-
-                for i in range(len(segment_avg_prices)):
-                    current = segment_avg_prices[i]
-                    previous = segment_avg_prices[i - 1] if i > 0 else current
-                    ladder_x.extend([previous['index'], current['index']])
-                    ladder_y.extend([previous['price'], current['price']])
-
-                fig.add_trace(go.Scatter(x=ladder_x, y=ladder_y, mode='lines', name='Average Entry Price',
-                                         line=dict(color='red', width=2)), row=1, col=1)
-
-    # Второй график: прибыль позиции
-    all_indexes = []
-    all_profits = []
-    if profits:
-        cumulative_percentage_profit = 0
-
-        for segment in plot_segments:
-            segment_profits = [profit['percentage_profit'] for profit in profits if
-                               segment[0] <= profit['index'] <= segment[1]]
-            segment_indexes = [profit['index'] for profit in profits if segment[0] <= profit['index'] <= segment[1]]
-
-            if segment_profits:
-                cumulative_segment_profit = [cumulative_percentage_profit + p for p in segment_profits]
-                cumulative_percentage_profit = cumulative_segment_profit[-1]
-
-                all_indexes.extend(segment_indexes)
-                all_profits.extend(cumulative_segment_profit)
-
-        fig.add_trace(
-            go.Scatter(x=all_indexes, y=all_profits, mode='lines', name='Cumulative Position Profit',
-                       line=dict(color='green', width=2)), row=2, col=1)
-    # fig.add_trace(
-    #     go.Scatter(x=df.index, y=df['rsi21'], mode='lines', name='RSI',
-    #                line=dict(color='green', width=2)), row=2, col=1)
-
-    # profit_x = [profit['index'] for profit in profits]
-    # profit_y = [profit['percentage_profit'] for profit in profits]
-    #
-    # fig.add_trace(
-    #     go.Scatter(x=profit_x, y=profit_y, mode='lines', name='Cumulative Position Profit',
-    #                line=dict(color='green', width=2)), row=2, col=1)
-
-    # Настраиваем внешний вид графиков
-    fig.update_layout(
-        title=f'DCA Orders and Profit for {symbol}',
-        xaxis_title='Date',
-        yaxis_title='Price',
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        legend=dict(font=dict(size=12)),
-        xaxis2_title='Date',
-        yaxis2_title='Profit %',
-        height=1080  # Общая высота фигуры
-    )
-
-    fig.show()
-
-    return all_profits
-
 
 def random_search(df, symbol, bybit, n_iter=100):
     best_config = None
