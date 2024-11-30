@@ -5,6 +5,8 @@ import { LineType } from 'lightweight-charts'
 import { useWebSocketStore } from '@/stores/websocket';
 
 const chartContainer = ref(null)
+const isFullscreen = ref(false) // Track fullscreen state
+
 let chartInstance
 let candleSeries
 let socket
@@ -47,6 +49,9 @@ watch(maSettings, (newSettings) => {
 }, { deep: true })
 
 onMounted(() => {
+  document.addEventListener('fullscreenchange', () => {
+    isFullscreen.value = !!document.fullscreenElement;
+  });
   chartInstance = createChart(chartContainer.value, {
     width: chartContainer.value.clientWidth,
     height: chartContainer.value.clientHeight,
@@ -124,6 +129,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  document.removeEventListener('fullscreenchange', () => {
+    isFullscreen.value = !!document.fullscreenElement;
+  });
   // Clean up the chart instance and Socket.IO connection when the component is unmounted
   if (chartInstance) {
     chartInstance.remove()
@@ -355,12 +363,26 @@ function updateChartData(data) {
   }
 }
 
+function toggleFullscreen() {
+  if (!isFullscreen.value) {
+    chartContainer.value.requestFullscreen();
+    isFullscreen.value = true;
+  } else {
+    document.exitFullscreen();
+    isFullscreen.value = false;
+  }
+}
+
 
 
 </script>
 
 <template>
   <div ref="chartContainer" class="chart-container">
+
+    <button @click="toggleFullscreen" class="fullscreen-button">
+        {{ isFullscreen ? 'Minimize' : 'Fullscreen' }}
+    </button>
     <!-- MA Settings Overlay -->
     <div class="ma-settings">
       <div v-for="(settings, maName) in maSettings" :key="maName" class="ma-setting">
@@ -375,13 +397,15 @@ function updateChartData(data) {
 </template>
 
 <style scoped>
-.chart-container {
+
+
+.chart-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
-  background-color: #2e2e2e;
-  border: 0px solid #444;
-  position: relative; /* Necessary for positioning the overlay */
 }
+
+
 
 /* MA Settings Overlay */
 .ma-settings {
@@ -480,4 +504,29 @@ function updateChartData(data) {
 .ma-setting input[type="checkbox"] + span::before {
   cursor: pointer;
 }
+
+
+.fullscreen-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+}
+
+.fullscreen-button:hover {
+  background-color: rgba(50, 50, 50, 0.9);
+}
+
+.fullscreen-button:active {
+  background-color: rgba(30, 30, 30, 1);
+}
+
 </style>
