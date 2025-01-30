@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 from pandas import read_csv
-import plotly.graph_objects as go
 import time
 import decimal
 from pybit.unified_trading import HTTP
 from pybit.unified_trading import WebSocket
-from plotly.subplots import make_subplots
 import logging
 import random
+import pandas as pd
+from datetime import datetime, timedelta, timezone
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler("backtester.log"),
@@ -33,11 +33,44 @@ class Position:
     def pnl_perc(self):
         return (self.pnl * 100 / self.positionValue) if self.positionValue != 0.0 else 0.0
 
+def get_candles(symbol, timeframe, start_date, end_date):
+    logging.debug(f"Fetching candles for {symbol} from {start_date} to {end_date}")
+    candles_data = []
+    limit_bars = 1000
+    while start_date < end_date:
+        candles = session.get_kline(symbol=symbol, interval=timeframe, start=int(start_date.timestamp() * 1000),
+                                    limit=limit_bars)
+        candles_list = candles['result']['list']
+        start_date = pd.to_datetime(int(candles_list[0][0]), unit='ms', utc=True)
+        candles_data += candles_list[::-1]  # .extend(candles_list.reverse())
+        if len(candles_list) < limit_bars:
+            break
+
+    df = pd.DataFrame(candles_data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', utc=True)
+
+    df['close'] = pd.to_numeric(df['close'], errors='coerce')
+    df['open'] = pd.to_numeric(df['open'], errors='coerce')
+    df['high'] = pd.to_numeric(df['high'], errors='coerce')
+    df['low'] = pd.to_numeric(df['low'], errors='coerce')
+    df['volume'] = pd.to_numeric(df['volume'], errors='coerce')
+
+    df = df.drop_duplicates(subset='timestamp', keep='first')
+    print(f"Candles fetched and processed successfully for symbol - {symbol}")
+    return df
+
+def prepare_data(symbol, days, timeframe):
+    start_date = pd.Timestamp.now(tz=timezone.utc) - timedelta(days=days)
+    end_date = pd.Timestamp.now(tz=timezone.utc) - timedelta(minutes=1)
+    logging.info(f"Loading new data for {symbol} from {start_date} to {end_date}")
+    df = get_candles(symbol, 15, start_date, end_date)
+    return df
 
 class Bybit:
     def __init__(self, api_key, api_secret):
         self.session = HTTP(api_key=api_key, api_secret=api_secret, recv_window=20000)
         self.__ws = WebSocket(testnet=False, channel_type="linear")
+        self.instrument_info_cache = {}
 
     def get_positions(self, SYMBOL):
         positions = self.session.get_positions(category="linear", symbol=SYMBOL)
@@ -142,23 +175,34 @@ class Bybit:
         except Exception as e:
             logging.error(f"Error fetching filled orders: {e}")
             return []
+    def get_instrument_info(self, symbol):
+        if symbol in self.instrument_info_cache:
+            return self.instrument_info_cache[symbol]
+        else:
+            try:
+                response = self.session.get_instruments_info(category="linear", symbol=symbol)
+                if response['retCode'] == 0:
+                    for instrument in response['result']['list']:
+                        if instrument['symbol'] == symbol:
+                            self.instrument_info_cache[symbol] = instrument
+                            return instrument
+                else:
+                    logging.error(f"Failed to fetch instrument info: {response['retMsg']}")
+            except Exception as e:
+                logging.error(f"An error occurred while fetching instrument info: {e}")
+            return None
 
     def fetch_steps(self, symbol):
-        try:
-            response = self.session.get_instruments_info(category="linear", symbol=symbol)
-            if response['retCode'] == 0:
-                for instrument in response['result']['list']:
-                    if instrument['symbol'] == symbol:
-                        step_size = decimal.Decimal(str(instrument['lotSizeFilter']['qtyStep']))
-                        price_step = decimal.Decimal(str(instrument['priceFilter']['tickSize']))
-                        logging.info(
-                            f"Fetched step size and price step for {symbol}: qtyStep = {step_size}, priceStep = {price_step}")
-                        return step_size, price_step
-            else:
-                logging.error(f"Failed to fetch step sizes: {response['retMsg']}")
-        except Exception as e:
-            logging.error(f"An error occurred while fetching the step sizes: {e}")
-        return None, None
+        instrument = self.get_instrument_info(symbol)
+        if instrument:
+            step_size = decimal.Decimal(str(instrument['lotSizeFilter']['qtyStep']))
+            price_step = decimal.Decimal(str(instrument['priceFilter']['tickSize']))
+            logging.info(
+                f"Fetched step size and price step for {symbol}: qtyStep = {step_size}, priceStep = {price_step}")
+            return step_size, price_step
+        else:
+            logging.error("Failed to fetch step size or tick size.")
+            return None, None
 
     def get_symbols_by_turnover(self, turnover):
         try:
@@ -220,20 +264,16 @@ class DCA:
         Fetch step sizes and validate order constraints.
         Adjust order size if it doesn't meet the minimum requirements.
         """
-        step_size, tick_size = self.bybit.fetch_steps(self.symbol)
-        if not step_size or not tick_size:
-            logging.error("Failed to fetch step size or tick size.")
+        # Fetch step sizes and instrument info from cache
+        instrument = self.bybit.get_instrument_info(self.symbol)
+        if not instrument:
+            logging.error("Failed to fetch instrument info.")
             return None, None, None
 
-        step_size = decimal.Decimal(str(step_size))
-        tick_size = decimal.Decimal(str(tick_size))
+        step_size = decimal.Decimal(str(instrument['lotSizeFilter']['qtyStep']))
+        tick_size = decimal.Decimal(str(instrument['priceFilter']['tickSize']))
+        min_order_qty = decimal.Decimal(str(instrument['lotSizeFilter']['minOrderQty']))
 
-        response = self.bybit.session.get_instruments_info(category="linear", symbol=self.symbol)
-        if response['retCode'] != 0:
-            logging.error(f"Failed to fetch instrument info for {self.symbol}: {response['retMsg']}")
-            return None, None, None
-
-        min_order_qty = decimal.Decimal(str(response['result']['list'][0]['lotSizeFilter']['minOrderQty']))
         base_order_size = decimal.Decimal(str(order_size_usdt)) / self.initial_price
 
         if base_order_size < min_order_qty:
@@ -264,6 +304,8 @@ class DCA:
         """
         Calculate DCA orders based on the initial price, step percentage, and other parameters.
         """
+        self.long_orders.clear()
+        self.short_orders.clear()
         for i in range(self.num_orders):
             long_price = self.initial_price * (1 - (self.step_percentage / 100) * (i + 1))
             short_price = self.initial_price * (1 + (self.step_percentage / 100) * (i + 1))
@@ -273,15 +315,20 @@ class DCA:
             adjusted_long_price = round(long_price / self.price_step) * self.price_step
             adjusted_short_price = round(short_price / self.price_step) * self.price_step
 
-            self.long_orders.append({'price': float(adjusted_long_price), 'qty': float(adjusted_qty)})
-            self.short_orders.append({'price': float(adjusted_short_price), 'qty': float(adjusted_qty)})
+            self.long_orders.append(
+                {'price': float(adjusted_long_price), 'qty': float(adjusted_qty), 'executed': False})
+            self.short_orders.append(
+                {'price': float(adjusted_short_price), 'qty': float(adjusted_qty), 'executed': False})
 
             logging.debug(
                 f"Order {i + 1}: Long price = {adjusted_long_price}, Short price = {adjusted_short_price}, Qty = {adjusted_qty}")
 
     def place_long_orders(self):
         for order in self.long_orders:
-            success = self.bybit.entry(price=order['price'], side='Buy', qty=order['qty'], order_type='Limit',
+            success = self.bybit.entry(price=order['price'],
+                                       side='Buy',
+                                       qty=order['qty'],
+                                       order_type='Limit',
                                        SYMBOL=self.symbol)
             if success:
                 logging.info(f"Placed long DCA order: Price = {order['price']}, Quantity = {order['qty']}")
@@ -329,9 +376,14 @@ class DCA:
         """
         Calculate the total USDT required for the DCA grid (long orders).
         """
-        total_usdt = sum(order['price'] * order['qty'] for order in self.long_orders)
+        total_usdt = decimal.Decimal("0.0")
+        print(self.long_orders, 'pvepvepve')
+        for order in self.long_orders:
+            price = decimal.Decimal(str(order['price']))
+            qty = decimal.Decimal(str(order['qty']))
+            total_usdt += price * qty
         logging.info(f"Total USDT required for the full DCA grid: {total_usdt}")
-        return total_usdt
+        return float(total_usdt)
 
 
 def calculate_average_entry_price(executed_orders):
@@ -350,45 +402,90 @@ def backtest(df, entries, symbol, bybit, config):
     logging.debug("Backtest started with config: %s", config)
     start_time = time.time()
     in_position = False
+
+    # Data structures to track the state of the *current* position
     current_dca_orders = []
-    all_dca_orders = []
     current_executed_orders = []  # Current executed orders
-    all_executed_orders = []  # All executed orders
     current_executed_prices = set()  # Set to store executed order prices
-    all_avg_entry_prices = []  # All average entry prices
     current_avg_entry_prices = []  # Current average entry prices
-    all_profits = []  # All profits
+
+    # Data structures to track *all positions*
+    all_dca_orders = []
+    all_executed_orders = []
+    all_avg_entry_prices = []
+    all_profits = []
     plot_segments = []
-    last_avg_price = None  # Last average price
+
+    # For printing/tracking
+    last_avg_price = None  # Last average price for the open position
     last_total_qty = 0  # Last quantity
-    num_orders = None
     entry_candle_index = None
     plot_start_index = None
+    num_orders = None
 
-    # Add entry, exit, and order executed columns initialized to False
+    # Add columns for signals and placeholders
     df['entry'] = False
-    df['exit'] = False
+    df['@exit'] = False
     df['_signal_'] = entries
+    df['average_entry_price'] = float('nan')
 
     for i in range(config['num_orders']):
         df[f'£order_executed_{i + 1}'] = False
+        df[f'order_{i + 1}'] = float('nan')
+
+    def print_position_summary(position_data):
+        print("\n" + "=" * 60)
+        print("              P O S I T I O N    S U M M A R Y")
+        print("=" * 60)
+        print(f"Symbol: {symbol}")
+        print(f"Entry Candle Index:   {position_data['entry_index']}")
+        print(f"Entry Price:          {position_data['entry_price']:.4f}")
+
+        print("\n-- DCA Fills (if any) --")
+        if position_data['fills']:
+            for j, fill in enumerate(position_data['fills'], start=1):
+                print(f"   Fill #{j}:")
+                print(f"       Index: {fill['index']}   Price: {fill['price']:.4f}   Qty: {fill['qty']}")
+        else:
+            print("   [No DCA fills were executed]")
+
+        print(f"\nExit Candle Index:    {position_data['exit_index']}")
+        print(f"Exit Price:           {position_data['exit_price']:.4f}")
+        print(f"Exit Reason:          {position_data['exit_reason']}")
+        print(f"Absolute Profit:      {position_data['absolute_profit']:.4f}")
+        print(f"Percentage Profit:    {position_data['percentage_profit']:.2f}%")
+        print("=" * 60 + "\n")
+
+    # We will gather data about the current position in this dict
+    # whenever a position is open, and finalize/print it upon exit.
+    current_position_data = {}
 
     for index, row in df.iterrows():
         if index == df.index[0]:
             continue
-        yo = row['___signal']
 
-        # Entry condition
+        yo = row['_signal_']
+
+        # ---------------------------
+        # ENTRY condition
+        # ---------------------------
         if yo and not in_position:
-            logging.debug("Entry condition met at index %s. YO: %s, Close price: %f", index, yo, row['close'])
+            logging.debug(
+                "Entry condition met at index %s. YO: %s, Close price: %f",
+                index, yo, row['close']
+            )
 
             entry_price = row['close']
             in_position = True
             plot_start_index = index
+            entry_candle_index = index  # track for logging/printing
             usdt_size = config['first_order_size_usdt']
-            order = int(usdt_size / row['close'])
-            logging.debug("Initializing DCA with entry price: %f, USDT size: %f, Calculated order size: %d",
-                          entry_price, usdt_size, order)
+
+            order_qty = int(usdt_size / row['close'])
+            logging.debug(
+                "Initializing DCA with entry price: %f, USDT size: %f, Calculated order size: %d",
+                entry_price, usdt_size, order_qty
+            )
 
             try:
                 dca = DCA(
@@ -402,36 +499,58 @@ def backtest(df, entries, symbol, bybit, config):
                 )
                 dca.calculate_orders()
 
-                logging.debug(
-                    f"Calculated DCA orders: Long Orders = {dca.long_orders}, Short Orders = {dca.short_orders}")
-                current_dca_orders = dca.get_orders('long')  # Example: Using long orders for this test
+                current_dca_orders = dca.get_orders('long')  # or short, depending on your logic
                 df.at[index, 'entry'] = True
-                logging.debug("DCA orders calculated. Long orders: %s, Short orders: %s", dca.long_orders,
-                              dca.short_orders)
 
-                dca.calculate_orders()
-
-                # Calculate total USDT required for the DCA grid and log
-                total_usdt_required = dca.calculate_total_usdt_for_longs()
-
-                # for dataviz
-                entry_candle_index = index
-                num_orders = dca.num_orders
+                # For storing in global structures:
                 all_dca_orders.extend(current_dca_orders)
+
+                # For plotting
+                num_orders = dca.num_orders
+
+                current_pos = df.index.get_loc(index)
+                for i, order in enumerate(current_dca_orders):
+                    if i < config['num_orders']:
+                        if not order['executed']:
+                            df.iloc[current_pos:, df.columns.get_loc(f'order_{i + 1}')] = order['price']
+                        else:
+                            df.iloc[current_pos:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
+
+                # For "beautiful print", store the entry info in current_position_data
+                current_position_data = {
+                    'entry_index': index,
+                    'entry_price': entry_price,
+                    'fills': [],
+                    'exit_index': None,
+                    'exit_price': None,
+                    'exit_reason': None,
+                    'absolute_profit': 0.0,
+                    'percentage_profit': 0.0
+                }
 
             except ValueError as e:
                 logging.error(f"Failed to initialize DCA: {e}")
                 continue
 
-
+        # ---------------------------
+        # IN-POSITION LOGIC
+        # ---------------------------
         elif in_position:
             order_executed = False
+            current_pos = df.index.get_loc(index)
+
+            # Check each order level
             for i, order in enumerate(current_dca_orders):
-                if row['close'] <= order['price'] and order['price'] not in current_executed_prices:
+                # If price triggers an unfilled order
+                if row['low'] <= order['price'] and (order['price'] not in current_executed_prices):
                     order_executed = True
-                    df.at[index, f'order_executed_{i + 1}'] = True
+                    order['executed'] = True
+
+                    df.iloc[current_pos + 1:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
+                    df.at[index, f'£order_executed_{i + 1}'] = order['qty']
                     logging.debug(f"Order executed at {order['price']} for quantity {order['qty']}")
 
+                    # Save to current executed orders
                     current_executed_orders.append({'order': order, 'index': index})
                     all_executed_orders.append({'order': order, 'index': index})
                     current_executed_prices.add(order['price'])
@@ -441,59 +560,118 @@ def backtest(df, entries, symbol, bybit, config):
                     current_avg_entry_prices.append({'price': last_avg_price, 'index': index})
                     all_avg_entry_prices.append({'price': last_avg_price, 'index': index})
 
+                    # -- Add a "fill" entry to the current position data, for "beautiful print" later
+                    current_position_data['fills'].append({
+                        'index': index,
+                        'price': order['price'],
+                        'qty': order['qty']
+                    })
+
+            # If no new order was executed but we already have an average price
             if not order_executed and last_avg_price is not None:
                 current_avg_entry_prices.append({'price': last_avg_price, 'index': index})
                 all_avg_entry_prices.append({'price': last_avg_price, 'index': index})
+                df.at[index, 'average_entry_price'] = last_avg_price
 
-            # Exit if no orders executed in the last `candles_to_close` candles
-            if (df.index.get_loc(index) - df.index.get_loc(entry_candle_index)) >= config[
-                'candles_to_close'] and not current_executed_orders:
+            # --------------------------------------------
+            # Exit if no orders executed in the last X candles
+            # --------------------------------------------
+            if (
+                    (df.index.get_loc(index) - df.index.get_loc(entry_candle_index)) >= config['candles_to_close']
+                    and not current_executed_orders
+            ):
                 logging.debug(
-                    f"No orders executed in the last {config['candles_to_close']} candles, closing position at index {index}")
+                    f"No orders executed in the last {config['candles_to_close']} candles, closing position at index {index}"
+                )
+
                 in_position = False
+                df.at[index, '@exit'] = last_total_qty
                 plot_end_index = index
                 plot_segments.append((plot_start_index, plot_end_index))
+
+                # Record exit info for prints
+                current_position_data['exit_index'] = index
+                current_position_data['exit_price'] = row['close']
+                current_position_data['exit_reason'] = f"No fills in {config['candles_to_close']} candles"
+
+                # Compute final PnL if it makes sense:
+                if last_avg_price and last_total_qty:
+                    abs_p, pct_p = calculate_position_profit(last_avg_price, last_total_qty, row['close'])
+                    current_position_data['absolute_profit'] = abs_p
+                    current_position_data['percentage_profit'] = pct_p
+
+                # Print a summary for this position
+                print_position_summary(current_position_data)
+
+                # Reset
                 current_dca_orders = []
                 current_executed_orders = []
                 current_executed_prices = set()
                 current_avg_entry_prices = []
                 last_avg_price = None
                 last_total_qty = 0
+                current_position_data = {}
 
-                # Mark exit as True
-                df.at[index, 'exit'] = True
+                # Mark future columns as NaN
+                for i in range(config['num_orders']):
+                    df.iloc[current_pos + 1:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
 
+            # ---------------------------
             # Calculate position profit
+            # ---------------------------
             if last_avg_price is not None:
-                absolute_profit, percentage_profit = calculate_position_profit(last_avg_price, last_total_qty,
-                                                                               row['close'])
-                all_profits.append(
-                    {'absolute_profit': absolute_profit, 'percentage_profit': percentage_profit, 'index': index})
+                df.at[index, 'average_entry_price'] = last_avg_price
+                absolute_profit, percentage_profit = calculate_position_profit(
+                    last_avg_price, last_total_qty, row['close']
+                )
+                all_profits.append({
+                    'absolute_profit': absolute_profit,
+                    'percentage_profit': percentage_profit,
+                    'index': index
+                })
 
+                # -----------
                 # Exit condition based on profit target
+                # -----------
                 if percentage_profit >= config['profit_target']:
-                    logging.info(f"Exiting position at index {index} with profit {percentage_profit:.2f}%")
+                    logging.info(
+                        f"Exiting position at index {index} with profit {percentage_profit:.2f}%"
+                    )
+
                     in_position = False
+                    df.at[index, '@exit'] = last_total_qty
                     plot_end_index = index
                     plot_segments.append((plot_start_index, plot_end_index))
+
+                    # Record exit info for prints
+                    current_position_data['exit_index'] = index
+                    current_position_data['exit_price'] = row['close']
+                    current_position_data['exit_reason'] = "Profit Target Reached"
+                    current_position_data['absolute_profit'] = absolute_profit
+                    current_position_data['percentage_profit'] = percentage_profit
+
+                    # Print the position summary
+                    print_position_summary(current_position_data)
+
+                    # Reset
                     current_dca_orders = []
                     current_executed_orders = []
                     current_executed_prices = set()
                     current_avg_entry_prices = []
                     last_avg_price = None
                     last_total_qty = 0
+                    current_position_data = {}
 
-                    # Mark exit as True
-                    df.at[index, 'exit'] = True
+                    # Mark future columns as NaN
+                    for i in range(config['num_orders']):
+                        df.iloc[current_pos + 1:, df.columns.get_loc(f'order_{i + 1}')] = float('nan')
 
     end_time = time.time()
     logging.info(f"Backtest time taken: {end_time - start_time:.2f} seconds")
-    print(df.head(50))
+
+    # Clean up columns
     df.drop('_signal_', axis=1, inplace=True)
     df.drop('entry', axis=1, inplace=True)
-
-    # all_profits_pve = plot_orders(df, all_dca_orders, all_executed_orders, all_avg_entry_prices, all_profits, symbol,
-    #                               plot_segments, num_orders)
 
     return df
 
@@ -502,104 +680,6 @@ def calculate_position_profit(avg_price, total_qty, current_price):
     absolute_profit = (current_price - avg_price) * total_qty
     percentage_profit = (absolute_profit / (avg_price * total_qty)) * 100
     return absolute_profit, percentage_profit
-
-
-def plot_orders(df, all_dca_orders, executed_orders, avg_entry_prices, profits, symbol, plot_segments, num_orders):
-    # Создаем фигуру с двумя графиками, при этом второй график будет меньше по высоте
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True,
-                        row_heights=[0.7, 0.3],  # Устанавливаем высоту графиков
-                        subplot_titles=(f'{symbol} Price and Orders', 'Position Profit'))
-
-    # Первый график: цена и ордера
-    fig.add_trace(go.Scatter(x=df.index, y=df['close'], mode='lines', name='Close Price'), row=1, col=1)
-
-    order_index = 0
-    for segment in plot_segments:
-        segment_df = df.loc[segment[0]:segment[1]]
-
-        # Plot only the relevant orders for this segment
-        segment_orders = all_dca_orders[order_index:order_index + num_orders]
-        for order in segment_orders:
-            fig.add_trace(go.Scatter(x=[segment_df.index[0], segment_df.index[-1]], y=[order['price'], order['price']],
-                                     mode='lines',
-                                     name=f'Buy Order @ {order["price"]}'), row=1, col=1)
-
-        # Move to the next set of orders for the next segment
-        order_index += num_orders
-
-        for executed in executed_orders:
-            if segment[0] <= executed['index'] <= segment[1]:
-                order = executed['order']
-                execution_index = executed['index']
-                fig.add_trace(go.Scatter(x=[execution_index], y=[order['price']], mode='markers',
-                                         name=f'Executed Order @ {order["price"]} for qty {order["qty"]}',
-                                         marker=dict(color='green', size=10)), row=1, col=1)
-
-    if avg_entry_prices:
-        for segment in plot_segments:
-            segment_avg_prices = [price for price in avg_entry_prices if segment[0] <= price['index'] <= segment[1]]
-            if segment_avg_prices:
-                ladder_x = []
-                ladder_y = []
-
-                for i in range(len(segment_avg_prices)):
-                    current = segment_avg_prices[i]
-                    previous = segment_avg_prices[i - 1] if i > 0 else current
-                    ladder_x.extend([previous['index'], current['index']])
-                    ladder_y.extend([previous['price'], current['price']])
-
-                fig.add_trace(go.Scatter(x=ladder_x, y=ladder_y, mode='lines', name='Average Entry Price',
-                                         line=dict(color='red', width=2)), row=1, col=1)
-
-    # Второй график: прибыль позиции
-    all_indexes = []
-    all_profits = []
-    if profits:
-        cumulative_percentage_profit = 0
-
-        for segment in plot_segments:
-            segment_profits = [profit['percentage_profit'] for profit in profits if
-                               segment[0] <= profit['index'] <= segment[1]]
-            segment_indexes = [profit['index'] for profit in profits if segment[0] <= profit['index'] <= segment[1]]
-
-            if segment_profits:
-                cumulative_segment_profit = [cumulative_percentage_profit + p for p in segment_profits]
-                cumulative_percentage_profit = cumulative_segment_profit[-1]
-
-                all_indexes.extend(segment_indexes)
-                all_profits.extend(cumulative_segment_profit)
-
-        fig.add_trace(
-            go.Scatter(x=all_indexes, y=all_profits, mode='lines', name='Cumulative Position Profit',
-                       line=dict(color='green', width=2)), row=2, col=1)
-    # fig.add_trace(
-    #     go.Scatter(x=df.index, y=df['rsi21'], mode='lines', name='RSI',
-    #                line=dict(color='green', width=2)), row=2, col=1)
-
-    # profit_x = [profit['index'] for profit in profits]
-    # profit_y = [profit['percentage_profit'] for profit in profits]
-    #
-    # fig.add_trace(
-    #     go.Scatter(x=profit_x, y=profit_y, mode='lines', name='Cumulative Position Profit',
-    #                line=dict(color='green', width=2)), row=2, col=1)
-
-    # Настраиваем внешний вид графиков
-    fig.update_layout(
-        title=f'DCA Orders and Profit for {symbol}',
-        xaxis_title='Date',
-        yaxis_title='Price',
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        legend=dict(font=dict(size=12)),
-        xaxis2_title='Date',
-        yaxis2_title='Profit %',
-        height=1080  # Общая высота фигуры
-    )
-
-    fig.show()
-
-    return all_profits
-
 
 def random_search(df, symbol, bybit, n_iter=100):
     best_config = None
@@ -630,14 +710,85 @@ def random_search(df, symbol, bybit, n_iter=100):
             f"Iteration {_ + 1}/{n_iter} - Current Profit: {total_profit} - Best Profit: {best_profit} Config: {config}", )
 
     return best_config, best_profit
+def launch_live_strategy(df, symbol, bybit, config):
+    logging.info("Launching live strategy...")
+
+    # 1) Check the last row's $Alert
+    #last_alert = df.iloc[-1]['$Alert']
+    #if not last_alert:
+        #logging.info("No alert found in the last row. Strategy will not open a position.")
+        #return
+
+    # 2) Since alert is True, let's create and place a DCA strategy
+    try:
+        dca = DCA(
+            initial_price=float(df.iloc[-1]['close']),  # or any other reference price
+            order_size_usdt=config['first_order_size_usdt'],
+            step_percentage=config['step_percentage'],
+            num_orders=config['num_orders'],
+            martingale_factor=config['martingale_factor'],
+            bybit_instance=bybit,
+            symbol=symbol,
+        )
+        dca.calculate_orders()
+
+        logging.info("Placing DCA orders...")
+        dca.place_long_orders()
+
+    except Exception as e:
+        logging.error(f"Failed to initialize or place DCA orders: {e}")
+        return
+
+    in_position = True
+    start_time = time.time()
+
+    while in_position:
+        # Sleep to avoid hitting API rate limits too frequently
+        time.sleep(5)
+
+        # Get positions
+        long_pos, short_pos = bybit.get_positions(symbol)
+        current_long_pnl = long_pos.pnl
+        current_long_pnl_perc = long_pos.pnl_perc
+
+        logging.info(
+            f"Monitoring Position => PnL: {current_long_pnl}, PnL%: {current_long_pnl_perc:.2f}%"
+        )
+
+        # Check if profit target is reached
+        if current_long_pnl_perc >= config['profit_target']:
+            logging.info(
+                f"Profit target of {config['profit_target']}% reached. Exiting position..."
+            )
+            if long_pos.qty > 0:
+                bybit.exit(side="Sell", qty=long_pos.qty, index=1, SYMBOL=symbol)
+
+            bybit.cancel_all_orders(symbol)
+            in_position = False
+
+        # Time-based exit (for example, if we want to exit after X seconds)
+        elapsed = time.time() - start_time
+        if elapsed > config.get("max_trade_duration", 3600):
+            logging.info(
+                f"Max trade duration {config['max_trade_duration']} seconds exceeded. Closing position..."
+            )
+            if long_pos.qty > 0:
+                bybit.exit(side="Sell", qty=long_pos.qty, index=1, SYMBOL=symbol)
+
+            bybit.cancel_all_orders(symbol)
+            in_position = False
+
+    logging.info("Live strategy loop ended.")
+
+def launch_bot(api_key, api_secret, config):
+    bybit = Bybit(api_key, api_secret)
+    days_ago = 5
+    df = prepare_data(config['symbol'], days_ago, config['timeframe'])
+    launch_live_strategy(df, config['symbol'], bybit, config)
 
 if __name__ == '__main__':
-    api_key = ""
-    api_secret = ""
-    bybit = Bybit(api_key, api_secret)
-
-    df = read_csv('out.csv', )
-    df = df.fillna(value=0)
+    api_key = "CQ16qbTLFEbJqLtS4W"
+    api_secret = "E0p4bPZpsgew4STE8kttc6LGhfoXuaRLxgdA"
 
     config = {
         'profit_target': 1,
@@ -645,10 +796,8 @@ if __name__ == '__main__':
         'step_percentage': 0.5,
         'num_orders': 3,
         'martingale_factor': 1.25,
-        'candles_to_close': 3000}
+        'candles_to_close': 3000,
+        'symbol': 'SOLUSDT',
+        'timeframe': 1}
 
-    pve = backtest(df, df['$Alert'], 'BTCUSDT',  bybit, config)
-    for col in pve.columns:
-        print(col)
-
-    print(pve.head(50))
+    launch_bot(api_key, api_secret, config)

@@ -1,0 +1,19 @@
+{
+    "SOL_DCA_BOT": {
+        "bot_id": "SOL_DCA_BOT",
+        "config": {
+            "api_key": "CQ16qbTLFEbJqLtS4W",
+            "api_secret": "E0p4bPZpsgew4STE8kttc6LGhfoXuaRLxgdA",
+            "symbol": "SOLUSDT",
+            "timeframe": 15,
+            "profit_target": 1.0,
+            "first_order_size_usdt": 10,
+            "step_percentage": 0.5,
+            "num_orders": 3,
+            "martingale_factor": 1.25,
+            "candles_to_close": 3000,
+            "max_trade_duration": 3600
+        },
+        "status": "RUNNING"
+    }
+}
