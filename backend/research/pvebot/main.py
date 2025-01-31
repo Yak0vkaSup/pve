@@ -27,11 +27,10 @@ def main():
 
     # datasource 0 is api bybit
     # 1 is DB local
-
     config = {
         'data_source': 1,
-        'api_key': "",
-        'api_secret': "",
+        'api_key': "CQ16qbTLFEbJqLtS4W",
+        'api_secret': "E0p4bPZpsgew4STE8kttc6LGhfoXuaRLxgdA",
         'symbol': data['symbol'],
         'timeframe': data['timeframe'],
         'nodes': data,

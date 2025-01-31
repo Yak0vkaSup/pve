@@ -116,39 +116,6 @@
         "properties": {}
       },
       {
-        "id": 62,
-        "type": "set/integer",
-        "pos": [
-          1421,
-          378
-        ],
-        "size": {
-          "0": 210,
-          "1": 58
-        },
-        "flags": {
-          "collapsed": false
-        },
-        "order": 1,
-        "mode": 0,
-        "outputs": [
-          {
-            "links": [
-              177
-            ],
-            "name": "Integer",
-            "slot_index": 0,
-            "type": "integer"
-          }
-        ],
-        "properties": {
-          "value": 10
-        },
-        "widgets_values": [
-          10
-        ]
-      },
-      {
         "id": 50,
         "type": "compare/cross_over",
         "pos": [
@@ -230,7 +197,7 @@
           "1": 58
         },
         "flags": {},
-        "order": 2,
+        "order": 1,
         "mode": 0,
         "outputs": [
           {
@@ -311,7 +278,7 @@
           "1": 58
         },
         "flags": {},
-        "order": 3,
+        "order": 2,
         "mode": 0,
         "outputs": [
           {
@@ -342,7 +309,7 @@
           "1": 26
         },
         "flags": {},
-        "order": 4,
+        "order": 3,
         "mode": 0,
         "outputs": [
           {
@@ -366,7 +333,7 @@
           "1": 26
         },
         "flags": {},
-        "order": 5,
+        "order": 4,
         "mode": 0,
         "outputs": [
           {
@@ -530,7 +497,7 @@
           "1": 26
         },
         "flags": {},
-        "order": 6,
+        "order": 5,
         "mode": 0,
         "outputs": [
           {
@@ -556,7 +523,7 @@
           "1": 58
         },
         "flags": {},
-        "order": 7,
+        "order": 6,
         "mode": 0,
         "outputs": [
           {
@@ -590,7 +557,7 @@
         "flags": {
           "collapsed": false
         },
-        "order": 8,
+        "order": 7,
         "mode": 0,
         "outputs": [
           {
@@ -623,7 +590,7 @@
         "flags": {
           "collapsed": false
         },
-        "order": 9,
+        "order": 8,
         "mode": 0,
         "outputs": [
           {
@@ -654,7 +621,7 @@
           "1": 58
         },
         "flags": {},
-        "order": 10,
+        "order": 9,
         "mode": 0,
         "outputs": [
           {
@@ -687,7 +654,7 @@
         "flags": {
           "collapsed": false
         },
-        "order": 11,
+        "order": 10,
         "mode": 0,
         "outputs": [
           {
@@ -720,7 +687,7 @@
         "flags": {
           "collapsed": false
         },
-        "order": 12,
+        "order": 11,
         "mode": 0,
         "outputs": [
           {
@@ -737,6 +704,39 @@
         },
         "widgets_values": [
           3
+        ]
+      },
+      {
+        "id": 62,
+        "type": "set/integer",
+        "pos": [
+          1421,
+          378
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 12,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              177
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 15
+        },
+        "widgets_values": [
+          15
         ]
       }
     ],
@@ -949,7 +949,7 @@
     "extra": {},
     "version": 0.4
   },
-  "startDate": "2024-10-01",
+  "startDate": "2025-01-01",
   "endDate": "2026-11-14",
   "timeframe": "5min",
   "symbol": "SOLUSDT"

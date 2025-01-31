@@ -111,12 +111,11 @@ class Bot:
         df, settings = process_graph(nodes, df, self.config['symbol'])
 
         self.settings = settings
-
+        print(settings)
         # dca
         initial_price = float(df.iloc[-1]['close'])
         try:
-            print(settings)
-            print(self.config['symbol'])
+            logger.info(f"{settings['first_order_size_usdt']} huihuihui")
             dca = DCA(
                 initial_price=initial_price,
                 order_size_usdt=settings['first_order_size_usdt'],

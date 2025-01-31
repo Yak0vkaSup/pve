@@ -616,7 +616,7 @@ class AdvancedBacktestNode(Node):
                 "martingale_factor": self.input_values.get(3),
                 "candles_to_close": self.input_values.get(4),
                 "step_percentage": self.input_values.get(5),
-                "first_order_size": self.input_values.get(6),
+                "first_order_size_usdt": self.input_values.get(6),
             }
             #bybit = Bybit("", "")  # Replace with actual credentials
             #pve = backtest(df, inputs["signals"], symbol, bybit, config)
@@ -635,7 +635,7 @@ class SimpleBacktestNode(Node):
             "signals": self.input_values.get(0),
             "profit_target": self.input_values.get(1),
             "candles_to_close": self.input_values.get(2),
-            "first_order_size": self.input_values.get(3),
+            "first_order_size_usdt": self.input_values.get(3),
         }
 
         # Validate all inputs
