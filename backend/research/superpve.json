@@ -1,0 +1,1089 @@
+{
+  "graph": {
+    "last_node_id": 89,
+    "last_link_id": 170,
+    "nodes": [
+      {
+        "id": 64,
+        "type": "set/float",
+        "pos": [
+          1232.1249579296893,
+          255.6319545629886
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 0,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 0
+        },
+        "widgets_values": [
+          0
+        ]
+      },
+      {
+        "id": 59,
+        "type": "set/float",
+        "pos": [
+          1579.1249579296893,
+          92.63195456298838
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 1,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              114
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 0.6
+        },
+        "widgets_values": [
+          0.6
+        ]
+      },
+      {
+        "id": 65,
+        "type": "tools/add_condition",
+        "pos": [
+          957.3686180249018,
+          235.0958425976562
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 23,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 111,
+            "name": "Condition",
+            "type": "boolean"
+          },
+          {
+            "link": 112,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 66,
+        "type": "set/string",
+        "pos": [
+          666.368618024902,
+          313.0958425976559
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              112
+            ],
+            "name": "String",
+            "slot_index": 0,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "value": "signals"
+        },
+        "widgets_values": [
+          "signals"
+        ]
+      },
+      {
+        "id": 76,
+        "type": "tools/add_column",
+        "pos": [
+          188.80149062499962,
+          287.8949101745598
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 19,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 147,
+            "name": "Column",
+            "slot_index": 0,
+            "type": "column"
+          },
+          {
+            "link": 131,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 78,
+        "type": "set/string",
+        "pos": [
+          -110.19850937500121,
+          389.8949101745598
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              131
+            ],
+            "name": "String",
+            "slot_index": 0,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "value": "Upper"
+        },
+        "widgets_values": [
+          "Upper"
+        ]
+      },
+      {
+        "id": 63,
+        "type": "set/integer",
+        "pos": [
+          1472.1249579296891,
+          236.63195456298854
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 4,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              115
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 300
+        },
+        "widgets_values": [
+          300
+        ]
+      },
+      {
+        "id": 62,
+        "type": "set/integer",
+        "pos": [
+          1420.1249579296891,
+          377.63195456298865
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 5,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              116
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 10
+        },
+        "widgets_values": [
+          10
+        ]
+      },
+      {
+        "id": 61,
+        "type": "set/integer",
+        "pos": [
+          1292.1249579296893,
+          91.63195456298838
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 6,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 1
+        },
+        "widgets_values": [
+          1
+        ]
+      },
+      {
+        "id": 77,
+        "type": "set/string",
+        "pos": [
+          -105.19850937500122,
+          100.8949101745599
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 7,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              132
+            ],
+            "name": "String",
+            "slot_index": 0,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "value": "Lower"
+        },
+        "widgets_values": [
+          "Lower"
+        ]
+      },
+      {
+        "id": 79,
+        "type": "get/close",
+        "pos": [
+          531,
+          237
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 8,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [],
+            "name": "close",
+            "slot_index": 0,
+            "type": "column"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 82,
+        "type": "get/close",
+        "pos": [
+          -363,
+          249
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 9,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              143
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "column"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 74,
+        "type": "get/low",
+        "pos": [
+          -379,
+          191
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 10,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              140
+            ],
+            "name": "low",
+            "slot_index": 0,
+            "type": "column"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 81,
+        "type": "get/high",
+        "pos": [
+          -366,
+          124
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 11,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              142
+            ],
+            "name": "high",
+            "slot_index": 0,
+            "type": "column"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 75,
+        "type": "tools/add_column",
+        "pos": [
+          190,
+          170
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 18,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 151,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 132,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 80,
+        "type": "indicators/super_trend",
+        "pos": [
+          -89,
+          213
+        ],
+        "size": {
+          "0": 140,
+          "1": 86
+        },
+        "flags": {},
+        "order": 15,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 142,
+            "name": "High",
+            "slot_index": 0,
+            "type": "column"
+          },
+          {
+            "link": 140,
+            "name": "Low",
+            "type": "column"
+          },
+          {
+            "link": 143,
+            "name": "Close",
+            "type": "column"
+          },
+          {
+            "link": 144,
+            "name": "Window",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              158,
+              162
+            ],
+            "name": "Trend",
+            "slot_index": 0,
+            "type": "column"
+          },
+          {
+            "links": null,
+            "name": "Direction",
+            "slot_index": 1,
+            "type": "column"
+          },
+          {
+            "links": [
+              151
+            ],
+            "name": "Long",
+            "slot_index": 2,
+            "type": "column"
+          },
+          {
+            "links": [
+              147
+            ],
+            "name": "Short",
+            "slot_index": 3,
+            "type": "column"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 3,
+        "type": "set/integer",
+        "pos": [
+          -445,
+          312
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 12,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              144,
+              159
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 50
+        },
+        "widgets_values": [
+          50
+        ]
+      },
+      {
+        "id": 84,
+        "type": "tools/add_column",
+        "pos": [
+          390,
+          -85
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 20,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 160,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 161,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 89,
+        "type": "tools/add_column",
+        "pos": [
+          401,
+          -218
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 22,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 164,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 165,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 87,
+        "type": "indicators/ma",
+        "pos": [
+          111,
+          -227
+        ],
+        "size": {
+          "0": 210,
+          "1": 78
+        },
+        "flags": {},
+        "order": 17,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 162,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 163,
+            "name": "Length",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              164,
+              168
+            ],
+            "name": "MA",
+            "slot_index": 0,
+            "type": "column"
+          },
+          {
+            "links": [
+              165
+            ],
+            "name": "Default name",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "ma_type": "linreg"
+        },
+        "widgets_values": [
+          "linreg"
+        ]
+      },
+      {
+        "id": 86,
+        "type": "indicators/ma",
+        "pos": [
+          96,
+          -104
+        ],
+        "size": {
+          "0": 210,
+          "1": 78
+        },
+        "flags": {},
+        "order": 16,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 158,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 159,
+            "name": "Length",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              160,
+              169
+            ],
+            "name": "MA",
+            "slot_index": 0,
+            "type": "column"
+          },
+          {
+            "links": [
+              161
+            ],
+            "name": "Default name",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "ma_type": "linreg"
+        },
+        "widgets_values": [
+          "linreg"
+        ]
+      },
+      {
+        "id": 88,
+        "type": "set/integer",
+        "pos": [
+          -474,
+          -99
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 13,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              163
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 25
+        },
+        "widgets_values": [
+          25
+        ]
+      },
+      {
+        "id": 85,
+        "type": "set/string",
+        "pos": [
+          -189,
+          -88
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 14,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [],
+            "name": "String",
+            "slot_index": 0,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "value": "trend"
+        },
+        "widgets_values": [
+          "trend"
+        ]
+      },
+      {
+        "id": 50,
+        "type": "compare/cross_over",
+        "pos": [
+          745.3686180249019,
+          151.09584259765626
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 21,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 169,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 168,
+            "name": "Column",
+            "slot_index": 1,
+            "type": "column"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              111,
+              170
+            ],
+            "name": "Condition",
+            "slot_index": 0,
+            "type": "boolean"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 67,
+        "type": "backtest/simple_backtest",
+        "pos": [
+          1858,
+          172
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 86
+        },
+        "flags": {},
+        "order": 24,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 170,
+            "name": "Signals",
+            "type": "boolean"
+          },
+          {
+            "link": 114,
+            "name": "Profit target",
+            "type": "float"
+          },
+          {
+            "link": 115,
+            "name": "Candles to close",
+            "type": "integer"
+          },
+          {
+            "link": 116,
+            "name": "First order size",
+            "type": "integer"
+          }
+        ],
+        "properties": {}
+      }
+    ],
+    "links": [
+      [
+        111,
+        50,
+        0,
+        65,
+        0,
+        "boolean"
+      ],
+      [
+        112,
+        66,
+        0,
+        65,
+        1,
+        "string"
+      ],
+      [
+        114,
+        59,
+        0,
+        67,
+        1,
+        "float"
+      ],
+      [
+        115,
+        63,
+        0,
+        67,
+        2,
+        "integer"
+      ],
+      [
+        116,
+        62,
+        0,
+        67,
+        3,
+        "integer"
+      ],
+      [
+        131,
+        78,
+        0,
+        76,
+        1,
+        "string"
+      ],
+      [
+        132,
+        77,
+        0,
+        75,
+        1,
+        "string"
+      ],
+      [
+        140,
+        74,
+        0,
+        80,
+        1,
+        "column"
+      ],
+      [
+        142,
+        81,
+        0,
+        80,
+        0,
+        "column"
+      ],
+      [
+        143,
+        82,
+        0,
+        80,
+        2,
+        "column"
+      ],
+      [
+        144,
+        3,
+        0,
+        80,
+        3,
+        "integer"
+      ],
+      [
+        147,
+        80,
+        3,
+        76,
+        0,
+        "column"
+      ],
+      [
+        151,
+        80,
+        2,
+        75,
+        0,
+        "column"
+      ],
+      [
+        158,
+        80,
+        0,
+        86,
+        0,
+        "column"
+      ],
+      [
+        159,
+        3,
+        0,
+        86,
+        1,
+        "integer"
+      ],
+      [
+        160,
+        86,
+        0,
+        84,
+        0,
+        "column"
+      ],
+      [
+        161,
+        86,
+        1,
+        84,
+        1,
+        "string"
+      ],
+      [
+        162,
+        80,
+        0,
+        87,
+        0,
+        "column"
+      ],
+      [
+        163,
+        88,
+        0,
+        87,
+        1,
+        "integer"
+      ],
+      [
+        164,
+        87,
+        0,
+        89,
+        0,
+        "column"
+      ],
+      [
+        165,
+        87,
+        1,
+        89,
+        1,
+        "string"
+      ],
+      [
+        168,
+        87,
+        0,
+        50,
+        1,
+        "column"
+      ],
+      [
+        169,
+        86,
+        0,
+        50,
+        0,
+        "column"
+      ],
+      [
+        170,
+        50,
+        0,
+        67,
+        0,
+        "boolean"
+      ]
+    ],
+    "groups": [
+      {
+        "title": "pve",
+        "bounding": [
+          1213,
+          47,
+          840,
+          412
+        ],
+        "color": "#3f789e",
+        "font_size": 24
+      },
+      {
+        "title": "Group",
+        "bounding": [
+          504,
+          34,
+          652,
+          439
+        ],
+        "color": "#A88",
+        "font_size": 24
+      },
+      {
+        "title": "Group",
+        "bounding": [
+          -444,
+          43,
+          854,
+          433
+        ],
+        "color": "#8A8",
+        "font_size": 24
+      }
+    ],
+    "config": {},
+    "extra": {},
+    "version": 0.4
+  },
+  "startDate": "2024-11-01",
+  "endDate": "2026-11-14",
+  "timeframe": "30min",
+  "symbol": "BTCUSDT"
+}

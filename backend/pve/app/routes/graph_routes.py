@@ -160,7 +160,6 @@ def compile_graph():
 
             # Replace NaN with None in the MA columns
             df[ma_columns] = df[ma_columns].where(pd.notna(df[ma_columns]), None)
-            print(df.tail(50))
             data = df.to_dict('records')
             user_id=str(user_id)
 
@@ -177,3 +176,5 @@ def compile_graph():
     except Exception as e:
         current_app.logger.error(f"Error compiling graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+

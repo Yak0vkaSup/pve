@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from pandas import read_csv
 import time
@@ -8,6 +9,9 @@ import logging
 import random
 import pandas as pd
 from datetime import datetime, timedelta, timezone
+import json
+import os
+import psycopg2
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler("backtester.log"),
@@ -66,6 +70,40 @@ def prepare_data(symbol, days, timeframe):
     df = get_candles(symbol, 15, start_date, end_date)
     return df
 
+def get_db_connection():
+    try:
+        DB_HOST = os.environ.get('DB_HOST', '192.168.1.171')
+        DB_NAME = os.environ.get('DB_NAME', 'postgres')
+        DB_USER = os.environ.get('DB_USER', 'postgres')
+        DB_PASSWORD = os.environ.get('DB_PASSWORD', 'postgres')
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD
+        )
+        # current_app.logger.info("Database connection established")
+        return conn
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        return None
+
+def fetch_data(symbol, start_date, end_date):
+    conn = get_db_connection()
+    if conn is None:
+        return None
+    query = f"""
+        SELECT timestamp AS date, open, high, low, close, volume
+        FROM candles
+        WHERE symbol = '{symbol}' AND
+              timestamp BETWEEN '{start_date}' AND '{end_date}'
+        ORDER BY timestamp;
+    """
+    df = pd.read_sql(query, conn)
+    conn.close()
+    logging.info(f"Fetched data for {symbol} from {start_date} to {end_date}")
+    df['date'] = pd.to_datetime(df['date'], utc=True)
+    return df
 class Bybit:
     def __init__(self, api_key, api_secret):
         self.session = HTTP(api_key=api_key, api_secret=api_secret, recv_window=20000)
@@ -780,15 +818,41 @@ def launch_live_strategy(df, symbol, bybit, config):
 
     logging.info("Live strategy loop ended.")
 
+
+def get_data(days_ago, symbol, timeframe):
+    start_date = pd.Timestamp.now(tz=timezone.utc) - timedelta(days=days_ago)
+    end_date = pd.Timestamp.now(tz=timezone.utc) - timedelta(minutes=1)
+    df = fetch_data(symbol, start_date, end_date)
+
+    df['date'] = pd.to_datetime(df['date'])
+    df.set_index('date', inplace=True)
+
+    # And here we need to resample it based on timeframe
+    df_resampled = df.resample(timeframe).agg({
+        'open': 'first',
+        'high': 'max',
+        'low': 'min',
+        'close': 'last',
+        'volume': 'sum',
+    })
+
+    df_resampled.reset_index(inplace=True)
+    return df_resampled
+
+
 def launch_bot(api_key, api_secret, config):
     bybit = Bybit(api_key, api_secret)
-    days_ago = 5
-    df = prepare_data(config['symbol'], days_ago, config['timeframe'])
+
+    df = get_data(5, config['symbol'], config['timeframe'])
+
     launch_live_strategy(df, config['symbol'], bybit, config)
 
 if __name__ == '__main__':
-    api_key = ""
-    api_secret = ""
+    api_key = "CQ16qbTLFEbJqLtS4W"
+    api_secret =  "E0p4bPZpsgew4STE8kttc6LGhfoXuaRLxgdA"
+
+    with open("superpve.json", "r") as f:
+        data = json.load(f)
 
     config = {
         'profit_target': 1,
@@ -797,7 +861,9 @@ if __name__ == '__main__':
         'num_orders': 3,
         'martingale_factor': 1.25,
         'candles_to_close': 3000,
-        'symbol': 'SOLUSDT',
-        'timeframe': 1}
+        'symbol': data['symbol'],
+        'timeframe': data['timeframe'],
+
+    }
 
     launch_bot(api_key, api_secret, config)
