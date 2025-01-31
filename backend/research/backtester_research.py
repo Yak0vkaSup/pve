@@ -787,8 +787,8 @@ def launch_bot(api_key, api_secret, config):
     launch_live_strategy(df, config['symbol'], bybit, config)
 
 if __name__ == '__main__':
-    api_key = "CQ16qbTLFEbJqLtS4W"
-    api_secret = "E0p4bPZpsgew4STE8kttc6LGhfoXuaRLxgdA"
+    api_key = ""
+    api_secret = ""
 
     config = {
         'profit_target': 1,
