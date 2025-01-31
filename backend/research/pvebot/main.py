@@ -22,8 +22,8 @@ def main():
 
     # Example: create or get an existing bot
     config = {
-        'api_key': "CQ16qbTLFEbJqLtS4W",
-        'api_secret': "E0p4bPZpsgew4STE8kttc6LGhfoXuaRLxgdA",
+        'api_key': "",
+        'api_secret': "",
         'symbol': 'SOLUSDT',
         'timeframe': 15,
         'profit_target': 1.0,
