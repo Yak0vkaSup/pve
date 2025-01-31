@@ -2,6 +2,8 @@
 import logging
 import sys
 from bot_manager import BotManager
+import json
+from nodes_bot import process_graph
 
 def setup_logging():
     logging.basicConfig(
@@ -20,23 +22,24 @@ def main():
     # Load any previously saved bots
     manager.load_bots_from_storage()
 
-    # Example: create or get an existing bot
+    with open("boll.json", "r") as f:
+        data = json.load(f)
+
+    # datasource 0 is api bybit
+    # 1 is DB local
+
     config = {
+        'data_source': 1,
         'api_key': "",
         'api_secret': "",
-        'symbol': 'SOLUSDT',
-        'timeframe': 15,
-        'profit_target': 1.0,
-        'first_order_size_usdt': 10,
-        'step_percentage': 0.5,
-        'num_orders': 3,
-        'martingale_factor': 1.25,
-        'candles_to_close': 3000,
-        'max_trade_duration': 3600,  # 1 hour
+        'symbol': data['symbol'],
+        'timeframe': data['timeframe'],
+        'nodes': data,
     }
 
     # Create a new bot or fetch existing
     bot_id = "SOL_DCA_BOT"
+
     bot = manager.create_bot(bot_id, config)
 
     # Start the bot

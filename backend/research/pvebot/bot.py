@@ -4,9 +4,16 @@ import logging
 from enum import Enum
 from typing import Dict, Any
 from datetime import timedelta
+
+from numpy.distutils.command.config import config
+
+from nodes_bot import process_graph
 from bybit_api import Bybit
 from dca import DCA
-from utils import prepare_data
+from utils_bot import prepare_data, get_data, fetch_data
+import pandas as pd
+import logging
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +30,11 @@ class Bot:
         """
         self.bot_id = bot_id
         self.config = config
+        self.nodes = None
+        self.settings = None
         self.thread = None
         self.stop_signal = False
         self.status = BotStatus.STOPPED
-
         # Create Bybit session from config (you can store keys in config, or from env)
         self.bybit = Bybit(api_key=config['api_key'], api_secret=config['api_secret'])
 
@@ -37,7 +45,7 @@ class Bot:
         return {
             "bot_id": self.bot_id,
             "config": self.config,
-            "status": self.status.name
+            "status": self.status.name,
         }
 
     @classmethod
@@ -86,27 +94,40 @@ class Bot:
         """
         logger.info(f"Bot '{self.bot_id}' is running with config: {self.config}")
 
-        # 1) Prepare data for last X days
-        df = prepare_data(
-            symbol=self.config['symbol'],
-            days=5,
-            timeframe=self.config['timeframe']
-        )
+        if self.config['data_source'] == 0:
+            # get from API
+            df = prepare_data(
+                symbol=self.config['symbol'],
+                days=1,
+                timeframe=self.config['timeframe']
+            )
+        else:
+            start_date = pd.Timestamp.now(tz=timezone.utc) - timedelta(days=1)
+            end_date = pd.Timestamp.now(tz=timezone.utc)
+            df = fetch_data(self.config['symbol'], start_date, end_date)
+            # get from DB
+            #df = get_data(1, self.config['symbol'], self.config['timeframe'])
+        nodes = self.config['nodes']
+        df, settings = process_graph(nodes, df, self.config['symbol'])
 
-        # 2) Initialize DCA
+        self.settings = settings
+
+        # dca
         initial_price = float(df.iloc[-1]['close'])
         try:
+            print(settings)
+            print(self.config['symbol'])
             dca = DCA(
                 initial_price=initial_price,
-                order_size_usdt=self.config['first_order_size_usdt'],
-                step_percentage=self.config['step_percentage'],
-                num_orders=self.config['num_orders'],
-                martingale_factor=self.config['martingale_factor'],
+                order_size_usdt=settings['first_order_size_usdt'],
+                step_percentage=settings['step_percentage'],
+                num_orders=settings['num_orders'],
+                martingale_factor=settings['martingale_factor'],
                 bybit_instance=self.bybit,
                 symbol=self.config['symbol'],
             )
             dca.calculate_orders()
-            # Place the initial limit orders (for example, just the "long" side)
+
             dca.place_long_orders()
 
         except Exception as e:
@@ -117,7 +138,7 @@ class Bot:
         start_time = time.time()
 
         while not self.stop_signal:
-            # Sleep to avoid rate-limiting
+
             time.sleep(5)
 
             # Check positions
@@ -131,9 +152,9 @@ class Bot:
                 )
 
                 # Check profit target
-                if current_long_pnl_perc >= self.config['profit_target']:
+                if current_long_pnl_perc >= self.settings['profit_target']:
                     logger.info(
-                        f"[{self.bot_id}] Profit target of {self.config['profit_target']}% reached. Exiting..."
+                        f"[{self.bot_id}] Profit target of {self.settings['profit_target']}% reached. Exiting..."
                     )
                     if long_pos.qty > 0:
                         self.bybit.exit(side="Sell", qty=long_pos.qty, index=1, SYMBOL=self.config['symbol'])
