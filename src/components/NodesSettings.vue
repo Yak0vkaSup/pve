@@ -46,7 +46,7 @@
       </option>
     </select>
 
-    <button @click="graphStore.compileGraph">Compile</button>
+    <button @click="() => { graphStore.saveGraphToServer(); graphStore.compileGraph(); }">Compile</button>
     <button @click="graphStore.downloadGraph">Download</button>
     <button @click="triggerFileUpload">Upload</button>
     <input type="file" ref="fileInput" @change="handleFileUpload" accept=".json" style="display: none" />

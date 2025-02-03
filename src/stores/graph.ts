@@ -339,11 +339,11 @@ export const useGraphStore = defineStore('graph', () => {
       )
 
       if (response.data.status === 'success') {
-        toast.success('Graph saved successfully.', pve)
         await fetchSavedGraphs()
       } else {
         toast.error(`Error saving graph.`, pve)
       }
+      toast.success('Graph saved successfully.', pve)
     } catch (error) {
       toast.error('Error saving graph.', pve)
     }
@@ -425,6 +425,7 @@ export const useGraphStore = defineStore('graph', () => {
     }
 
     try {
+      toast.info('Compilation started...', pve)
       const response = await axios.post<InternalApiResponse<null>>(
         '/api/compile-graph',
         requestData,
