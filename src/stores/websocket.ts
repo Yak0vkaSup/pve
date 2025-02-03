@@ -24,7 +24,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
     const userToken = localStorage.getItem('userToken');
 
     if (!userId || !userToken) {
-      toast.error("User ID or token is missing. Cannot initialize WebSocket.", pve);
+      toast.error("User is not authorised", pve);
       return;
     }
 

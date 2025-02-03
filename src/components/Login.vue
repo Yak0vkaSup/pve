@@ -35,7 +35,7 @@ function close() {
 window.onTelegramAuth = function (user: any) {
   // Store user info locally
   localStorage.setItem('telegramUser', JSON.stringify(user));
-  authStore.login(
+  authStore.silent_login(
     {
       id: user.id,
       first_name: user.first_name,

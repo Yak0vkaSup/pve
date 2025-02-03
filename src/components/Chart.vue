@@ -3,9 +3,10 @@ import { ref, onMounted, onBeforeUnmount, reactive, watch, computed } from 'vue'
 import { createChart } from 'lightweight-charts'
 import { LineType } from 'lightweight-charts'
 import { useWebSocketStore } from '@/stores/websocket';
-
+import { useAuthStore } from '../stores/auth.ts'
 const chartContainer = ref(null)
 const isFullscreen = ref(false) // Track fullscreen state
+const authStore = useAuthStore()
 
 let chartInstance
 let candleSeries
@@ -52,6 +53,9 @@ onMounted(() => {
   document.addEventListener('fullscreenchange', () => {
     isFullscreen.value = !!document.fullscreenElement;
   });
+  if (!authStore.isAuthenticated) {
+    return
+  }
   chartInstance = createChart(chartContainer.value, {
     width: chartContainer.value.clientWidth,
     height: chartContainer.value.clientHeight,

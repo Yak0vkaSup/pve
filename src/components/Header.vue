@@ -41,7 +41,7 @@ const showLogin = ref(false);
 
 // Initialize authentication state
 onMounted(() => {
-  authStore.initializeAuth();
+  // authStore.initializeAuth();
   // if (!authStore.isAuthenticated) {
   //   authStore.logout();  // Log the user out if auth initialization fails
   //   showLogin.value = true;  // Optionally, show the login modal again

@@ -55,11 +55,18 @@
 
 <script setup>
 import { useGraphStore } from '../stores/graph.ts'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useAuthStore } from '../stores/auth.ts'
 
 const graphStore = useGraphStore()
 const fileInput = ref(null)
+const authStore = useAuthStore()
 
+onMounted(async () => {
+  if (!authStore.isAuthenticated) {
+    return
+  }
+})
 const handleGraphChange = () => {
   graphStore.loadGraphFromServer()
   graphStore.graphName = graphStore.selectedGraph

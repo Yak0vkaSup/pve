@@ -198,7 +198,7 @@ export const useGraphStore = defineStore('graph', () => {
     const userToken = localStorage.getItem('userToken')
 
     if (!userId || !userToken) {
-      toast.error('User not authenticated', pve)
+      toast.error('User is not authorised', pve)
       return
     }
 
@@ -238,7 +238,7 @@ export const useGraphStore = defineStore('graph', () => {
     const userToken = localStorage.getItem('userToken')
 
     if (!userId || !userToken) {
-      toast.error('User not authenticated', pve)
+      toast.error('User is not authorised', pve)
       return
     }
 
@@ -310,7 +310,7 @@ export const useGraphStore = defineStore('graph', () => {
     const userToken = localStorage.getItem('userToken')
 
     if (!userId || !userToken) {
-      toast.error('User not authenticated', pve)
+      toast.error('User is not authorised', pve)
       return
     }
     const sDate = startDate.value
@@ -362,7 +362,7 @@ export const useGraphStore = defineStore('graph', () => {
     const userToken = localStorage.getItem('userToken')
 
     if (!userId || !userToken) {
-      toast.error('User not authenticated', pve)
+      toast.error('User is not authorised', pve)
       return
     }
 
