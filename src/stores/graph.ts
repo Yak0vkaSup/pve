@@ -6,6 +6,7 @@ import type { Ref } from 'vue'
 import { LGraph, LGraphCanvas, LiteGraph } from 'litegraph.js'
 import 'litegraph.js/css/litegraph.css'
 import axios from 'axios'
+import { toast } from 'vue3-toastify';
 
 // Import your custom nodes
 import '../components/custom_nodes/get/open.js'
@@ -79,7 +80,7 @@ interface InternalApiResponse<T> {
   symbol?: string;
   timeframe?: string;
 }
-
+const pve = {position: toast.POSITION.BOTTOM_RIGHT}
 export const useGraphStore = defineStore('graph', () => {
   // State Variables with Proper Types
   const graph: Ref<LGraph | null> = ref(null)
@@ -163,7 +164,7 @@ export const useGraphStore = defineStore('graph', () => {
       )
 
       if (response.data.retCode !== 0) {
-        console.error('Failed to get tickers info:', response.data.retMsg)
+        toast.error('Failed to get tickers info', pve)
         return []
       }
 
@@ -173,13 +174,9 @@ export const useGraphStore = defineStore('graph', () => {
         .filter((ticker: Ticker) => parseFloat(ticker.turnover24h) > turnover)
         .map((ticker: Ticker) => ticker.symbol)
 
-      console.info(
-        `Symbols with turnover greater than ${turnover}:`,
-        filteredSymbols
-      )
       return filteredSymbols
     } catch (error) {
-      console.error('Error fetching symbols:', error)
+      toast.error('Error fetching symbols', pve)
       return []
     }
   }
@@ -201,7 +198,7 @@ export const useGraphStore = defineStore('graph', () => {
     const userToken = localStorage.getItem('userToken')
 
     if (!userId || !userToken) {
-      console.error('User not authenticated')
+      toast.error('User not authenticated', pve)
       return
     }
 
@@ -227,10 +224,10 @@ export const useGraphStore = defineStore('graph', () => {
           await loadGraphFromServer() // Load the default graph
         }
       } else {
-        console.error('Error fetching saved graphs:', response.data.message)
+        toast.error('Error fetching saved graphs.', pve)
       }
     } catch (error) {
-      console.error('Error fetching saved graphs:', error)
+      toast.error('Error fetching saved graphs.', pve)
     }
   }
   /**
@@ -241,12 +238,12 @@ export const useGraphStore = defineStore('graph', () => {
     const userToken = localStorage.getItem('userToken')
 
     if (!userId || !userToken) {
-      alert('User not authenticated')
+      toast.error('User not authenticated', pve)
       return
     }
 
     if (!selectedGraph.value) {
-      alert('Please select a graph to load')
+      toast.error('Please select a graph to load', pve)
       return
     }
 
@@ -287,10 +284,10 @@ export const useGraphStore = defineStore('graph', () => {
           timeframe.value = response.data.timeframe
         }
       } else {
-        console.error('Error loading graph:', response.data.message)
+        toast.error('Error loading graph', pve)
       }
     } catch (error) {
-      console.error('Error loading graph:', error)
+      toast.error('Error loading graph', pve)
     }
   }
 
@@ -299,12 +296,12 @@ export const useGraphStore = defineStore('graph', () => {
    */
   const saveGraphToServer = async (): Promise<void> => {
     if (!graphName.value) {
-      alert('Please enter a graph name.')
+      toast.error('Please enter a graph name.', pve)
       return
     }
 
     if (!graph.value) {
-      alert('Graph not initialized.')
+      toast.error('Graph not initialized.', pve)
       return
     }
 
@@ -313,7 +310,7 @@ export const useGraphStore = defineStore('graph', () => {
     const userToken = localStorage.getItem('userToken')
 
     if (!userId || !userToken) {
-      alert('User not authenticated')
+      toast.error('User not authenticated', pve)
       return
     }
     const sDate = startDate.value
@@ -342,13 +339,13 @@ export const useGraphStore = defineStore('graph', () => {
       )
 
       if (response.data.status === 'success') {
-        alert('Graph saved successfully.')
+        toast.success('Graph saved successfully.', pve)
         await fetchSavedGraphs()
       } else {
-        alert(`Error: ${response.data.message}`)
+        toast.error(`Error saving graph.`, pve)
       }
     } catch (error) {
-      console.error('Error saving graph:', error)
+      toast.error('Error saving graph.', pve)
     }
   }
 
@@ -357,7 +354,7 @@ export const useGraphStore = defineStore('graph', () => {
    */
   const deleteGraphToServer = async (): Promise<void> => {
     if (!selectedGraph.value) {
-      alert('Please select a graph to delete')
+      toast.error('Please select a graph to delete', pve)
       return
     }
 
@@ -365,7 +362,7 @@ export const useGraphStore = defineStore('graph', () => {
     const userToken = localStorage.getItem('userToken')
 
     if (!userId || !userToken) {
-      alert('User not authenticated')
+      toast.error('User not authenticated', pve)
       return
     }
 
@@ -385,13 +382,13 @@ export const useGraphStore = defineStore('graph', () => {
       )
 
       if (response.data.status === 'success') {
-        alert('Graph deleted successfully.')
+        toast.success('Graph deleted successfully.', pve)
         await fetchSavedGraphs()
       } else {
-        alert(`Error: ${response.data.message}`)
+        toast.error(`Error, graph is not deleted`, pve)
       }
     } catch (error) {
-      console.error('Error deleting graph:', error)
+      toast.error('Error deleting graph:', pve)
     }
   }
 
@@ -403,7 +400,7 @@ export const useGraphStore = defineStore('graph', () => {
     const userToken = localStorage.getItem('userToken')
 
     if (!userId || !userToken) {
-      alert('User not authenticated')
+      toast.error('User not authenticated', pve)
       return
     }
 
@@ -413,7 +410,7 @@ export const useGraphStore = defineStore('graph', () => {
     const sym = symbol.value
 
     if (!selectedGraph.value) {
-      alert('Please select a graph to compile')
+      toast.error('Please select a graph to compile', pve)
       return
     }
 
@@ -437,12 +434,12 @@ export const useGraphStore = defineStore('graph', () => {
       )
 
       if (response.data.status === 'success') {
-        console.log('Compilation started')
+        toast.info('Compilation finished successfully', pve)
       } else {
-        console.error('Error compiling graph:', response.data.message)
+        toast.error('Error compiling graph.', pve)
       }
     } catch (error) {
-      console.error('Error:', error)
+      toast.error('Error compiling graph.', pve)
     }
   }
 
@@ -463,7 +460,7 @@ export const useGraphStore = defineStore('graph', () => {
   }
     const downloadGraph = (): void => {
     if (!graph.value) {
-      alert('Graph not initialized.')
+      toast.error('Graph is not initialized.')
       return
     }
 

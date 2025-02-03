@@ -1,6 +1,8 @@
 // src/stores/auth.ts
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { toast } from 'vue3-toastify'
+const pve = {position: toast.POSITION.BOTTOM_RIGHT}
 
 interface UserInfo {
   id: string;
@@ -21,6 +23,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = true;
     localStorage.setItem('userToken', userToken);
     localStorage.setItem('telegramUser', JSON.stringify(user));
+    toast.success('User logged in successfully', pve);
   }
 
   function logout() {
@@ -29,6 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = false;
     localStorage.removeItem('userToken');
     localStorage.removeItem('telegramUser');
+    toast.success('User logged out successfully', pve);
   }
 
   function initializeAuth() {
@@ -39,6 +43,11 @@ export const useAuthStore = defineStore('auth', () => {
       userInfo.value = JSON.parse(storedUser);
       token.value = storedToken;
       isAuthenticated.value = true;
+      toast.success('User authorised successfully', pve);
+    }
+    if (!storedUser || !storedUser) {
+      isAuthenticated.value = false;
+      toast.error('User is not authorised', pve);
     }
   }
 
