@@ -29,15 +29,15 @@ def main():
     # 1 is DB local
     config = {
         'data_source': 1,
-        'api_key': "",
-        'api_secret': "",
+        'api_key': "CQ16qbTLFEbJqLtS4W",
+        'api_secret': "E0p4bPZpsgew4STE8kttc6LGhfoXuaRLxgdA",
         'symbol': data['symbol'],
         'timeframe': data['timeframe'],
         'nodes': data,
     }
 
     # Create a new bot or fetch existing
-    bot_id = "SOL_DCA_BOT"
+    bot_id = 228
 
     bot = manager.create_bot(bot_id, config)
 

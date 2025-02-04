@@ -50,7 +50,7 @@ class BotManager:
         except Exception as e:
             logger.error(f"Failed to save bot states: {e}")
 
-    def create_bot(self, bot_id: str, config: dict):
+    def create_bot(self, bot_id: int, config: dict):
         """
         Create a new bot with given ID and config. The config
         should contain all strategy parameters, API credentials, etc.
@@ -65,7 +65,7 @@ class BotManager:
         self.save_bots_to_storage()
         return bot
 
-    def start_bot(self, bot_id: str):
+    def start_bot(self, bot_id: int):
         """
         Start (launch) a bot’s trading strategy if it’s not already running.
         """

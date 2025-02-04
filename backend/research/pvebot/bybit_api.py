@@ -38,24 +38,78 @@ class Bybit:
                 qty = float(position['size'])
                 positionValue = float(position['positionValue'])
 
-                if side == 'Buy':  # Long position
+                if side == 'Buy':
                     long_position.pnl += pnl
                     long_position.qty += qty
                     long_position.positionValue += positionValue
-                elif side == 'Sell':  # Short position
+                elif side == 'Sell':
                     short_position.pnl += pnl
                     short_position.qty += qty
                     short_position.positionValue += positionValue
             except Exception as e:
-                logging.warning(f"No open position, pnl = 0")
-                continue  # position['unrealisedPnl'] == ""
-
-        logging.info(
-            f"Long Position: PnL={long_position.pnl}, Qty={long_position.qty}, Value={long_position.positionValue}")
-        logging.info(
-            f"Short Position: PnL={short_position.pnl}, Qty={short_position.qty}, Value={short_position.positionValue}")
+                continue
 
         return long_position, short_position
+
+    def get_pnl_history(self, symbol):
+        """
+        Fetches the closed PnL history for the given symbol.
+        """
+        try:
+            response = self.session.get_closed_pnl(category="linear", symbol=symbol)
+            if response['retCode'] == 0:
+                return response['result']['list']
+            else:
+                logging.error(f"Failed to fetch PnL history: {response['retMsg']}")
+                return []
+        except Exception as e:
+            logging.error(f"Error fetching PnL history: {e}")
+            return []
+
+    def get_trade_history(self, symbol):
+        """
+        Fetches recent execution records for a symbol.
+        """
+        try:
+            response = self.session.get_executions(category="linear", symbol=symbol, limit=50)
+            if response['retCode'] == 0:
+                return response['result']['list']
+            else:
+                logging.error(f"Failed to fetch trade history: {response['retMsg']}")
+                return []
+        except Exception as e:
+            logging.error(f"Error fetching trade history: {e}")
+            return []
+
+    def get_account_balance(self):
+        """
+        Fetches the account balance details.
+        """
+        try:
+            response = self.session.get_wallet_balance(accountType="CONTRACT")
+            if response['retCode'] == 0:
+                return response['result']['list']
+            else:
+                logging.error(f"Failed to fetch account balance: {response['retMsg']}")
+                return None
+        except Exception as e:
+            logging.error(f"Error fetching account balance: {e}")
+            return None
+
+    def get_risk_limit(self, symbol):
+        """
+        Retrieves the current risk limit for the given symbol.
+        """
+        try:
+            response = self.session.get_risk_limit(category="linear", symbol=symbol)
+            if response['retCode'] == 0:
+                return response['result']['list']
+            else:
+                logging.error(f"Failed to fetch risk limit: {response['retMsg']}")
+                return None
+        except Exception as e:
+            logging.error(f"Error fetching risk limit: {e}")
+            return None
 
     def entry(self, price, side, qty, order_type, SYMBOL, take_profit_price=0, stop_loss_price=0):
         position_idx = 1 if side == "Buy" else 2

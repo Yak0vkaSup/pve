@@ -166,4 +166,18 @@ def super_trend(high: pd.Series, low: pd.Series, close: pd.Series,  window: int)
 def bollinger(close: pd.Series, window: int):
     return ta.bbands(close, window, talib=True)
 
+def seconds_since_midnight():
+    """Return the number of seconds since midnight."""
+    now = datetime.now()
+    return now.hour * 3600 + now.minute * 60 + now.second
+
+
+timeframes = {
+    "1min": 60,
+    "3min": 180,
+    "5min": 300,
+    "15min": 900,
+    "30min": 1800,
+    "1h": 3600
+}
 symbols_db = ['1000000MOGUSDT', '1000BONKUSDT', '1000FLOKIUSDT', '1000NEIROCTOUSDT', '1000PEPEUSDT', '1000XUSDT', 'AAVEUSDT', 'ACTUSDT', 'ADAUSDT', 'APEUSDT', 'APTUSDT', 'ARBUSDT', 'ATOMUSDT', 'AVAXUSDT', 'BANUSDT', 'BCHUSDT', 'BNBUSDT', 'BOMEUSDT', 'BRETTUSDT', 'BTCPERP', 'BTCUSDT', 'CATIUSDT', 'CRVUSDT', 'DEGENUSDT', 'DOGEUSDT', 'DOGSUSDT', 'DOTUSDT', 'DRIFTUSDT', 'EIGENUSDT', 'ENAUSDT', 'ETCUSDT', 'ETHFIUSDT', 'ETHUSDT', 'FTMUSDT', 'GALAUSDT', 'GOATUSDT', 'GRASSUSDT', 'HBARUSDT', 'INJUSDT', 'JUPUSDT', 'KASUSDT', 'LDOUSDT', 'LINKUSDT', 'LTCUSDT', 'MEWUSDT', 'MOODENGUSDT', 'NEARUSDT', 'NEIROETHUSDT', 'NOTUSDT', 'OMUSDT', 'ONDOUSDT', 'OPUSDT', 'ORDIUSDT', 'PNUTUSDT', 'POLUSDT', 'POPCATUSDT', 'RENDERUSDT', 'SEIUSDT', 'SHIB1000USDT', 'SLERFUSDT', 'SOLUSDT', 'STRKUSDT', 'STXUSDT', 'SUIUSDT', 'TAOUSDT', 'TIAUSDT', 'TONUSDT', 'TROYUSDT', 'UNIUSDT', 'WIFUSDT', 'WLDUSDT', 'XLMUSDT', 'XRPUSDT']

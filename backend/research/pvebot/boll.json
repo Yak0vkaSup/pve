@@ -951,6 +951,6 @@
   },
   "startDate": "2025-01-01",
   "endDate": "2026-11-14",
-  "timeframe": "5min",
+  "timeframe": "1min",
   "symbol": "SOLUSDT"
 }
