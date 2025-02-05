@@ -1,27 +1,48 @@
-# main.py
 import logging
 import sys
-from bot_manager import BotManager
 import json
-from nodes_bot import process_graph
+import multiprocessing
+from bot_manager import BotManager
+from utils_bot import get_db_connection
 
 def setup_logging():
     logging.basicConfig(
         level=logging.DEBUG,
-        format='%(asctime)s - %(levelname)s - %(message)s',
+        format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(sys.stdout),
             logging.FileHandler("trading_bots.log")
         ]
     )
 
+def run_bot_manager():
+    """
+    Runs the BotManager in a separate process.
+    """
+    setup_logging()
+    manager = BotManager()
+
+    try:
+        while True:
+            pass  # Keeps BotManager running indefinitely
+    except KeyboardInterrupt:
+        logging.info("Exiting..")
+
 def main():
     setup_logging()
-    manager = BotManager(storage_path="bot_states.json")
 
-    # Load any previously saved bots
-    manager.load_bots_from_storage()
+    # Start BotManager as a separate process
+    bot_manager_process = multiprocessing.Process(target=run_bot_manager, daemon=True)
+    bot_manager_process.start()
 
+    try:
+        bot_manager_process.join()  # Keep process alive
+    except KeyboardInterrupt:
+        logging.info("Shutting down BotManager...")
+        bot_manager_process.terminate()
+
+if __name__ == "__main__":
+    """
     with open("boll.json", "r") as f:
         data = json.load(f)
 
@@ -35,27 +56,5 @@ def main():
         'timeframe': data['timeframe'],
         'nodes': data,
     }
-
-    # Create a new bot or fetch existing
-    bot_id = 228
-
-    bot = manager.create_bot(bot_id, config)
-
-    # Start the bot
-    manager.start_bot(bot_id)
-
-    # ... you can start more bots if you want ...
-    # manager.create_bot("ETH_DCA_BOT", config_for_eth)
-    # manager.start_bot("ETH_DCA_BOT")
-
-    # Keep the main thread alive, or do any other tasks
-    try:
-        while True:
-            # In a real app, you might do more advanced scheduling here
-            pass
-    except KeyboardInterrupt:
-        logging.info("Shutting down all bots...")
-        manager.stop_all()
-
-if __name__ == "__main__":
+    """
     main()

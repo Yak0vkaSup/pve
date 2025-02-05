@@ -74,15 +74,18 @@ class Bot:
 
     def stop(self):
         """
-        Signal the thread to stop and wait for it to join.
+        Stops the bot and ensures the thread is properly handled.
         """
         if self.status != BotStatus.RUNNING:
             logger.info(f"Bot '{self.bot_id}' is not running.")
             return
 
         self.stop_signal = True
-        if self.thread:
+
+        # If stop() is called from inside the bot's own thread, don't join
+        if self.thread and self.thread != threading.current_thread():
             self.thread.join(timeout=10)
+
         self.status = BotStatus.STOPPED
         logger.info(f"Bot '{self.bot_id}' stopped.")
 
@@ -106,6 +109,8 @@ class Bot:
         # Keep track of whether we have an active DCA trade
         dca_active = False
         dca = None
+        settings= None
+        last_alert = False
         # Time when we opened the current trade
         trade_start_time = time.time() #None
 
@@ -134,13 +139,14 @@ class Bot:
                     signals_series = settings['signals']
 
                     # last_alert = signals_series.iloc[-2] if you want the last *closed* candle
-                    last_alert = signals_series.iloc[-2] if len(signals_series) >= 2 else False
+                    last_alert = True
+                        #signals_series.iloc)[-2] if len(signals_series) >= 2 else False
 
                 # -----------------------------
                 # 3) If there's a new signal AND we do NOT have a trade open => Open DCA
                 # -----------------------------
-                dca_active = True
-                if  not dca_active: #last_alert and
+
+                if last_alert and not dca_active: #
                     initial_price = float(df.iloc[-1]['close'])
                     logger.info(f"Detected new buy signal. Initializing DCA at price {initial_price}")
 
@@ -225,8 +231,11 @@ class Bot:
                 logger.error(f"[{self.bot_id}] Error in main loop: {e}")
                 self.status = BotStatus.ERROR
                 break
-
-        logger.info(f"Bot '{self.bot_id}' main loop ended.")
+        logger.info(f"Bot '{self.bot_id}' main loop stopped.")
+        self.bybit.cancel_all_orders(self.config['symbol'])
+        long_pos, short_pos = self.bybit.get_positions(symbol)
+        self._exit_position(long_pos.qty)
+        self._exit_position(short_pos.qty)
 
     def _exit_position(self, qty):
         """
@@ -235,7 +244,6 @@ class Bot:
         if qty > 0:
             self.bybit.exit(side="Sell", qty=qty, index=1, SYMBOL=self.config['symbol'])
         self.bybit.cancel_all_orders(self.config['symbol'])
-        self.stop()
 
     def save_performance(self):
         """
@@ -265,11 +273,16 @@ class Bot:
         cursor.close()
         conn.close()
 
-    def update_status(self, status):
+
+    @staticmethod
+    def update_status(bot_id, status):
+        """
+        Updates the bot status in the database.
+        """
         conn = get_db_connection()
         cursor = conn.cursor()
         query = "UPDATE bots SET status = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s"
-        cursor.execute(query, (status, self.bot_id))
+        cursor.execute(query, (status, bot_id))
         conn.commit()
         cursor.close()
         conn.close()

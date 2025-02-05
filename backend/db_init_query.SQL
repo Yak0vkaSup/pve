@@ -34,3 +34,27 @@ CREATE TABLE IF NOT EXISTS candles (
 	volume NUMERIC,
 	UNIQUE(symbol, timestamp)
 );
+
+CREATE TABLE bots (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    status VARCHAR(20) DEFAULT 'inactive',
+    parameters JSONB NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT unique_bot_per_user UNIQUE (user_id, name)
+);
+
+CREATE TABLE bot_performance (
+    id SERIAL PRIMARY KEY,
+    bot_id INTEGER NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    profit FLOAT DEFAULT 0,
+    equity FLOAT DEFAULT 0,
+    trades_executed INTEGER DEFAULT 0,
+    pnl FLOAT DEFAULT 0,
+    drawdown FLOAT DEFAULT 0,
+    UNIQUE(bot_id, timestamp)
+);

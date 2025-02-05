@@ -45,3 +45,22 @@ def receive_telegram_auth():
     except Exception as e:
         current_app.logger.error(f"Exception occurred: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 400
+
+@auth_bp.route('/api/verify-token', methods=['POST'])
+@log_request
+def verify_token():
+    try:
+        data = request.get_json()
+        user_id = data.get('id')
+        user_token = data.get('token')
+
+        if not user_id or not user_token:
+            return jsonify({'status': 'error', 'message': 'Missing user ID or token'}), 400
+
+        if verify_user_token(user_id, user_token):
+            return jsonify({'status': 'success', 'message': 'Token is valid'})
+        else:
+            return jsonify({'status': 'error', 'message': 'Invalid token'}), 401
+    except Exception as e:
+        current_app.logger.error(f"Exception during token verification: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
