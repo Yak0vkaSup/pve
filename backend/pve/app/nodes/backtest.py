@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from decimal import Decimal, ROUND_DOWN
+
 from pandas import read_csv
 import time
 import decimal
@@ -509,7 +511,10 @@ def backtest(df, entries, symbol, bybit, config):
                 if percentage_profit >= config['profit_target']:
                     logging.info(f"Exiting position at index {index} with profit {percentage_profit:.2f}%")
                     in_position = False
-                    df.at[index, '@exit'] = last_total_qty
+                    #df.at[index, '@exit'] = last_total_qty
+                    df.at[index, '@exit'] = float(
+                        Decimal(last_total_qty).quantize(Decimal('0.000001'), rounding=ROUND_DOWN)
+                    )
                     plot_end_index = index
                     plot_segments.append((plot_start_index, plot_end_index))
                     current_dca_orders = []

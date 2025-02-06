@@ -1,7 +1,7 @@
 <template>
   <main class="main-content">
     <div class="port-page">
-      <div v-if="!isFullscreen" class="other-content">
+<!--      <div v-if="!isFullscreen" class="other-content">
         <div>
           <h2>Bot Management</h2>
           <div>
@@ -20,7 +20,7 @@
 
           <chart-component v-if="selectedBot" :data="chartData" />
         </div>
-      </div>
+      </div>-->
       <div class="chart-container">
         <Chart :is-fullscreen="isFullscreen" @toggleFullscreen="handleFullscreenToggle" />
       </div>
@@ -30,10 +30,10 @@
 </template>
 
 <script setup lang="ts">
-import Chart from '../components/Chart.vue';
+import Chart from '../components/factory/Chart.vue';
 import { ref, computed } from 'vue'
-import Logs from '@/components/Logs.vue'
-import Nodes from '@/components/Nodes.vue'
+import Logs from '@/components/factory/Logs.vue'
+import Nodes from '@/components/factory/Nodes.vue'
 
 const isFullscreen = ref(false) // Track fullscreen state
 function handleFullscreenToggle() {

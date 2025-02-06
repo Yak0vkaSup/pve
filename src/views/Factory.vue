@@ -2,10 +2,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import Chart from '../components/Chart.vue';
-import Nodes from '../components/Nodes.vue';
+import Chart from '../components/factory/Chart.vue';
+import Nodes from '../components/factory/Nodes.vue';
 import { useAuthStore } from '@/stores/auth'
-import Logs from '../components/Logs.vue';
+import Logs from '../components/factory/Logs.vue';
 import { defineAsyncComponent } from 'vue'
 
 const authStore = useAuthStore()
@@ -16,7 +16,7 @@ function handleFullscreenToggle() {
 
 const ButtonsComponent = computed(() => {
   if (authStore.isAuthenticated) {
-    return defineAsyncComponent(() => import('../components/NodesSettings.vue'))
+    return defineAsyncComponent(() => import('../components/factory/NodesSettings.vue'))
   } else {
     return {
       template: `<div></div>`

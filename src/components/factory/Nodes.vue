@@ -9,8 +9,8 @@
 
 <script setup>
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { useGraphStore } from '../stores/graph.ts'
-import { useAuthStore } from '../stores/auth.ts'
+import { useGraphStore } from '../../stores/graph.ts'
+import { useAuthStore } from '../../stores/auth.ts'
 import { toast } from 'vue3-toastify'
 const pve = { position: toast.POSITION.BOTTOM_RIGHT };
 const canvas = ref(null)

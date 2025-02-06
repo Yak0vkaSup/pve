@@ -2,8 +2,8 @@
 import { ref, onMounted, onBeforeUnmount, reactive, watch, computed } from 'vue'
 import { createChart } from 'lightweight-charts'
 import { LineType } from 'lightweight-charts'
-import { useWebSocketStore } from '@/stores/websocket';
-import { useAuthStore } from '../stores/auth.ts'
+import { useWebSocketStore } from '@/stores/websocket.ts';
+import { useAuthStore } from '../../stores/auth.ts'
 const chartContainer = ref(null)
 const isFullscreen = ref(false) // Track fullscreen state
 const authStore = useAuthStore()
@@ -269,7 +269,8 @@ function updateChartData(data) {
             if (candle[key]) {
               const markerProps = prefixMappings[prefix];
               const keyWithoutPrefix = key.substring(prefix.length);
-              const text = `${keyWithoutPrefix}: ${candle[key]}`;
+              //const text = `${candle[key]}`;
+              const text = candle[key] === true ? "signal" : `${candle[key]}`;
               markers.push({
                 time: candle.date,
                 text: text,
