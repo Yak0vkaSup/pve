@@ -41,7 +41,14 @@ services:
     volumes:
       - redis_data:/data
 
-
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    volumes:
+      - ../:/pve
+    ports:
+      - "3000:3000"
 
 volumes:
   redis_data:
