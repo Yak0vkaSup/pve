@@ -69,7 +69,6 @@ python-engineio==4.9.1
 python-socketio==5.11.4
 python-telegram-bot==21.7
 pytz==2024.1
-pywin32==307
 redis==5.2.1
 regex==2024.11.6
 requests==2.32.3
@@ -87,7 +86,7 @@ traitlets==5.14.3
 typing_extensions==4.12.2
 tzdata==2024.1
 tzlocal==5.2
-urllib3==2.2.2
+urllib3
 vectorbt==0.26.2
 wcwidth==0.2.13
 websocket-client==1.8.0

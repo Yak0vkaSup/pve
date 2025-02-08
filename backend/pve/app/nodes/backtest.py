@@ -10,7 +10,7 @@ import logging
 import random
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler("backtester.log"),
+    logging.FileHandler("logs/backtester.log"),
     logging.StreamHandler()
 ])
 
@@ -345,7 +345,6 @@ class DCA:
         Calculate the total USDT required for the DCA grid (long orders).
         """
         total_usdt = decimal.Decimal("0.0")
-        print(self.long_orders, 'pvepvepve')
         for order in self.long_orders:
             price = decimal.Decimal(str(order['price']))
             qty = decimal.Decimal(str(order['qty']))
@@ -531,7 +530,6 @@ def backtest(df, entries, symbol, bybit, config):
 
     end_time = time.time()
     logging.info(f"Backtest time taken: {end_time - start_time:.2f} seconds")
-    print(df.head(50))
     df.drop('_signal_', axis=1, inplace=True)
     df.drop('entry', axis=1, inplace=True)
 
@@ -593,4 +591,3 @@ if __name__ == '__main__':
     for col in pve.columns:
         print(col)
 
-    print(pve.head(50))

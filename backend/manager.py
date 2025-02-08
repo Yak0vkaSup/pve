@@ -20,15 +20,14 @@ from pybit.unified_trading import MarketHTTP, WebSocket
 DB_NAME = os.getenv('DB_NAME', 'postgres')
 DB_USER = os.getenv('DB_USER', 'postgres')
 DB_PASSWORD = os.getenv('DB_PASSWORD', 'postgres')
-DB_HOST = os.getenv('DB_HOST', '192.168.1.171')
+DB_HOST = os.getenv('DB_HOST', 'postgresql')
 DB_PORT = int(os.getenv('DB_PORT', 5432))
-
+os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
     handlers=[
-        logging.FileHandler('data_updater.log'),
-        logging.StreamHandler()
+        logging.FileHandler('logs/data_manager.log'),
     ]
 )
 logger = logging.getLogger(__name__)
@@ -409,6 +408,7 @@ async def main():
 
 if __name__ == '__main__':
     try:
+        time.sleep(10)
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("Process interrupted by user. Exiting.")

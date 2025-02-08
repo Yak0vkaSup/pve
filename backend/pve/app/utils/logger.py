@@ -4,7 +4,7 @@ from flask import request, current_app
 from functools import wraps
 
 def setup_logging(app):
-    handler = logging.FileHandler('app.log')  # Log to 'app.log' file
+    handler = logging.FileHandler('logs/app.log')  # Log to 'app.log' file
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     handler.setLevel(logging.INFO)

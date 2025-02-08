@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/pve
+    environment:
+      - FLASK_ENV=development
+    working_dir: /pve
+    command: ["python", "pve/run.py"]
+
+  postgresql:
+    image: timescale/timescaledb:latest-pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - DB_HOST=postgresql
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_MAX_CONNECTIONS=5000
+    volumes:
+      - ./db_init_query.sql:/docker-entrypoint-initdb.d/db_init_query.sql
+
+  manager:
+    build: .
+    volumes:
+      - .:/pve
+    environment:
+      - FLASK_ENV=development
+    working_dir: /pve
+    command: ["python", "manager.py"]
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+
+
+volumes:
+  redis_data:

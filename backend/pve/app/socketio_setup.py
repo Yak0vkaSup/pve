@@ -6,7 +6,7 @@ from config import Config
 socketio = SocketIO(
     cors_allowed_origins="*",
     async_mode='eventlet',
-    logger=True,
+    logger=False,
     engineio_logger=False
 )
 
