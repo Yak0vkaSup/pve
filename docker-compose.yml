@@ -53,6 +53,7 @@ services:
       - .:/pve
     ports:
       - "3000:3000"
+    command: ["node", "backend/server.js"]
 
   nginx:
     image: nginx:alpine
