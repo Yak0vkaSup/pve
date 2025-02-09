@@ -41,7 +41,7 @@ services:
     volumes:
       - redis_data:/data
 
-  frontend:
+  webserver:
     build:
       context: .
       dockerfile: Dockerfile.frontend

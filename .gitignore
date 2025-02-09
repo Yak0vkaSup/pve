@@ -32,7 +32,6 @@ __pycache__/
 deprecated/
 /Backend/venv
 backend/deprecated/nodes/__pycache__
-backend/server.js
 /backend/deprecated/nodes/__pycache__/
 /backend/config.cpython-310.pyc
 /backend/logs/*
