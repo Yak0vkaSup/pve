@@ -86,16 +86,24 @@ rate_limiter = AsyncRateLimiter(max_calls=RATE_LIMIT, period=5)  # 600 requests 
 
 async def init_db_pool():
     global db_pool
-    db_pool = await asyncpg.create_pool(
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
-        host=DB_HOST,
-        port=DB_PORT,
-        min_size=1,
-        max_size=50,
-    )
-    logger.info("Database pool created.")
+    while True:
+        try:
+            db_pool = await asyncpg.create_pool(
+                user=DB_USER,
+                password=DB_PASSWORD,
+                database=DB_NAME,
+                host=DB_HOST,
+                port=DB_PORT,
+                min_size=1,
+                max_size=50,
+            )
+            logger.info("Database pool created.")
+            break  # Exit the loop once the pool is successfully created.
+        except Exception as e:
+            logger.error("Database connection failed: %s", e)
+            logger.info("Waiting 5 seconds before retrying...")
+            await asyncio.sleep(5)
+
 
 async def close_db_pool():
     if db_pool:
