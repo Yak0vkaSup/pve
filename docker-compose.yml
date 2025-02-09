@@ -51,6 +51,7 @@ services:
       dockerfile: Dockerfile.frontend
     volumes:
       - .:/pve
+      - /pve/node_modules
     ports:
       - "3000:3000"
     command: ["node", "backend/server.js"]
