@@ -2,14 +2,16 @@ version: '3.8'
 
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5001:5001"
     volumes:
       - .:/pve
     environment:
       - FLASK_ENV=development
-    working_dir: /pve
+    working_dir: /pve/backend
     command: ["python", "pve/run.py"]
 
   postgresql:
@@ -23,15 +25,17 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_MAX_CONNECTIONS=5000
     volumes:
-      - ./db_init_query.SQL:/docker-entrypoint-initdb.d/db_init_query.sql
+      - ./backend/db_init_query.SQL:/docker-entrypoint-initdb.d/db_init_query.sql
 
   manager:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - .:/pve
     environment:
       - FLASK_ENV=development
-    working_dir: /pve
+    working_dir: /pve/backend
     command: ["python", "manager.py"]
 
   redis:
@@ -46,19 +50,20 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
     volumes:
-      - ../:/pve
+      - .:/pve
     ports:
       - "3000:3000"
-
 
   nginx:
     image: nginx:alpine
     volumes:
-      - ../dist:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ../certs:/etc/nginx/certs:ro
+      - ./dist:/usr/share/nginx/html:ro
+      - ./backend/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
     ports:
       - "443:443"
+
+
 
 volumes:
   redis_data:
