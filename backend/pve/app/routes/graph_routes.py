@@ -1,14 +1,20 @@
 # app/routes/graph_routes.py
-from flask import Blueprint, request, jsonify, current_app
+import os
+import uuid
+
+from flask import Blueprint, request, jsonify, current_app, send_file, url_for
 from ..utils.token_utils import token_required
 from ..models.graph_model import Graph
-from ..utils.logger import log_request
+from ..utils.logger import log_request, delete_file_after_delay
 from ..nodes.nodes import process_graph
 from ..socketio_setup import socketio
 import json
 import logging
 import pandas as pd
 import threading
+import io
+import datetime
+TEMP_DIR = "/backtest_files"
 
 graph_bp = Blueprint('graph_bp', __name__)
 
@@ -119,11 +125,7 @@ def compile_graph():
         if not graph_data:
             return jsonify({'status': 'error', 'message': 'Graph not found'}), 404
 
-        graph = graph_data[0]
-        start_date = graph_data[1]
-        end_date = graph_data[2]
-        symbol = graph_data[3]
-        timeframe = graph_data[4]
+        graph, start_date, end_date, symbol, timeframe = graph_data
 
         if isinstance(graph, dict):
             graph_json = json.dumps(graph)
@@ -133,36 +135,49 @@ def compile_graph():
         # Set the user_id in thread-local storage
         thread_local.user_id = user_id
 
-        # Set up the logging handler
-        log_capture_handler = LogCaptureHandler()
-        log_capture_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        log_capture_handler.setFormatter(formatter)
-
-        # Get the logger and add the handler
         logger = logging.getLogger('app.nodes.nodes')
-        logger.addHandler(log_capture_handler)
+        previous_level = logger.level  # Store previous level
+        logger.setLevel(logging.CRITICAL)
 
+        # Process graph
         df, precision, min_move = process_graph(graph_json, start_date, end_date, symbol, timeframe)
 
-        logger.removeHandler(log_capture_handler)
+        # Restore previous logging level
+        logger.setLevel(previous_level)
+        
         if hasattr(thread_local, 'user_id'):
             del thread_local.user_id
 
         if df is not None:
             df['date'] = df['date'].astype('int64') // 10 ** 9
-            # df = df.fillna(value=0)
-            # df = df.dropna(how='all', axis=1)
 
+            # Process DataFrame
             columns_to_ignore = ['date', 'open', 'high', 'low', 'close', 'volume']
             ma_columns = [col for col in df.columns if col not in columns_to_ignore]
             df[ma_columns] = df[ma_columns].astype(object)
-
-            # Replace NaN with None in the MA columns
             df[ma_columns] = df[ma_columns].where(pd.notna(df[ma_columns]), None)
-            data = df.to_dict('records')
-            user_id=str(user_id)
 
+            # Generate a unique file name with timestamp
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            unique_id = str(uuid.uuid4())[:8]  # Short unique ID
+            filename = f"{timestamp}_backtest_{unique_id}.csv"
+            file_path = os.path.join(TEMP_DIR, filename)
+
+            # Save CSV
+            df.to_csv(file_path, index=False)
+            logger.info(f"{file_path}")
+            # Generate temporary link
+            file_url = url_for('graph_bp.download_backtest', filename=filename, _external=True)
+            file_url = str(file_url).replace("http://", "https://")
+            # Schedule file deletion after 5 minutes
+            threading.Thread(target=delete_file_after_delay, args=(file_path, 300)).start()
+
+            # Send log message with the link
+            log_message = f"Backtest file available for 5 minutes: {file_url}"
+            socketio.emit('log_message', {'message': log_message}, to=user_id)
+
+            # Send chart update
+            data = df.to_dict('records')
             socketio.emit('update_chart', {
                 'status': 'success',
                 'data': data,
@@ -171,10 +186,18 @@ def compile_graph():
             }, to=user_id, namespace='/')
 
             return jsonify({'status': 'success', 'message': 'Compiled and data sent to chart'})
+
         else:
             return jsonify({'status': 'error', 'message': 'Failed to process graph'}), 500
     except Exception as e:
         current_app.logger.error(f"Error compiling graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-
+@graph_bp.route('/api/download-backtest/<filename>', methods=['GET'])
+def download_backtest(filename):
+    """Serve the backtest CSV file if it exists."""
+    file_path = os.path.join(TEMP_DIR, filename)
+    if os.path.exists(file_path):
+        return send_file(file_path, mimetype="text/csv", as_attachment=True, download_name=filename)
+    else:
+        return jsonify({'status': 'error', 'message': 'File expired or does not exist'}), 404

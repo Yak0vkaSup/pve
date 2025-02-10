@@ -5,13 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    working_dir: /pve/backend
     ports:
       - "5001:5001"
     volumes:
       - .:/pve
+      - ./backtest_files:/backtest_files
     environment:
       - FLASK_ENV=development
-    working_dir: /pve/backend
     command: ["python", "pve/run.py"]
 
   postgresql:
@@ -25,6 +26,7 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_MAX_CONNECTIONS=5000
     volumes:
+      - postgres_data:/var/lib/postgresql/data  
       - ./backend/db_init_query.SQL:/docker-entrypoint-initdb.d/db_init_query.sql
 
   manager:
@@ -36,7 +38,7 @@ services:
     environment:
       - FLASK_ENV=development
     working_dir: /pve/backend
-    command: ["python", "manager.py"]
+    command: ["sh", "-c", "python pve/app/workers/bybit.py > /dev/null 2>&1 & cd /pve/backend && python manager.py"]
 
   redis:
     image: redis:latest
@@ -65,7 +67,6 @@ services:
     ports:
       - "443:443"
 
-
-
 volumes:
   redis_data:
+  postgres_data: 

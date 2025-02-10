@@ -50,7 +50,7 @@ RETRY_ATTEMPTS = 5  # Retry attempts for API calls
 RATE_LIMIT = 600  # Example: 600 requests per 5 seconds
 
 # If the database is empty for a symbol, this default period will be used.
-DEFAULT_HISTORY_HOURS = 72
+DEFAULT_HISTORY_HOURS = 240
 
 # =============================================================================
 # Async Rate Limiter (for REST API calls)

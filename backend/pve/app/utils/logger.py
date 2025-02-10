@@ -1,5 +1,8 @@
 # app/utils/logger.py
 import logging
+import os
+import time
+
 from flask import request, current_app
 from functools import wraps
 
@@ -17,3 +20,9 @@ def log_request(f):
         current_app.logger.info(f"Endpoint {request.path} called with method {request.method}")
         return f(*args, **kwargs)
     return decorated_function
+
+def delete_file_after_delay(file_path, delay):
+    """Delete the file after a delay (5 minutes = 300 seconds)."""
+    time.sleep(delay)
+    if os.path.exists(file_path):
+        os.remove(file_path)
