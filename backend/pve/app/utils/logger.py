@@ -2,7 +2,7 @@
 import logging
 import os
 import time
-
+from ..socketio_setup import socketio
 from flask import request, current_app
 from functools import wraps
 
@@ -26,3 +26,16 @@ def delete_file_after_delay(file_path, delay):
     time.sleep(delay)
     if os.path.exists(file_path):
         os.remove(file_path)
+
+class SocketIOLogHandler(logging.Handler):
+    def __init__(self, user_id):
+        super().__init__()
+        self.user_id = user_id
+
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            # Emit log message via SocketIO
+            socketio.emit('log_message', {'message': msg}, to=self.user_id)
+        except Exception:
+            self.handleError(record)

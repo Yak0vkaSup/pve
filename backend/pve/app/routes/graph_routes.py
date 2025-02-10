@@ -5,7 +5,7 @@ import uuid
 from flask import Blueprint, request, jsonify, current_app, send_file, url_for
 from ..utils.token_utils import token_required
 from ..models.graph_model import Graph
-from ..utils.logger import log_request, delete_file_after_delay
+from ..utils.logger import log_request, delete_file_after_delay, SocketIOLogHandler
 from ..nodes.nodes import process_graph
 from ..socketio_setup import socketio
 import json
@@ -119,32 +119,30 @@ def compile_graph():
         request_data = request.get_json()
         user_id = request_data.get('user_id')
         graph_name = request_data.get('name')
-
+        
         graph_data = Graph.load(user_id, graph_name)
-
         if not graph_data:
             return jsonify({'status': 'error', 'message': 'Graph not found'}), 404
 
         graph, start_date, end_date, symbol, timeframe = graph_data
-
-        if isinstance(graph, dict):
-            graph_json = json.dumps(graph)
-        else:
-            graph_json = graph
+        graph_json = json.dumps(graph) if isinstance(graph, dict) else graph
 
         # Set the user_id in thread-local storage
         thread_local.user_id = user_id
 
+        # Get logger and attach our SocketIO handler
         logger = logging.getLogger('app.nodes.nodes')
-        previous_level = logger.level  # Store previous level
-        logger.setLevel(logging.CRITICAL)
+        socket_handler = SocketIOLogHandler(user_id)
+        socket_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        socket_handler.setFormatter(formatter)
+        logger.addHandler(socket_handler)
 
         # Process graph
         df, precision, min_move = process_graph(graph_json, start_date, end_date, symbol, timeframe)
 
-        # Restore previous logging level
-        logger.setLevel(previous_level)
-        
+        # Remove handler and thread-local storage cleanup
+        logger.removeHandler(socket_handler)
         if hasattr(thread_local, 'user_id'):
             del thread_local.user_id
 
@@ -165,14 +163,15 @@ def compile_graph():
 
             # Save CSV
             df.to_csv(file_path, index=False)
-            logger.info(f"{file_path}")
-            # Generate temporary link
-            file_url = url_for('graph_bp.download_backtest', filename=filename, _external=True)
+            logger.info(f"Saved file to: {file_path}")
+
+            # Generate temporary link (force HTTPS)
+            file_url = url_for('graph_bp.download_backtest', filename=filename, _external=True, _scheme='https')
             file_url = str(file_url).replace("http://", "https://")
             # Schedule file deletion after 5 minutes
             threading.Thread(target=delete_file_after_delay, args=(file_path, 300)).start()
 
-            # Send log message with the link
+            # Optionally, also send a log message with the link
             log_message = f"Backtest file available for 5 minutes: {file_url}"
             socketio.emit('log_message', {'message': log_message}, to=user_id)
 
@@ -183,7 +182,7 @@ def compile_graph():
                 'data': data,
                 'precision': precision,
                 'minMove': min_move
-            }, to=user_id, namespace='/')
+            }, to=str(user_id), namespace='/')
 
             return jsonify({'status': 'success', 'message': 'Compiled and data sent to chart'})
 
@@ -192,6 +191,7 @@ def compile_graph():
     except Exception as e:
         current_app.logger.error(f"Error compiling graph: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 @graph_bp.route('/api/download-backtest/<filename>', methods=['GET'])
 def download_backtest(filename):

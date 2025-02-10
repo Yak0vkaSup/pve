@@ -36,6 +36,7 @@ backend/deprecated/nodes/__pycache__
 /backend/config.cpython-310.pyc
 /backend/logs/*
 /backend/pve/__pycache__/
+/backtest_files/*
 /backend/pve/app/__pycache__/
 /backend/pve/app/models/__pycache__/
 /backend/pve/app/nodes/__pycache__/
