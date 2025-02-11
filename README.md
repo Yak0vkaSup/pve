@@ -14,26 +14,12 @@ TypeScript cannot handle type information for `.vue` imports by default, so we r
 
 See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-## Project Setup
-
-```sh
-npm install
+## Firstly
+```
+docker-compose down 
 ```
 
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
+## Secondly
 ```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
+docker-compose up --build
 ```
