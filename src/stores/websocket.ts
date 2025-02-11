@@ -2,7 +2,8 @@
 import { defineStore } from 'pinia';
 import { ref, reactive, computed } from 'vue';
 import io from 'socket.io-client';
-
+import { toast } from 'vue3-toastify'
+const pve = {position: toast.POSITION.BOTTOM_RIGHT}
 interface LogMessage {
   timestamp: Date;
   level: string;
@@ -23,11 +24,11 @@ export const useWebSocketStore = defineStore('websocket', () => {
     const userToken = localStorage.getItem('userToken');
 
     if (!userId || !userToken) {
-      console.error("User ID or token is missing. Cannot initialize WebSocket.");
+      toast.error("User is not authorised", pve);
       return;
     }
 
-    socket.value = io('https://pve.finance', {
+    socket.value = io('wss://pve.finance', {
       path: '/api/ws/socket.io',
       query: {
         user_id: userId,
@@ -37,21 +38,21 @@ export const useWebSocketStore = defineStore('websocket', () => {
     });
 
     socket.value.on('connect', () => {
-      console.log('Connected to server via WebSocket');
+      toast.info('Connected to server via WebSocket', pve);
       isConnected.value = true;
     });
 
     socket.value.on('disconnect', () => {
-      console.log('Disconnected from server');
+      toast.info('Disconnected from server', pve);
       isConnected.value = false;
     });
 
     socket.value.on('reconnect_attempt', () => {
-      console.log('Attempting to reconnect...');
+      toast.info('Attempting to reconnect...', pve);
     });
 
     socket.value.on('connect_error', (error: any) => {
-      console.error('Connection error:', error);
+      toast.error('Connection error:', pve);
     });
 
     socket.value.on('log_message', (data: any) => {
@@ -66,7 +67,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
         precision.value = response.precision;
         minMove.value = response.minMove;
       } else {
-        console.error('Error updating chart:', response.message);
+        toast.error('Error updating chart:', pve);
       }
     });
   }
@@ -117,6 +118,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
   function disconnectWebSocket() {
     if (socket.value) {
       socket.value.disconnect();
+      toast.error('Disconnected from WebSocket', pve)
     }
   }
 

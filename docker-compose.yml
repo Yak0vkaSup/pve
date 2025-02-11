@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /pve/backend
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/pve
+      - ./backtest_files:/backtest_files
+    environment:
+      - FLASK_ENV=development
+    command: ["python", "pve/run.py"]
+
+  postgresql:
+    image: timescale/timescaledb:latest-pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - DB_HOST=postgresql
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_MAX_CONNECTIONS=5000
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  
+      - ./backend/db_init_query.SQL:/docker-entrypoint-initdb.d/db_init_query.sql
+
+  manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/pve
+    environment:
+      - FLASK_ENV=development
+    working_dir: /pve/backend
+    command: ["sh", "-c", "python pve/app/workers/bybit.py > /dev/null 2>&1 & cd /pve/backend && python manager.py"]
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    volumes:
+      - .:/pve
+      - /pve/node_modules
+    ports:
+      - "3000:3000"
+    command: ["node", "backend/server.js"]
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./dist:/usr/share/nginx/html:ro
+      - ./backend/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    ports:
+      - "443:443"
+
+volumes:
+  redis_data:
+  postgres_data: 

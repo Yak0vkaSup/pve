@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from decimal import Decimal, ROUND_DOWN
+
 from pandas import read_csv
 import time
 import decimal
@@ -8,8 +10,7 @@ import logging
 import random
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler("backtester.log"),
-    logging.StreamHandler()
+    logging.FileHandler("logs/backtester.log"),
 ])
 
 session = HTTP(testnet=False)
@@ -343,7 +344,6 @@ class DCA:
         Calculate the total USDT required for the DCA grid (long orders).
         """
         total_usdt = decimal.Decimal("0.0")
-        print(self.long_orders, 'pvepvepve')
         for order in self.long_orders:
             price = decimal.Decimal(str(order['price']))
             qty = decimal.Decimal(str(order['qty']))
@@ -509,7 +509,10 @@ def backtest(df, entries, symbol, bybit, config):
                 if percentage_profit >= config['profit_target']:
                     logging.info(f"Exiting position at index {index} with profit {percentage_profit:.2f}%")
                     in_position = False
-                    df.at[index, '@exit'] = last_total_qty
+                    #df.at[index, '@exit'] = last_total_qty
+                    df.at[index, '@exit'] = float(
+                        Decimal(last_total_qty).quantize(Decimal('0.000001'), rounding=ROUND_DOWN)
+                    )
                     plot_end_index = index
                     plot_segments.append((plot_start_index, plot_end_index))
                     current_dca_orders = []
@@ -526,7 +529,6 @@ def backtest(df, entries, symbol, bybit, config):
 
     end_time = time.time()
     logging.info(f"Backtest time taken: {end_time - start_time:.2f} seconds")
-    print(df.head(50))
     df.drop('_signal_', axis=1, inplace=True)
     df.drop('entry', axis=1, inplace=True)
 
@@ -588,4 +590,3 @@ if __name__ == '__main__':
     for col in pve.columns:
         print(col)
 
-    print(pve.head(50))

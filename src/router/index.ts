@@ -7,6 +7,7 @@ import UserProfile from '../views/UserProfile.vue';
 import Factory from '../views/Factory.vue';
 import Port from '../views/Port.vue';
 import Docs from '../views/Docs.vue';
+import { toast } from 'vue3-toastify'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -24,7 +25,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/factory',
     name: 'Factory',
     component: Factory,
-    meta: { requiresAuth: false },
+    meta: { requiresAuth: true },
   },
   {
     path: '/port',
@@ -46,14 +47,19 @@ const router = createRouter({
 });
 
 // Navigation Guard to Protect Routes
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ name: 'Home' });
-    authStore.logout();
-  } else {
-    next();
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth) {
+    const authStore = useAuthStore();
+    await authStore.initializeAuth();
+    if (!authStore.isAuthenticated) {
+      setTimeout(() => {
+        next({ name: 'Home' });
+      }, 2000);
+      authStore.silent_logout()
+      return;
+    }
   }
+  next();
 });
 
 export default router;

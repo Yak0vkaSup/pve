@@ -1,0 +1,956 @@
+{
+  "graph": {
+    "last_node_id": 106,
+    "last_link_id": 216,
+    "nodes": [
+      {
+        "id": 65,
+        "type": "tools/add_condition",
+        "pos": [
+          957.3686180249018,
+          235.0958425976562
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 19,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 111,
+            "name": "Condition",
+            "type": "boolean"
+          },
+          {
+            "link": 112,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 66,
+        "type": "set/string",
+        "pos": [
+          666.368618024902,
+          313.0958425976559
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              112
+            ],
+            "name": "String",
+            "slot_index": 0,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "value": "signals"
+        },
+        "widgets_values": [
+          "signals"
+        ]
+      },
+      {
+        "id": 91,
+        "type": "backtest/advanced_backtest",
+        "pos": [
+          1811,
+          190
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 146
+        },
+        "flags": {},
+        "order": 20,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 171,
+            "name": "Signals",
+            "type": "boolean"
+          },
+          {
+            "link": 172,
+            "name": "Profit target",
+            "type": "float"
+          },
+          {
+            "link": 175,
+            "name": "Number of orders",
+            "type": "integer"
+          },
+          {
+            "link": 178,
+            "name": "Martingale",
+            "type": "float"
+          },
+          {
+            "link": 216,
+            "name": "Candles to close",
+            "type": "integer"
+          },
+          {
+            "link": 174,
+            "name": "Step %",
+            "type": "float"
+          },
+          {
+            "link": 177,
+            "name": "First order size",
+            "type": "integer"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 50,
+        "type": "compare/cross_over",
+        "pos": [
+          678,
+          155
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 16,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 215,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 198,
+            "name": "Column",
+            "slot_index": 1,
+            "type": "column"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              111,
+              171
+            ],
+            "name": "Condition",
+            "slot_index": 0,
+            "type": "boolean"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 97,
+        "type": "tools/add_column",
+        "pos": [
+          152,
+          124
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 17,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 185,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 186,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 3,
+        "type": "set/integer",
+        "pos": [
+          -653,
+          354
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 50
+        },
+        "widgets_values": [
+          50
+        ]
+      },
+      {
+        "id": 94,
+        "type": "indicators/ma",
+        "pos": [
+          -128,
+          203
+        ],
+        "size": {
+          "0": 210,
+          "1": 78
+        },
+        "flags": {},
+        "order": 14,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 210,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 188,
+            "name": "Length",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              185,
+              198
+            ],
+            "name": "MA",
+            "slot_index": 0,
+            "type": "column"
+          },
+          {
+            "links": [
+              186
+            ],
+            "name": "Default name",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "ma_type": "t3"
+        },
+        "widgets_values": [
+          "t3"
+        ]
+      },
+      {
+        "id": 98,
+        "type": "set/integer",
+        "pos": [
+          -359,
+          120
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              188
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 7
+        },
+        "widgets_values": [
+          7
+        ]
+      },
+      {
+        "id": 81,
+        "type": "get/high",
+        "pos": [
+          -600,
+          129
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [],
+            "name": "high",
+            "slot_index": 0,
+            "type": "column"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 74,
+        "type": "get/low",
+        "pos": [
+          -621,
+          204
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              209
+            ],
+            "name": "low",
+            "slot_index": 0,
+            "type": "column"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 105,
+        "type": "indicators/bollinger",
+        "pos": [
+          -344,
+          284
+        ],
+        "size": {
+          "0": 140,
+          "1": 106
+        },
+        "flags": {},
+        "order": 13,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 209,
+            "name": "Close",
+            "type": "column"
+          },
+          {
+            "link": 214,
+            "name": "Window",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              210,
+              211
+            ],
+            "name": "Lower",
+            "slot_index": 0,
+            "type": "column"
+          },
+          {
+            "links": null,
+            "name": "Mid",
+            "type": "column"
+          },
+          {
+            "links": null,
+            "name": "Upper",
+            "type": "column"
+          },
+          {
+            "links": null,
+            "name": "Bandwidth",
+            "type": "column"
+          },
+          {
+            "links": null,
+            "name": "Percent",
+            "type": "column"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 103,
+        "type": "tools/add_column",
+        "pos": [
+          201,
+          434
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 18,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 212,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 213,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 86,
+        "type": "indicators/ma",
+        "pos": [
+          -122,
+          355
+        ],
+        "size": {
+          "0": 210,
+          "1": 78
+        },
+        "flags": {},
+        "order": 15,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 211,
+            "name": "Column",
+            "type": "column"
+          },
+          {
+            "link": 182,
+            "name": "Length",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              212
+            ],
+            "name": "MA",
+            "slot_index": 0,
+            "type": "column"
+          },
+          {
+            "links": [
+              213
+            ],
+            "name": "Default name",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "ma_type": "tema"
+        },
+        "widgets_values": [
+          "tema"
+        ]
+      },
+      {
+        "id": 82,
+        "type": "get/close",
+        "pos": [
+          325,
+          131
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              215
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "column"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 88,
+        "type": "set/integer",
+        "pos": [
+          -507,
+          500
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 6,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              182,
+              214
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 54
+        },
+        "widgets_values": [
+          54
+        ]
+      },
+      {
+        "id": 92,
+        "type": "set/float",
+        "pos": [
+          1179,
+          332
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 7,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              178
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 1.3
+        },
+        "widgets_values": [
+          1.3
+        ]
+      },
+      {
+        "id": 64,
+        "type": "set/float",
+        "pos": [
+          1199,
+          189
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 8,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              172
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 2
+        },
+        "widgets_values": [
+          2
+        ]
+      },
+      {
+        "id": 106,
+        "type": "set/integer",
+        "pos": [
+          1507.427565270996,
+          248.20900750579833
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {},
+        "order": 9,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              216
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 300
+        },
+        "widgets_values": [
+          300
+        ]
+      },
+      {
+        "id": 61,
+        "type": "set/integer",
+        "pos": [
+          1292.1249579296893,
+          91.63195456298838
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 10,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              175
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 5
+        },
+        "widgets_values": [
+          5
+        ]
+      },
+      {
+        "id": 59,
+        "type": "set/float",
+        "pos": [
+          1574,
+          88
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 11,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              174
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 3
+        },
+        "widgets_values": [
+          3
+        ]
+      },
+      {
+        "id": 62,
+        "type": "set/integer",
+        "pos": [
+          1421,
+          378
+        ],
+        "size": {
+          "0": 210,
+          "1": 58
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 12,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              177
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 15
+        },
+        "widgets_values": [
+          15
+        ]
+      }
+    ],
+    "links": [
+      [
+        111,
+        50,
+        0,
+        65,
+        0,
+        "boolean"
+      ],
+      [
+        112,
+        66,
+        0,
+        65,
+        1,
+        "string"
+      ],
+      [
+        171,
+        50,
+        0,
+        91,
+        0,
+        "boolean"
+      ],
+      [
+        172,
+        64,
+        0,
+        91,
+        1,
+        "float"
+      ],
+      [
+        174,
+        59,
+        0,
+        91,
+        5,
+        "float"
+      ],
+      [
+        175,
+        61,
+        0,
+        91,
+        2,
+        "integer"
+      ],
+      [
+        177,
+        62,
+        0,
+        91,
+        6,
+        "integer"
+      ],
+      [
+        178,
+        92,
+        0,
+        91,
+        3,
+        "float"
+      ],
+      [
+        182,
+        88,
+        0,
+        86,
+        1,
+        "integer"
+      ],
+      [
+        185,
+        94,
+        0,
+        97,
+        0,
+        "column"
+      ],
+      [
+        186,
+        94,
+        1,
+        97,
+        1,
+        "string"
+      ],
+      [
+        188,
+        98,
+        0,
+        94,
+        1,
+        "integer"
+      ],
+      [
+        198,
+        94,
+        0,
+        50,
+        1,
+        "column"
+      ],
+      [
+        209,
+        74,
+        0,
+        105,
+        0,
+        "column"
+      ],
+      [
+        210,
+        105,
+        0,
+        94,
+        0,
+        "column"
+      ],
+      [
+        211,
+        105,
+        0,
+        86,
+        0,
+        "column"
+      ],
+      [
+        212,
+        86,
+        0,
+        103,
+        0,
+        "column"
+      ],
+      [
+        213,
+        86,
+        1,
+        103,
+        1,
+        "string"
+      ],
+      [
+        214,
+        88,
+        0,
+        105,
+        1,
+        "integer"
+      ],
+      [
+        215,
+        82,
+        0,
+        50,
+        0,
+        "column"
+      ],
+      [
+        216,
+        106,
+        0,
+        91,
+        4,
+        "integer"
+      ]
+    ],
+    "groups": [
+      {
+        "title": "pve",
+        "bounding": [
+          1213,
+          47,
+          840,
+          412
+        ],
+        "color": "#3f789e",
+        "font_size": 24
+      },
+      {
+        "title": "Group",
+        "bounding": [
+          504,
+          34,
+          652,
+          439
+        ],
+        "color": "#A88",
+        "font_size": 24
+      },
+      {
+        "title": "Group",
+        "bounding": [
+          -667,
+          3,
+          1116,
+          698
+        ],
+        "color": "#8A8",
+        "font_size": 24
+      }
+    ],
+    "config": {},
+    "extra": {},
+    "version": 0.4
+  },
+  "startDate": "2025-01-01",
+  "endDate": "2026-11-14",
+  "timeframe": "1min",
+  "symbol": "SOLUSDT"
+}

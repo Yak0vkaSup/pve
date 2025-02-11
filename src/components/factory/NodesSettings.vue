@@ -46,7 +46,14 @@
       </option>
     </select>
 
-    <button @click="graphStore.compileGraph">Compile</button>
+    <button
+      @click="async () => {
+        await graphStore.saveGraphToServer();
+        graphStore.compileGraph();
+      }"
+    >
+      Compile
+    </button>
     <button @click="graphStore.downloadGraph">Download</button>
     <button @click="triggerFileUpload">Upload</button>
     <input type="file" ref="fileInput" @change="handleFileUpload" accept=".json" style="display: none" />
@@ -54,12 +61,19 @@
 </template>
 
 <script setup>
-import { useGraphStore } from '../stores/graph.ts'
-import { ref } from 'vue'
+import { useGraphStore } from '../../stores/graph.ts'
+import { onMounted, ref } from 'vue'
+import { useAuthStore } from '../../stores/auth.ts'
 
 const graphStore = useGraphStore()
 const fileInput = ref(null)
+const authStore = useAuthStore()
 
+onMounted(async () => {
+  if (!authStore.isAuthenticated) {
+    return
+  }
+})
 const handleGraphChange = () => {
   graphStore.loadGraphFromServer()
   graphStore.graphName = graphStore.selectedGraph

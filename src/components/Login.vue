@@ -35,7 +35,7 @@ function close() {
 window.onTelegramAuth = function (user: any) {
   // Store user info locally
   localStorage.setItem('telegramUser', JSON.stringify(user));
-  authStore.login(
+  authStore.silent_login(
     {
       id: user.id,
       first_name: user.first_name,
@@ -56,7 +56,6 @@ window.onTelegramAuth = function (user: any) {
     auth_date: user.auth_date,
     hash: user.hash
   };
-  console.log(userData);
   // Send the data to the backend
   fetch('https://pve.finance/api/telegram-auth', {
     method: 'POST',
@@ -67,20 +66,17 @@ window.onTelegramAuth = function (user: any) {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log('Response from server:', data);
       if (data.status === 'success') {
         localStorage.setItem('userToken', data.token);
         localStorage.setItem('userId', user.id);
         authStore.login(authStore.userInfo!, data.token);
-        console.log('Token saved to localStorage:', data.token);
+        emit('close');
       }
     })
     .catch((error) => {
       console.error('Error sending data to server:', error);
     });
 
-  // Hide login modal after successful authentication
-  emit('close');
 };
 
 // Dynamically load the Telegram login widget script

@@ -1,5 +1,7 @@
 # app/nodes/nodes.py
 import logging
+from decimal import Decimal
+
 import pandas as pd
 import pandas_ta as ta
 import json
@@ -833,10 +835,44 @@ def get_precision_and_min_move_bybit(symbol):
             return int(precision), min_move
         else:
             logger.error(f"Failed to fetch instrument info: {response.get('retMsg', 'Unknown error')}")
-            return 2, 0.01  # Default values
+            return None, None
     except Exception as e:
         logger.error(f"Error fetching instrument info: {e}")
-        return 2, 0.01  # Default values
+        return None, None
+
+def get_precision_and_min_move_local(symbol, json_filepath="bybit_instruments_info.json"):
+    """
+    Reads the local JSON file (downloaded from Bybit) and extracts the
+    precision and minimum move for the given symbol using the same algorithm.
+    """
+    try:
+        with open(json_filepath, "r") as f:
+            data = json.load(f)
+        if data.get("retCode") == 0 and data.get("result", {}).get("list"):
+            instrument_list = data["result"]["list"]
+            # Look for the instrument info matching the symbol (case-insensitive)
+            instrument_info = next(
+                (inst for inst in instrument_list if inst.get("symbol", "").upper() == symbol.upper()), None
+            )
+            if instrument_info:
+                tick_size = decimal.Decimal(str(instrument_info['priceFilter']['tickSize']))
+                price_scale = int(instrument_info.get('priceScale', 2))
+                if tick_size:
+                    precision = abs(tick_size.as_tuple().exponent)
+                    min_move = float(tick_size)
+                else:
+                    precision = price_scale
+                    min_move = 1 / (10 ** price_scale)
+                return int(precision), min_move
+            else:
+                logger.error(f"Symbol '{symbol}' not found in local JSON data.")
+                return None, None
+        else:
+            logger.error("Invalid JSON data structure or error code in JSON file.")
+            return None, None
+    except Exception as e:
+        logger.error(f"Error reading local JSON file: {e}")
+        return None, None
 
 def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     logger.info("Starting graph processing")
@@ -858,17 +894,18 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     df.set_index('date', inplace=True)
 
     # And here we need to resample it based on timeframe
-    df_resampled = df.resample(timeframe).agg({
-        'open': 'first',
-        'high': 'max',
-        'low': 'min',
-        'close': 'last',
-        'volume': 'sum',
-    })
+    if timeframe != "1min":
+        df = df.resample(timeframe).agg({
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'volume': 'sum',
+        })
 
-    df_resampled.reset_index(inplace=True)
-
-    Node.set_df(df_resampled)
+    df.reset_index(inplace=True)
+    
+    Node.set_df(df)
     Node.set_symbol(symbol)
 
     nodes = build_nodes(data['nodes'])
@@ -882,7 +919,7 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
 
     final_df = Node.get_df()
     # final_df.to_csv('test_out.csv', index=False)
-    precision, min_move = get_precision_and_min_move_bybit(symbol)
+    precision, min_move = get_precision_and_min_move_local(symbol)
     logger.debug(f"Fetched precision: {precision}, min_move: {min_move} for symbol: {symbol}")
 
     if final_df is not None:
