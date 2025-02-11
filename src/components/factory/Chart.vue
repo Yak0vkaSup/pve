@@ -36,7 +36,7 @@ function getRandomColor() {
 }
 
 // Load saved MA colors from localStorage
-const savedMaColors = JSON.parse(localStorage.getItem('maColors') || '{}')
+const savedMaColors = JSON.parse(localStorage.getItem('maColors') || '{"order_1":"#28914d","order_2":"#28914d","order_3":"#28914d","order_4":"#28914d","order_5":"#28914d"}')
 const precision = computed(() => wsStore.precision ?? 2); // Default to 2 if null
 const minMove = computed(() => wsStore.minMove ?? 0.01); // Default to 0.01 if null
 
