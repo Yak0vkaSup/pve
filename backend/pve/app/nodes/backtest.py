@@ -11,7 +11,6 @@ import random
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler("logs/backtester.log"),
-    logging.StreamHandler()
 ])
 
 session = HTTP(testnet=False)

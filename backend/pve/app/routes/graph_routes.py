@@ -182,7 +182,7 @@ def compile_graph():
                 'data': data,
                 'precision': precision,
                 'minMove': min_move
-            }, to=str(user_id), namespace='/')
+            }, to=str(user_id))
 
             return jsonify({'status': 'success', 'message': 'Compiled and data sent to chart'})
 

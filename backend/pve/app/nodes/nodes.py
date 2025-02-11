@@ -894,17 +894,18 @@ def process_graph(graph_json, start_date, end_date, symbol, timeframe):
     df.set_index('date', inplace=True)
 
     # And here we need to resample it based on timeframe
-    df_resampled = df.resample(timeframe).agg({
-        'open': 'first',
-        'high': 'max',
-        'low': 'min',
-        'close': 'last',
-        'volume': 'sum',
-    })
+    if timeframe != "1min":
+        df = df.resample(timeframe).agg({
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'volume': 'sum',
+        })
 
-    df_resampled.reset_index(inplace=True)
-
-    Node.set_df(df_resampled)
+    df.reset_index(inplace=True)
+    
+    Node.set_df(df)
     Node.set_symbol(symbol)
 
     nodes = build_nodes(data['nodes'])
