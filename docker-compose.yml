@@ -56,7 +56,7 @@ services:
       - /pve/node_modules
     ports:
       - "3000:3000"
-    command: ["node", "backend/server.js"]
+    command: ["sh", "-c", "npm run build && node backend/server.js"]
 
   nginx:
     image: nginx:alpine

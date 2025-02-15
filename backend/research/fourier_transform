@@ -1,0 +1,224 @@
+import time
+from pybit.unified_trading import HTTP
+import pandas as pd
+from datetime import datetime, timedelta, timezone
+from concurrent.futures import ThreadPoolExecutor
+from psycopg2 import pool
+import psycopg2
+from psycopg2.extras import execute_values
+import logging
+import os
+import pytz
+import plotly.graph_objects as go
+import numpy as np
+from scipy.signal import find_peaks
+
+
+session = HTTP(testnet=False)
+
+import numpy as np
+import plotly.graph_objects as go
+from scipy.signal import find_peaks
+
+
+def perform_fft(df, column_name="close", cutoff_frequency=0.01, plot=True):
+    if column_name not in df.columns:
+        raise ValueError(f"Column '{column_name}' does not exist in the DataFrame.")
+
+    data = df[column_name].values
+    N = len(data)
+
+    # --- CHOOSE YOUR SAMPLING INTERVAL (in days) IF YOU WANT cycles/day ---
+    # 15 minutes per bar
+    d = 15.0 / (24 * 60)  # 0.0104167 days per sample
+
+    # Compute FFT with the proper time step
+    fft_values = np.fft.fft(data)
+    fft_frequencies = np.fft.fftfreq(N, d=d)
+
+    # Focus on positive frequencies only (for a real signal)
+    half_N = N // 2
+    fft_values_half = fft_values[:half_N]
+    fft_frequencies_half = fft_frequencies[:half_N]
+
+    # Apply a simple low-pass filter by zeroing out beyond cutoff_frequency
+    # (Here, cutoff_frequency is in cycles/day if d is in days)
+    filtered_fft_values = fft_values_half.copy()
+    filtered_fft_values[np.abs(fft_frequencies_half) > cutoff_frequency] = 0.0
+
+    # Inverse FFT of the half-spectrum approach requires some caution,
+    # but for demonstration:
+    #    If you truly want a full-signal filter, you would zero out the
+    #    full spectrum symmetrically. For simplicity:
+    filtered_full = np.zeros_like(fft_values)
+    filtered_full[:half_N] = filtered_fft_values
+    filtered_full[-(half_N - 1):] = np.conj(filtered_fft_values[1:])
+
+    filtered_signal = np.fft.ifft(filtered_full).real
+
+    if plot:
+        fig = go.Figure()
+
+        # Magnitude of Original FFT (positive side)
+        fig.add_trace(go.Scatter(
+            x=fft_frequencies_half,
+            y=np.abs(fft_values_half),
+            mode='lines',
+            name='Original FFT (Pos Half)'
+        ))
+
+        # Magnitude of Filtered FFT (positive side)
+        fig.add_trace(go.Scatter(
+            x=fft_frequencies_half,
+            y=np.abs(filtered_fft_values),
+            mode='lines',
+            name='Filtered FFT (Pos Half)'
+        ))
+
+        # Original and Filtered Signals
+        fig.add_trace(go.Scatter(
+            x=df['timestamp'], y=data,
+            mode='lines',
+            name='Original Signal'
+        ))
+        fig.add_trace(go.Scatter(
+            x=df['timestamp'], y=filtered_signal,
+            mode='lines',
+            name='Filtered Signal'
+        ))
+
+        fig.update_layout(
+            title=f"FFT Analysis with Low-Pass Filter ({column_name})",
+            xaxis_title="Frequency (cycles/day)",
+            yaxis_title="Amplitude",
+            legend_title="Components"
+        )
+        fig.show()
+
+    return fft_frequencies_half, fft_values_half, filtered_signal
+
+
+def highlight_cycles(df, fft_frequencies, fft_values, sampling_interval, threshold=10):
+    magnitudes = np.abs(fft_values)
+    peaks, _ = find_peaks(magnitudes, height=threshold)
+
+    # Plot the original signal
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=df['timestamp'],
+            y=df['close'],
+            mode='lines',
+            name="Original"
+        )
+    )
+
+    # A dictionary to store segments by bars_per_cycle
+    # cycles_dict[bars_per_cycle] = list of (start_index, end_index) segments
+    cycles_dict = {}
+
+    for peak in peaks:
+        frequency = fft_frequencies[peak]
+        # Skip negative or zero frequencies
+        if frequency <= 0:
+            continue
+
+        period_in_minutes = (1.0 / frequency) * 1440.0
+        bars_per_cycle = int(round(period_in_minutes / sampling_interval))
+
+        # If you want to filter out cycles, do it here:
+        # For example, if bars_per_cycle != 18, skip
+        # if bars_per_cycle != 18:
+        #     continue
+
+        if bars_per_cycle < 30:
+            continue
+
+        # Collect segments
+        start_idx = 0
+        while start_idx + bars_per_cycle <= len(df):
+            end_idx = start_idx + bars_per_cycle
+            if bars_per_cycle not in cycles_dict:
+                cycles_dict[bars_per_cycle] = []
+            cycles_dict[bars_per_cycle].append((start_idx, end_idx))
+            start_idx = end_idx  # move to the next segment
+
+    # Decide how much to shift each cycle group
+    # For example, shift by 0.05 * (maxY-minY) for each group
+    y_shift_base = 0.3 * (df['close'].max() - df['close'].min())
+
+    # Sort cycle lengths so they stack neatly
+    sorted_bars = sorted(cycles_dict.keys())
+
+    for i, bpc in enumerate(sorted_bars):
+        # We'll shift each distinct bars_per_cycle by i * y_shift_base
+        offset = i * y_shift_base
+
+        # Plot each segment for this bars_per_cycle
+        for (start, end) in cycles_dict[bpc]:
+            # Shift the entire segment by the same offset
+            shifted_segment = df['close'][start:end] + offset
+            fig.add_trace(
+                go.Scatter(
+                    x=df['timestamp'][start:end],
+                    y=shifted_segment,
+                    mode='lines',
+                    name=f"{bpc} bars",
+                    showlegend=(True if start == 0 else False)  # show legend only once
+                )
+            )
+
+    fig.update_layout(
+        title="Highlighted Cycles (Grouped) with Single Shift per bars_per_cycle",
+        xaxis_title="Timestamp",
+        yaxis_title="Close Price",
+    )
+
+    fig.show()
+
+
+
+def get_candles(symbol, timeframe, start_date, end_date):
+    logging.debug(f"Fetching candles for {symbol} from {start_date} to {end_date}")
+    candles_data = []
+    limit_bars = 1000
+    while start_date < end_date:
+        candles = session.get_kline(symbol=symbol, interval=timeframe, start=int(start_date.timestamp() * 1000),
+                                    limit=limit_bars)
+        candles_list = candles['result']['list']
+        start_date = pd.to_datetime(int(candles_list[0][0]), unit='ms', utc=True)
+        candles_data += candles_list[::-1]  # .extend(candles_list.reverse())
+        if len(candles_list) < limit_bars:
+            break
+
+    df = pd.DataFrame(candles_data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms', utc=True)
+
+    df['close'] = pd.to_numeric(df['close'], errors='coerce')
+    df['open'] = pd.to_numeric(df['open'], errors='coerce')
+    df['high'] = pd.to_numeric(df['high'], errors='coerce')
+    df['low'] = pd.to_numeric(df['low'], errors='coerce')
+    df['volume'] = pd.to_numeric(df['volume'], errors='coerce')
+
+    df = df.drop_duplicates(subset='timestamp', keep='first')
+    print(f"Candles fetched and processed successfully for symbol - {symbol}")
+    return df
+
+
+
+def prepare_data(symbol, days, timeframe):
+    start_date = pd.Timestamp.now(tz=timezone.utc) - timedelta(days=days)
+    end_date = pd.Timestamp.now(tz=timezone.utc) - timedelta(minutes=1)
+    logging.info(f"Loading new data for {symbol} from {start_date} to {end_date}")
+    df = get_candles(symbol, 15, start_date, end_date)
+    return df
+
+if __name__ == '__main__':
+    days_ago = 90
+    timeframe = 15
+    df = prepare_data('SOLUSDT', days_ago, timeframe)
+
+    fft_frequencies, fft_values, filtered_signal = perform_fft(df, column_name="close", cutoff_frequency=0.01,
+                                                               plot=True)
+
+    highlight_cycles(df, fft_frequencies, fft_values, sampling_interval=timeframe, threshold=50)
