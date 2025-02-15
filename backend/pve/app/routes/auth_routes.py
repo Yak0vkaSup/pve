@@ -8,12 +8,36 @@ import hmac
 import hashlib
 import binascii
 import uuid
+import os
 
 auth_bp = Blueprint('auth_bp', __name__)
+
+
+def is_dev_mode():
+    return current_app.config.get('FLASK_ENV') == 'development'
 
 @auth_bp.route('/api/telegram-auth', methods=['POST'])
 @log_request
 def receive_telegram_auth():
+    if is_dev_mode():
+        # Simulate successful authentication in development mode
+        fake_user = {
+            "id": 6059244396,
+            "first_name": "Andrew",
+            "last_name": "",
+            "username": "",
+            "photo_url": "",
+            "auth_date": int(time.time())
+        }
+        user_token = str(uuid.uuid4())
+        save_user_token(fake_user, user_token)
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Development mode: Authentication bypassed',
+            'token': 'f2c606c9-0f5f-424e-8839-f4d74e50c571'
+        })
+        
     BOT_TOKEN = current_app.config['TELEGRAM_BOT_TOKEN']
     try:
         user_data = request.get_json()
@@ -48,7 +72,8 @@ def receive_telegram_auth():
 
 @auth_bp.route('/api/verify-token', methods=['POST'])
 @log_request
-def verify_token():
+def verify_token(): 
+        
     try:
         data = request.get_json()
         user_id = data.get('id')

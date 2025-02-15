@@ -8,6 +8,7 @@ from ..models.graph_model import Graph
 from ..utils.logger import log_request, delete_file_after_delay, SocketIOLogHandler
 from ..nodes.nodes import process_graph
 from ..socketio_setup import socketio
+from functools import wraps
 import json
 import logging
 import pandas as pd
@@ -17,6 +18,35 @@ import datetime
 TEMP_DIR = "/backtest_files"
 
 graph_bp = Blueprint('graph_bp', __name__)
+
+
+
+def is_dev_mode():
+    """Check if Flask is running in development mode."""
+    return current_app.config.get('FLASK_ENV') == 'development'
+
+
+def token_required(f):
+    """Decorator to enforce authentication only in production mode."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if is_dev_mode():
+            # Bypass authentication in development mode
+            return f(*args, **kwargs)
+
+        # Normal authentication process
+        token = request.headers.get('Authorization')
+
+        if not token:
+            return jsonify({'status': 'error', 'message': 'Missing authentication token'}), 401
+
+        # Perform token verification
+        if not verify_token_logic(token):  # Replace with actual token verification function
+            return jsonify({'status': 'error', 'message': 'Invalid or expired token'}), 403
+
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 @graph_bp.route('/api/save-graph', methods=['POST'])
 @log_request

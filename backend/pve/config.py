@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
     DEBUG = False
@@ -9,6 +12,8 @@ class Config:
     DB_NAME = os.environ.get('DB_NAME', 'postgres')
     DB_USER = os.environ.get('DB_USER', 'postgres')
     DB_PASSWORD = os.environ.get('DB_PASSWORD', 'postgres')
+    
+    FLASK_ENV = os.getenv('FLASK_ENV', 'development')
 
     # Telegram Bot Token
     TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '6180226975:AAHePZ0wipSWogSkZDFXmf6tm8DwDXVPgJI')

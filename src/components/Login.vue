@@ -1,6 +1,6 @@
 <!-- src/components/Login.vue -->
 <template>
-  <div class="modal-overlay" @click.self="close">
+  <div class="modal-overlay" @click.self="close" v-if="!isDevMode || !authStore.isAuthenticated">
     <div class="modal">
       <div class="telegram-container">
         <div id="telegram-login" v-if="!authStore.isAuthenticated"></div>
@@ -12,12 +12,15 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-
+const mode = import.meta.env.VITE_APP_ENV;
+console.log(`Current mode: ${mode}`);
 // Props
 const emit = defineEmits(['close']);
 
 // Store
 const authStore = useAuthStore();
+
+const isDevMode = import.meta.env.VITE_APP_ENV === 'development';
 
 // Declare global interface augmentation
 declare global {
@@ -81,18 +84,32 @@ window.onTelegramAuth = function (user: any) {
 
 // Dynamically load the Telegram login widget script
 onMounted(() => {
-  if (!authStore.isAuthenticated) {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://telegram.org/js/telegram-widget.js?22';
-    script.setAttribute('data-telegram-login', 'pvetrader_bot');
-    script.setAttribute('data-size', 'large');
-    script.setAttribute('data-userpic', 'false');
-    script.setAttribute('data-request-access', 'write');
-    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-    document.getElementById('telegram-login')?.appendChild(script);
+  if (isDevMode) {
+    console.log("Dev mode detected: Auto-login enabled");
+    const fakeUser = {
+      id: 6059244396,
+      first_name: "Andrew",
+      last_name: "",
+      username: "",
+      photo_url: "",
+      auth_date: Date.now(),
+      hash: "fakehash"
+    };
+    window.onTelegramAuth(fakeUser);
+  } else {
+    if (!authStore.isAuthenticated) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://telegram.org/js/telegram-widget.js?22';
+      script.setAttribute('data-telegram-login', 'pvetrader_bot');
+      script.setAttribute('data-size', 'large');
+      script.setAttribute('data-userpic', 'false');
+      script.setAttribute('data-request-access', 'write');
+      script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+      document.getElementById('telegram-login')?.appendChild(script);
+    }
   }
-});
+})
 </script>
 
 <style scoped>

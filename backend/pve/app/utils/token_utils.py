@@ -49,23 +49,32 @@ def verify_user_token(user_id, user_token):
         return result[0] == user_token
     return False
 
+from functools import wraps
+from flask import request, jsonify, current_app
+
+def is_dev_mode():
+    """Check if Flask is running in development mode."""
+    return current_app.config.get('FLASK_ENV') == 'development'
+
 def token_required(f):
+    """Decorator to enforce authentication only in production mode."""
     @wraps(f)
-    def decorated(*args, **kwargs):
-        user_token = None
-        if request.method == 'POST':
-            data = request.get_json()
-            user_token = data.get('token')
-            user_id = data.get('id') or data.get('user_id')
-        else:
-            user_token = request.args.get('token')
-            user_id = request.args.get('id') or request.args.get('user_id')
+    def decorated_function(*args, **kwargs):
+        if is_dev_mode():
+            # Bypass authentication in development mode
+            return f(*args, **kwargs)
 
-        if not user_token or not user_id:
-            return jsonify({'status': 'error', 'message': 'Token or user ID is missing'}), 403
+        # Normal authentication process
+        token = request.headers.get('Authorization')
 
-        if not verify_user_token(user_id, user_token):
-            return jsonify({'status': 'error', 'message': 'Session expired or invalid token'}), 401
+        if not token:
+            return jsonify({'status': 'error', 'message': 'Missing authentication token'}), 401
+
+        # Perform token verification (Replace this with your actual verification function)
+        if not verify_user_token_logic(token):  # Replace with actual token verification function
+            return jsonify({'status': 'error', 'message': 'Invalid or expired token'}), 403
 
         return f(*args, **kwargs)
-    return decorated
+
+    return decorated_function
+

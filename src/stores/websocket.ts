@@ -28,7 +28,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       return;
     }
 
-    socket.value = io('wss://pve.finance', {
+    socket.value = io('ws://localhost:3000', {
       path: '/api/ws/socket.io',
       query: {
         user_id: userId,

@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { toast } from 'vue3-toastify';
-import axios from 'axios'; // Import Axios
+import axios from 'axios';
+
 const pve = { position: toast.POSITION.BOTTOM_RIGHT };
 
 interface UserInfo {
@@ -16,6 +17,9 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(false);
   const userInfo = ref<UserInfo | null>(null);
   const token = ref<string | null>(null);
+
+  // Check if the app is running in development mode
+  const isDevMode = import.meta.env.VITE_APP_ENV === 'development';
 
   function login(user: UserInfo, userToken: string) {
     userInfo.value = user;
@@ -32,10 +36,9 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = true;
     localStorage.setItem('userToken', userToken);
     localStorage.setItem('telegramUser', JSON.stringify(user));
-    // No toast notification here
   }
 
-  function silent_logout(){
+  function silent_logout() {
     userInfo.value = null;
     token.value = null;
     isAuthenticated.value = false;
@@ -53,6 +56,22 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function initializeAuth() {
+    if (isDevMode) {
+      console.log("Development mode detected: Auto-login enabled");
+
+      const fakeUser: UserInfo = {
+        id: "6059244396",
+        first_name: "Andrew",
+        last_name: "",
+        username: "",
+        photo_url: "",
+      };
+
+      const fakeToken = "f2c606c9-0f5f-424e-8839-f4d74e50c571";
+      login(fakeUser, fakeToken);
+      return;
+    }
+
     const storedToken = localStorage.getItem('userToken');
     const storedUser = localStorage.getItem('telegramUser');
 
