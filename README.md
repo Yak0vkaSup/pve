@@ -138,7 +138,7 @@ graph TB
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/pve.git
+   git clone https://github.com/Yak0vkaSup/pve.git
    cd pve
    ```
 
