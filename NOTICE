@@ -1,0 +1,18 @@
+PVE (Platform Visual Engine)
+Copyright 2024 Iakov Belkov
+
+This product includes software developed by Iakov Belkov.
+
+Original work: PVE Platform - A Visual Programming Language for Cryptocurrency Trading Strategies
+Author: Iakov Belkov
+GitHub: https://github.com/Yak0vkaSup/pve
+
+This software contains components from the following open source projects:
+
+- Vue.js (MIT License) - https://vuejs.org/
+- Flask (BSD License) - https://flask.palletsprojects.com/
+- LiteGraph.js (MIT License) - https://github.com/jagenjo/litegraph.js
+- TimescaleDB (Apache 2.0 License) - https://www.timescale.com/
+- Chart.js (MIT License) - https://www.chartjs.org/
+
+For questions about this software, please contact the original author. 

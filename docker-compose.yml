@@ -1,0 +1,162 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: timescale/timescaledb:latest-pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_NAME:-postgres}
+      - POSTGRES_MAX_CONNECTIONS=5000
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  
+      - ./backend/db_init_query.SQL:/docker-entrypoint-initdb.d/db_init_query.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /pve/backend
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/pve
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-dev}
+      - PYTHONPATH=/pve/backend
+      - DB_HOST=postgresql
+      - DB_NAME=${DB_NAME:-postgres}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["python", "pve/run.py"]
+    restart: unless-stopped
+
+  data-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/pve
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-dev}
+      - PYTHONPATH=/pve/backend
+      - DB_HOST=postgresql
+      - DB_NAME=${DB_NAME:-postgres}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    working_dir: /pve/backend
+    command: ["sh", "-c", "python pve/app/workers/bybit.py > /dev/null 2>&1 & cd /pve/backend && python manager.py"]
+    restart: unless-stopped
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /pve/backend
+    volumes:
+      - .:/pve
+    environment:
+      - PYTHONPATH=/pve/backend
+      - DB_HOST=postgresql
+      - DB_NAME=${DB_NAME:-postgres}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["celery", "-A", "pve.app.celery", "worker", "--loglevel=info"]
+    restart: unless-stopped
+
+  bot-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/pve
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-dev}
+      - PYTHONPATH=/pve/backend
+      - DB_HOST=postgresql
+      - DB_NAME=${DB_NAME:-postgres}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    working_dir: /pve/backend
+    command:
+      - python
+      - -c
+      - |
+        import eventlet
+        eventlet.monkey_patch()
+        from pve.app.pvebot.main import main
+        main()
+    restart: unless-stopped
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    volumes:
+      - .:/pve
+      - /pve/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_APP_ENV=${VITE_APP_ENV:-dev}
+      - JWT_SECRET=${JWT_SECRET}
+    command: ["sh", "-c", "npm run build && node backend/server.js"]
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./dist:/usr/share/nginx/html:ro
+      - ./backend/nginx.conf:/etc/nginx/nginx.conf:ro
+      # - ./certs:/etc/nginx/certs:ro  # Uncomment and provide SSL certificates for HTTPS
+    ports:
+      - "80:80"
+      # - "443:443"  # Uncomment for HTTPS
+    depends_on:
+      - webserver
+      - api
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  postgres_data: 

@@ -1,0 +1,5111 @@
+{
+  "graph": {
+    "last_node_id": 587,
+    "last_link_id": 1004,
+    "nodes": [
+      {
+        "id": 98,
+        "type": "set/integer",
+        "pos": [
+          -309.7185847827145,
+          266.5129778056336
+        ],
+        "size": [
+          125,
+          50
+        ],
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              148
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 100
+        },
+        "widgets_values": [
+          100
+        ]
+      },
+      {
+        "id": 92,
+        "type": "get/low",
+        "pos": [
+          -300.43264807617186,
+          -57.927547187499954
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              142
+            ],
+            "name": "low",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 254,
+        "type": "set/bool",
+        "pos": [
+          1436.097227929684,
+          -368.8735103540035
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              726
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      },
+      {
+        "id": 324,
+        "type": "get/close",
+        "pos": [
+          1404.561327929684,
+          -275.33761035400363
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              727
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 439,
+        "type": "trade/create_order",
+        "pos": [
+          1879.5613279296836,
+          -504.33761035400397
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 106
+        },
+        "flags": {},
+        "order": 82,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 931,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 725,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 726,
+            "name": "Limit/Market",
+            "type": "bool"
+          },
+          {
+            "link": 727,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 875,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              730,
+              733
+            ],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "direction: true/falsetype: true/false"
+        }
+      },
+      {
+        "id": 321,
+        "type": "set/bool",
+        "pos": [
+          1461.8516279296873,
+          120.37518964599491
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              735
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 426,
+        "type": "trade/create_order",
+        "pos": [
+          2802.934473437498,
+          -24.031240258789012
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 106
+        },
+        "flags": {},
+        "order": 83,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 730,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 685,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 686,
+            "name": "Limit/Market",
+            "type": "bool"
+          },
+          {
+            "link": 871,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 895,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "links": [
+              760
+            ],
+            "name": "ID",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "direction: true/falsetype: true/false"
+        }
+      },
+      {
+        "id": 451,
+        "type": "logic/if",
+        "pos": [
+          3291.934473437498,
+          43.96875974121075
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 88,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 761,
+            "name": "Bool",
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              762
+            ],
+            "name": "True",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "False",
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 452,
+        "type": "trade/cancel_all_order",
+        "pos": [
+          3513.934473437498,
+          52.968759741210704
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 91,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 762,
+            "name": "Exec",
+            "type": "exec"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "Exec",
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 450,
+        "type": "trade/get_order",
+        "pos": [
+          3060.934473437498,
+          -27.031240258789037
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 85,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 760,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              786
+            ],
+            "name": "ID",
+            "slot_index": 0,
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              761
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 390,
+        "type": "set/bool",
+        "pos": [
+          1515.561327929684,
+          601.6623896460004
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              740
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 387,
+        "type": "get/close",
+        "pos": [
+          1436.561327929684,
+          712.6623896459994
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 6,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              633
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 441,
+        "type": "trade/create_order",
+        "pos": [
+          1826.5613279296838,
+          563.6623896460006
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 106
+        },
+        "flags": {},
+        "order": 86,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 745,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 739,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 740,
+            "name": "Limit/Market",
+            "type": "bool"
+          },
+          {
+            "link": 854,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 883,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              807
+            ],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": [
+              809
+            ],
+            "name": "ID",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "direction: true/falsetype: true/false"
+        }
+      },
+      {
+        "id": 319,
+        "type": "math/multiply_float",
+        "pos": [
+          1553.4983134374975,
+          212.29599684814426
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 68,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 536,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 537,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              736
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 318,
+        "type": "get/close",
+        "pos": [
+          1382.4983134374975,
+          231.29599684814434
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 7,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              536
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 440,
+        "type": "trade/create_order",
+        "pos": [
+          1869.498313437497,
+          55.29599684814451
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 106
+        },
+        "flags": {},
+        "order": 84,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 733,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 734,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 735,
+            "name": "Limit/Market",
+            "type": "bool"
+          },
+          {
+            "link": 736,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 879,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              745
+            ],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": [
+              782
+            ],
+            "name": "ID",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "direction: true/falsetype: true/false"
+        }
+      },
+      {
+        "id": 388,
+        "type": "math/multiply_float",
+        "pos": [
+          1607.561327929684,
+          693.6623896459995
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 69,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 633,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 634,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              854
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 271,
+        "type": "get/close",
+        "pos": [
+          2366.934473437498,
+          157.968759741211
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 8,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              463
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 272,
+        "type": "math/multiply_float",
+        "pos": [
+          2578.934473437498,
+          121.9687597412109
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 60,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 463,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 464,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              871
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 505,
+        "type": "get/close",
+        "pos": [
+          1472.4983134374975,
+          -114.70400315185539
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 9,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              874
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 520,
+        "type": "math/divide_float",
+        "pos": [
+          1712.4983134374975,
+          -210.13735276123035
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 54,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 873,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 874,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              875
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 508,
+        "type": "get/close",
+        "pos": [
+          1544.4983134374975,
+          404.29599684814553
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 10,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              878
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 521,
+        "type": "math/divide_float",
+        "pos": [
+          1813.4983134374982,
+          288.86264723876957
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 56,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 877,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 878,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              879
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 511,
+        "type": "get/close",
+        "pos": [
+          1587.4983134374975,
+          869.2959968481467
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 11,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              882
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 522,
+        "type": "math/divide_float",
+        "pos": [
+          1745.4983134374975,
+          777.2959968481472
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 57,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 881,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 882,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              883
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 525,
+        "type": "math/divide_float",
+        "pos": [
+          2819.2414802734356,
+          266.79859372558593
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 59,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 893,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 894,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              895
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 256,
+        "type": "set/float",
+        "pos": [
+          1473.4983134374975,
+          -189.70400315185523
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 12,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              873
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 20
+        },
+        "widgets_values": [
+          20
+        ]
+      },
+      {
+        "id": 274,
+        "type": "set/float",
+        "pos": [
+          2575.934473437498,
+          260.968759741211
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 13,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              893
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 20
+        },
+        "widgets_values": [
+          20
+        ]
+      },
+      {
+        "id": 544,
+        "type": "tools/add_indicator",
+        "pos": [
+          372.02938947265625,
+          294.96738206054704
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 73,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 928,
+            "name": "Indicator",
+            "type": "float"
+          },
+          {
+            "link": null,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 79,
+        "type": "logic/if",
+        "pos": [
+          1438.3154292656209,
+          -551.1650626430664
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 80,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 936,
+            "name": "Condition",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              930
+            ],
+            "name": "True",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "False",
+            "slot_index": 1,
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 545,
+        "type": "trade/cancel_all_order",
+        "pos": [
+          1662.1401904296845,
+          -546.6390800781247
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 81,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 930,
+            "name": "Exec",
+            "type": "exec"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              931
+            ],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 546,
+        "type": "trade/get_position",
+        "pos": [
+          551.0293894726561,
+          210.9673820605472
+        ],
+        "size": {
+          "0": 140,
+          "1": 66
+        },
+        "flags": {},
+        "order": 14,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": [
+              933
+            ],
+            "name": "Quantity",
+            "slot_index": 1,
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "integer"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 549,
+        "type": "set/float",
+        "pos": [
+          645.0293894726562,
+          379.96738206054687
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 15,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              934
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 0
+        },
+        "widgets_values": [
+          0
+        ]
+      },
+      {
+        "id": 550,
+        "type": "compare/equal",
+        "pos": [
+          782.7074984570304,
+          264.5002368457033
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 55,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 933,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 934,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              935
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 507,
+        "type": "set/float",
+        "pos": [
+          1545.4983134374975,
+          329.2959968481446
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 16,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              877
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 25
+        },
+        "widgets_values": [
+          25
+        ]
+      },
+      {
+        "id": 510,
+        "type": "set/float",
+        "pos": [
+          1588.0362705664047,
+          793.8975619543489
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 17,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              881
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 30
+        },
+        "widgets_values": [
+          30
+        ]
+      },
+      {
+        "id": 542,
+        "type": "tools/add_indicator",
+        "pos": [
+          387.02938947265625,
+          -64.03261793945308
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 77,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 927,
+            "name": "Indicator",
+            "type": "float"
+          },
+          {
+            "link": null,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 551,
+        "type": "get/high",
+        "pos": [
+          -287.49106096679697,
+          161.79201218750018
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 18,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              942
+            ],
+            "name": "high",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 400,
+        "type": "logic/if",
+        "pos": [
+          2641.235374040622,
+          1792.7904756937512
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 102,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 980,
+            "name": "Bool",
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              772
+            ],
+            "name": "True",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "False",
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 540,
+        "type": "trade/get_position",
+        "pos": [
+          2551.235374040622,
+          1984.7904756937517
+        ],
+        "size": {
+          "0": 140,
+          "1": 66
+        },
+        "flags": {},
+        "order": 19,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              922
+            ],
+            "name": "Price",
+            "slot_index": 0,
+            "type": "float"
+          },
+          {
+            "links": [
+              923
+            ],
+            "name": "Quantity",
+            "slot_index": 1,
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "integer"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 403,
+        "type": "math/multiply_float",
+        "pos": [
+          2807.235374040622,
+          2054.790475693746
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 62,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 922,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 649,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              748
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 442,
+        "type": "trade/create_conditional_order",
+        "pos": [
+          2986.235374040622,
+          1819.79047569375
+        ],
+        "size": [
+          200,
+          90
+        ],
+        "flags": {},
+        "order": 104,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 772,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 747,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 748,
+            "name": "Trigger Price",
+            "type": "float"
+          },
+          {
+            "link": 923,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": [
+              766
+            ],
+            "name": "ID",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "Always market order"
+        }
+      },
+      {
+        "id": 455,
+        "type": "trade/get_order",
+        "pos": [
+          3276.235374040622,
+          1835.79047569375
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 106,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 766,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              767
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 456,
+        "type": "logic/if",
+        "pos": [
+          3488.235374040622,
+          1909.7904756937517
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 108,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 767,
+            "name": "Bool",
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              780
+            ],
+            "name": "True",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "False",
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 467,
+        "type": "trade/cancel_all_order",
+        "pos": [
+          3719.235374040622,
+          1914.7904756937517
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 109,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 780,
+            "name": "Exec",
+            "type": "exec"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 469,
+        "type": "trade/get_order",
+        "pos": [
+          2362.709024609374,
+          487.4307778076174
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 87,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 782,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [],
+            "name": "ID",
+            "slot_index": 0,
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              821
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "slot_index": 5,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 484,
+        "type": "trade/get_order",
+        "pos": [
+          2365.709024609374,
+          666.4307778076164
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 90,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 809,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              822
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 493,
+        "type": "trade/get_order",
+        "pos": [
+          2367.709024609374,
+          844.4307778076169
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 93,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 818,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              823
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 494,
+        "type": "logic/or",
+        "pos": [
+          2664.709024609374,
+          635.4307778076164
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 95,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 821,
+            "name": "Bool",
+            "type": "bool"
+          },
+          {
+            "link": 822,
+            "name": "Bool",
+            "slot_index": 1,
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              825
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 468,
+        "type": "trade/modify_order",
+        "pos": [
+          3471.709024609374,
+          365.43077780761735
+        ],
+        "size": {
+          "0": 140,
+          "1": 86
+        },
+        "flags": {},
+        "order": 107,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 791,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 786,
+            "name": "ID",
+            "type": "string"
+          },
+          {
+            "link": 798,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 921,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 475,
+        "type": "math/multiply_float",
+        "pos": [
+          3224.709024609374,
+          377.43077780761735
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 61,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 920,
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          },
+          {
+            "link": 800,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              798
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 539,
+        "type": "trade/get_position",
+        "pos": [
+          2898.709024609374,
+          418.43077780761723
+        ],
+        "size": {
+          "0": 140,
+          "1": 66
+        },
+        "flags": {},
+        "order": 20,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              920
+            ],
+            "name": "Price",
+            "slot_index": 0,
+            "type": "float"
+          },
+          {
+            "links": [
+              921
+            ],
+            "name": "Quantity",
+            "slot_index": 1,
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "integer"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 518,
+        "type": "get/close",
+        "pos": [
+          2588.709024609374,
+          347.43077780761735
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 21,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              894
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 286,
+        "type": "set/bool",
+        "pos": [
+          2451.709024609374,
+          59.430777807617076
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 22,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              686
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 548,
+        "type": "logic/and",
+        "pos": [
+          1281.6775787402325,
+          0.877168115234388
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 79,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 983,
+            "name": "Bool",
+            "type": "bool"
+          },
+          {
+            "link": 935,
+            "name": "Bool",
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              936
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 253,
+        "type": "set/bool",
+        "pos": [
+          1504.561327929684,
+          -453.33761035400374
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 23,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              725
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      },
+      {
+        "id": 320,
+        "type": "set/bool",
+        "pos": [
+          1520.8516279296873,
+          60.37518964599528
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 24,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              734
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      },
+      {
+        "id": 389,
+        "type": "set/bool",
+        "pos": [
+          1574.561327929684,
+          541.6623896460013
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 25,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              739
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      },
+      {
+        "id": 401,
+        "type": "set/bool",
+        "pos": [
+          2735.235374040622,
+          1890.7904756937514
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 26,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              747
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 270,
+        "type": "set/bool",
+        "pos": [
+          2455.709024609374,
+          -29.569222192382746
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 27,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              685
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 552,
+        "type": "compare/smaller",
+        "pos": [
+          331,
+          138
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 74,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 950,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 949,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              945
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 273,
+        "type": "set/float",
+        "pos": [
+          2392.709024609374,
+          244.43077780761732
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 28,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              464,
+              800
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 0.99
+        },
+        "widgets_values": [
+          0.99
+        ]
+      },
+      {
+        "id": 99,
+        "type": "get/open",
+        "pos": [
+          -11.718584782716277,
+          165.51297780563323
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 29,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              950
+            ],
+            "name": "open",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 404,
+        "type": "set/float",
+        "pos": [
+          2603.235374040622,
+          2116.790475693744
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 30,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              649
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 1.03
+        },
+        "widgets_values": [
+          1.03
+        ]
+      },
+      {
+        "id": 80,
+        "type": "compare/cross_over",
+        "pos": [
+          383.02938947265625,
+          -173.032617939453
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 76,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 442,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 443,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              722
+            ],
+            "name": "Condition",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 453,
+        "type": "trade/get_order",
+        "pos": [
+          2381.709024609374,
+          1037.430777807618
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 94,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 925,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              824
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 495,
+        "type": "logic/or",
+        "pos": [
+          2681.709024609374,
+          898.4307778076171
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 98,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 823,
+            "name": "Bool",
+            "type": "bool"
+          },
+          {
+            "link": 824,
+            "name": "Bool",
+            "slot_index": 1,
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              826
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 523,
+        "type": "math/divide_float",
+        "pos": [
+          1888,
+          1203
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 63,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 885,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 886,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              887
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 482,
+        "type": "set/float",
+        "pos": [
+          1652,
+          1217
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 31,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              885
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 35
+        },
+        "widgets_values": [
+          35
+        ]
+      },
+      {
+        "id": 513,
+        "type": "get/close",
+        "pos": [
+          1642,
+          1301
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 32,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              886
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 478,
+        "type": "math/multiply_float",
+        "pos": [
+          1603,
+          1109
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 70,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 801,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 802,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              859
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 479,
+        "type": "set/bool",
+        "pos": [
+          1570,
+          957
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 33,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              803
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      },
+      {
+        "id": 480,
+        "type": "set/bool",
+        "pos": [
+          1511,
+          1017
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 34,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              804
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 477,
+        "type": "get/close",
+        "pos": [
+          1432,
+          1128
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 35,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              801
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 554,
+        "type": "get/close",
+        "pos": [
+          1468.2039497558583,
+          1620.8483997985893
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 36,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              953
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 555,
+        "type": "math/multiply_float",
+        "pos": [
+          1639.2039497558583,
+          1601.8483997985893
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 71,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 953,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 954,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              957
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 562,
+        "type": "get/close",
+        "pos": [
+          1678.2039497558583,
+          1793.8483997985895
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 37,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              961
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 563,
+        "type": "math/divide_float",
+        "pos": [
+          1924.2039497558583,
+          1695.8483997985893
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 64,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 960,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 961,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              958
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 556,
+        "type": "set/bool",
+        "pos": [
+          1606,
+          1450
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 38,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              955
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      },
+      {
+        "id": 557,
+        "type": "set/bool",
+        "pos": [
+          1547,
+          1510
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 39,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              956
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 565,
+        "type": "get/close",
+        "pos": [
+          1414.0321552001983,
+          2005.9075999938977
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 40,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              963
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 566,
+        "type": "math/multiply_float",
+        "pos": [
+          1585.0321552001983,
+          1986.9075999938975
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {
+          "collapsed": false
+        },
+        "order": 72,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 963,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 964,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              967
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 567,
+        "type": "set/bool",
+        "pos": [
+          1552.0321552001983,
+          1834.9075999938984
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 41,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              965
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      },
+      {
+        "id": 568,
+        "type": "set/bool",
+        "pos": [
+          1493.0321552001983,
+          1894.9075999938984
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 42,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              966
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 571,
+        "type": "trade/create_order",
+        "pos": [
+          1804.0321552001985,
+          1856.9075999938984
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 106
+        },
+        "flags": {},
+        "order": 96,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 982,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 965,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 966,
+            "name": "Limit/Market",
+            "type": "bool"
+          },
+          {
+            "link": 967,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 968,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": [
+              962
+            ],
+            "name": "ID",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "direction: true/falsetype: true/false"
+        }
+      },
+      {
+        "id": 573,
+        "type": "get/close",
+        "pos": [
+          1624.0321552001983,
+          2178.9075999938955
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 43,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              971
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 574,
+        "type": "math/divide_float",
+        "pos": [
+          1870.032155200198,
+          2080.9075999938955
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 65,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 970,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 971,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              968
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 559,
+        "type": "set/float",
+        "pos": [
+          1688.2039497558583,
+          1709.8483997985893
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 44,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              960
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 40
+        },
+        "widgets_values": [
+          40
+        ]
+      },
+      {
+        "id": 570,
+        "type": "set/float",
+        "pos": [
+          1634.0321552001983,
+          2094.9075999938955
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 45,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              970
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 45
+        },
+        "widgets_values": [
+          45
+        ]
+      },
+      {
+        "id": 496,
+        "type": "logic/or",
+        "pos": [
+          2917,
+          745
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 100,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 825,
+            "name": "Bool",
+            "type": "bool"
+          },
+          {
+            "link": 826,
+            "name": "Bool",
+            "slot_index": 1,
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              978
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 470,
+        "type": "logic/if",
+        "pos": [
+          3376,
+          925
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 105,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 979,
+            "name": "Bool",
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              791
+            ],
+            "name": "True",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "False",
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 564,
+        "type": "trade/get_order",
+        "pos": [
+          2391,
+          1424
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 99,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 962,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              972,
+              980
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 553,
+        "type": "trade/get_order",
+        "pos": [
+          2394,
+          1213
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 97,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 952,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              973
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 575,
+        "type": "logic/or",
+        "pos": [
+          3137,
+          884
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 103,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 978,
+            "name": "Bool",
+            "type": "bool"
+          },
+          {
+            "link": 977,
+            "name": "Bool",
+            "slot_index": 1,
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              979
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 561,
+        "type": "logic/or",
+        "pos": [
+          2775,
+          1223
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 101,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 973,
+            "name": "Bool",
+            "type": "bool"
+          },
+          {
+            "link": 972,
+            "name": "Bool",
+            "slot_index": 1,
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              977
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 483,
+        "type": "trade/create_order",
+        "pos": [
+          1822,
+          979
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 106
+        },
+        "flags": {},
+        "order": 89,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 807,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 803,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 804,
+            "name": "Limit/Market",
+            "type": "bool"
+          },
+          {
+            "link": 859,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 887,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              981
+            ],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": [
+              818,
+              925
+            ],
+            "name": "ID",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "direction: true/falsetype: true/false"
+        }
+      },
+      {
+        "id": 560,
+        "type": "trade/create_order",
+        "pos": [
+          1858,
+          1472
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 106
+        },
+        "flags": {},
+        "order": 92,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 981,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 955,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 956,
+            "name": "Limit/Market",
+            "type": "bool"
+          },
+          {
+            "link": 957,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 958,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              982
+            ],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": [
+              952
+            ],
+            "name": "ID",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "direction: true/falsetype: true/false"
+        }
+      },
+      {
+        "id": 432,
+        "type": "logic/and",
+        "pos": [
+          724.0293894726562,
+          -53.03261793945309
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 78,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 722,
+            "name": "Bool",
+            "type": "bool"
+          },
+          {
+            "link": 945,
+            "name": "Bool",
+            "slot_index": 1,
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              983
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 60,
+        "type": "indicators/ma",
+        "pos": [
+          -24.280651677247363,
+          -57.641021381836424
+        ],
+        "size": {
+          "0": 210,
+          "1": 78
+        },
+        "flags": {},
+        "order": 67,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 142,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 145,
+            "name": "Length",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              442,
+              927
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "ma_type": "ema"
+        },
+        "widgets_values": [
+          "ema"
+        ]
+      },
+      {
+        "id": 58,
+        "type": "indicators/ma",
+        "pos": [
+          -34.28065167724711,
+          -213.641021381836
+        ],
+        "size": {
+          "0": 210,
+          "1": 78
+        },
+        "flags": {},
+        "order": 66,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 534,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 144,
+            "name": "Length",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              443,
+              926
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "ma_type": "zlma"
+        },
+        "widgets_values": [
+          "zlma"
+        ]
+      },
+      {
+        "id": 316,
+        "type": "get/low",
+        "pos": [
+          -288.432648076172,
+          -236.92754718750007
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 46,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              534
+            ],
+            "name": "low",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 543,
+        "type": "tools/add_indicator",
+        "pos": [
+          371,
+          -269
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 75,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 926,
+            "name": "Indicator",
+            "type": "float"
+          },
+          {
+            "link": null,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 94,
+        "type": "set/integer",
+        "pos": [
+          -293.28065167724594,
+          -165.64102138183566
+        ],
+        "size": [
+          125,
+          50
+        ],
+        "flags": {},
+        "order": 47,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              144
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 7
+        },
+        "widgets_values": [
+          7
+        ]
+      },
+      {
+        "id": 95,
+        "type": "set/integer",
+        "pos": [
+          -297.2806516772457,
+          14.358978618164457
+        ],
+        "size": [
+          125,
+          50
+        ],
+        "flags": {},
+        "order": 48,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              145
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 14
+        },
+        "widgets_values": [
+          14
+        ]
+      },
+      {
+        "id": 97,
+        "type": "indicators/ma",
+        "pos": [
+          -55.71858478271649,
+          246.51297780563334
+        ],
+        "size": {
+          "0": 210,
+          "1": 78
+        },
+        "flags": {},
+        "order": 58,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 942,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 148,
+            "name": "Length",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              928,
+              949
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "ma_type": "linreg"
+        },
+        "widgets_values": [
+          "linreg"
+        ]
+      },
+      {
+        "id": 323,
+        "type": "set/float",
+        "pos": [
+          1408.4983134374975,
+          312.29599684814457
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 49,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              537
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 1.02
+        },
+        "widgets_values": [
+          1.02
+        ]
+      },
+      {
+        "id": 391,
+        "type": "set/float",
+        "pos": [
+          1450.561327929684,
+          791.6623896459986
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 50,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              634
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 1.04
+        },
+        "widgets_values": [
+          1.04
+        ]
+      },
+      {
+        "id": 481,
+        "type": "set/float",
+        "pos": [
+          1446,
+          1207
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 51,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              802
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 1.06
+        },
+        "widgets_values": [
+          1.06
+        ]
+      },
+      {
+        "id": 558,
+        "type": "set/float",
+        "pos": [
+          1482.2039497558583,
+          1699.8483997985893
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 52,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              954
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 1.09
+        },
+        "widgets_values": [
+          1.09
+        ]
+      },
+      {
+        "id": 569,
+        "type": "set/float",
+        "pos": [
+          1428.0321552001983,
+          2084.9075999938955
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 53,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              964
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 1.12
+        },
+        "widgets_values": [
+          1.12
+        ]
+      }
+    ],
+    "links": [
+      [
+        142,
+        92,
+        0,
+        60,
+        0,
+        "float"
+      ],
+      [
+        144,
+        94,
+        0,
+        58,
+        1,
+        "integer"
+      ],
+      [
+        145,
+        95,
+        0,
+        60,
+        1,
+        "integer"
+      ],
+      [
+        148,
+        98,
+        0,
+        97,
+        1,
+        "integer"
+      ],
+      [
+        442,
+        60,
+        0,
+        80,
+        0,
+        "float"
+      ],
+      [
+        443,
+        58,
+        0,
+        80,
+        1,
+        "float"
+      ],
+      [
+        463,
+        271,
+        0,
+        272,
+        0,
+        "float"
+      ],
+      [
+        464,
+        273,
+        0,
+        272,
+        1,
+        "float"
+      ],
+      [
+        534,
+        316,
+        0,
+        58,
+        0,
+        "float"
+      ],
+      [
+        536,
+        318,
+        0,
+        319,
+        0,
+        "float"
+      ],
+      [
+        537,
+        323,
+        0,
+        319,
+        1,
+        "float"
+      ],
+      [
+        633,
+        387,
+        0,
+        388,
+        0,
+        "float"
+      ],
+      [
+        634,
+        391,
+        0,
+        388,
+        1,
+        "float"
+      ],
+      [
+        649,
+        404,
+        0,
+        403,
+        1,
+        "float"
+      ],
+      [
+        685,
+        270,
+        0,
+        426,
+        1,
+        "bool"
+      ],
+      [
+        686,
+        286,
+        0,
+        426,
+        2,
+        "bool"
+      ],
+      [
+        722,
+        80,
+        0,
+        432,
+        0,
+        "bool"
+      ],
+      [
+        725,
+        253,
+        0,
+        439,
+        1,
+        "bool"
+      ],
+      [
+        726,
+        254,
+        0,
+        439,
+        2,
+        "bool"
+      ],
+      [
+        727,
+        324,
+        0,
+        439,
+        3,
+        "float"
+      ],
+      [
+        730,
+        439,
+        0,
+        426,
+        0,
+        "exec"
+      ],
+      [
+        733,
+        439,
+        0,
+        440,
+        0,
+        "exec"
+      ],
+      [
+        734,
+        320,
+        0,
+        440,
+        1,
+        "bool"
+      ],
+      [
+        735,
+        321,
+        0,
+        440,
+        2,
+        "bool"
+      ],
+      [
+        736,
+        319,
+        0,
+        440,
+        3,
+        "float"
+      ],
+      [
+        739,
+        389,
+        0,
+        441,
+        1,
+        "bool"
+      ],
+      [
+        740,
+        390,
+        0,
+        441,
+        2,
+        "bool"
+      ],
+      [
+        745,
+        440,
+        0,
+        441,
+        0,
+        "exec"
+      ],
+      [
+        747,
+        401,
+        0,
+        442,
+        1,
+        "bool"
+      ],
+      [
+        748,
+        403,
+        0,
+        442,
+        2,
+        "float"
+      ],
+      [
+        760,
+        426,
+        1,
+        450,
+        0,
+        "string"
+      ],
+      [
+        761,
+        450,
+        4,
+        451,
+        0,
+        "bool"
+      ],
+      [
+        762,
+        451,
+        0,
+        452,
+        0,
+        "exec"
+      ],
+      [
+        766,
+        442,
+        1,
+        455,
+        0,
+        "string"
+      ],
+      [
+        767,
+        455,
+        4,
+        456,
+        0,
+        "bool"
+      ],
+      [
+        772,
+        400,
+        0,
+        442,
+        0,
+        "exec"
+      ],
+      [
+        780,
+        456,
+        0,
+        467,
+        0,
+        "exec"
+      ],
+      [
+        782,
+        440,
+        1,
+        469,
+        0,
+        "string"
+      ],
+      [
+        786,
+        450,
+        0,
+        468,
+        1,
+        "string"
+      ],
+      [
+        791,
+        470,
+        0,
+        468,
+        0,
+        "exec"
+      ],
+      [
+        798,
+        475,
+        0,
+        468,
+        2,
+        "float"
+      ],
+      [
+        800,
+        273,
+        0,
+        475,
+        1,
+        "float"
+      ],
+      [
+        801,
+        477,
+        0,
+        478,
+        0,
+        "float"
+      ],
+      [
+        802,
+        481,
+        0,
+        478,
+        1,
+        "float"
+      ],
+      [
+        803,
+        479,
+        0,
+        483,
+        1,
+        "bool"
+      ],
+      [
+        804,
+        480,
+        0,
+        483,
+        2,
+        "bool"
+      ],
+      [
+        807,
+        441,
+        0,
+        483,
+        0,
+        "exec"
+      ],
+      [
+        809,
+        441,
+        1,
+        484,
+        0,
+        "string"
+      ],
+      [
+        818,
+        483,
+        1,
+        493,
+        0,
+        "string"
+      ],
+      [
+        821,
+        469,
+        4,
+        494,
+        0,
+        "bool"
+      ],
+      [
+        822,
+        484,
+        4,
+        494,
+        1,
+        "bool"
+      ],
+      [
+        823,
+        493,
+        4,
+        495,
+        0,
+        "bool"
+      ],
+      [
+        824,
+        453,
+        4,
+        495,
+        1,
+        "bool"
+      ],
+      [
+        825,
+        494,
+        0,
+        496,
+        0,
+        "bool"
+      ],
+      [
+        826,
+        495,
+        0,
+        496,
+        1,
+        "bool"
+      ],
+      [
+        854,
+        388,
+        0,
+        441,
+        3,
+        "float"
+      ],
+      [
+        859,
+        478,
+        0,
+        483,
+        3,
+        "float"
+      ],
+      [
+        871,
+        272,
+        0,
+        426,
+        3,
+        "float"
+      ],
+      [
+        873,
+        256,
+        0,
+        520,
+        0,
+        "float"
+      ],
+      [
+        874,
+        505,
+        0,
+        520,
+        1,
+        "float"
+      ],
+      [
+        875,
+        520,
+        0,
+        439,
+        4,
+        "float"
+      ],
+      [
+        877,
+        507,
+        0,
+        521,
+        0,
+        "float"
+      ],
+      [
+        878,
+        508,
+        0,
+        521,
+        1,
+        "float"
+      ],
+      [
+        879,
+        521,
+        0,
+        440,
+        4,
+        "float"
+      ],
+      [
+        881,
+        510,
+        0,
+        522,
+        0,
+        "float"
+      ],
+      [
+        882,
+        511,
+        0,
+        522,
+        1,
+        "float"
+      ],
+      [
+        883,
+        522,
+        0,
+        441,
+        4,
+        "float"
+      ],
+      [
+        885,
+        482,
+        0,
+        523,
+        0,
+        "float"
+      ],
+      [
+        886,
+        513,
+        0,
+        523,
+        1,
+        "float"
+      ],
+      [
+        887,
+        523,
+        0,
+        483,
+        4,
+        "float"
+      ],
+      [
+        893,
+        274,
+        0,
+        525,
+        0,
+        "float"
+      ],
+      [
+        894,
+        518,
+        0,
+        525,
+        1,
+        "float"
+      ],
+      [
+        895,
+        525,
+        0,
+        426,
+        4,
+        "float"
+      ],
+      [
+        920,
+        539,
+        0,
+        475,
+        0,
+        "float"
+      ],
+      [
+        921,
+        539,
+        1,
+        468,
+        3,
+        "float"
+      ],
+      [
+        922,
+        540,
+        0,
+        403,
+        0,
+        "float"
+      ],
+      [
+        923,
+        540,
+        1,
+        442,
+        3,
+        "float"
+      ],
+      [
+        925,
+        483,
+        1,
+        453,
+        0,
+        "string"
+      ],
+      [
+        926,
+        58,
+        0,
+        543,
+        0,
+        "float"
+      ],
+      [
+        927,
+        60,
+        0,
+        542,
+        0,
+        "float"
+      ],
+      [
+        928,
+        97,
+        0,
+        544,
+        0,
+        "float"
+      ],
+      [
+        930,
+        79,
+        0,
+        545,
+        0,
+        "exec"
+      ],
+      [
+        931,
+        545,
+        0,
+        439,
+        0,
+        "exec"
+      ],
+      [
+        933,
+        546,
+        1,
+        550,
+        0,
+        "float"
+      ],
+      [
+        934,
+        549,
+        0,
+        550,
+        1,
+        "float"
+      ],
+      [
+        935,
+        550,
+        0,
+        548,
+        1,
+        "bool"
+      ],
+      [
+        936,
+        548,
+        0,
+        79,
+        0,
+        "bool"
+      ],
+      [
+        942,
+        551,
+        0,
+        97,
+        0,
+        "float"
+      ],
+      [
+        945,
+        552,
+        0,
+        432,
+        1,
+        "bool"
+      ],
+      [
+        949,
+        97,
+        0,
+        552,
+        1,
+        "float"
+      ],
+      [
+        950,
+        99,
+        0,
+        552,
+        0,
+        "float"
+      ],
+      [
+        952,
+        560,
+        1,
+        553,
+        0,
+        "string"
+      ],
+      [
+        953,
+        554,
+        0,
+        555,
+        0,
+        "float"
+      ],
+      [
+        954,
+        558,
+        0,
+        555,
+        1,
+        "float"
+      ],
+      [
+        955,
+        556,
+        0,
+        560,
+        1,
+        "bool"
+      ],
+      [
+        956,
+        557,
+        0,
+        560,
+        2,
+        "bool"
+      ],
+      [
+        957,
+        555,
+        0,
+        560,
+        3,
+        "float"
+      ],
+      [
+        958,
+        563,
+        0,
+        560,
+        4,
+        "float"
+      ],
+      [
+        960,
+        559,
+        0,
+        563,
+        0,
+        "float"
+      ],
+      [
+        961,
+        562,
+        0,
+        563,
+        1,
+        "float"
+      ],
+      [
+        962,
+        571,
+        1,
+        564,
+        0,
+        "string"
+      ],
+      [
+        963,
+        565,
+        0,
+        566,
+        0,
+        "float"
+      ],
+      [
+        964,
+        569,
+        0,
+        566,
+        1,
+        "float"
+      ],
+      [
+        965,
+        567,
+        0,
+        571,
+        1,
+        "bool"
+      ],
+      [
+        966,
+        568,
+        0,
+        571,
+        2,
+        "bool"
+      ],
+      [
+        967,
+        566,
+        0,
+        571,
+        3,
+        "float"
+      ],
+      [
+        968,
+        574,
+        0,
+        571,
+        4,
+        "float"
+      ],
+      [
+        970,
+        570,
+        0,
+        574,
+        0,
+        "float"
+      ],
+      [
+        971,
+        573,
+        0,
+        574,
+        1,
+        "float"
+      ],
+      [
+        972,
+        564,
+        4,
+        561,
+        1,
+        "bool"
+      ],
+      [
+        973,
+        553,
+        4,
+        561,
+        0,
+        "bool"
+      ],
+      [
+        977,
+        561,
+        0,
+        575,
+        1,
+        "bool"
+      ],
+      [
+        978,
+        496,
+        0,
+        575,
+        0,
+        "bool"
+      ],
+      [
+        979,
+        575,
+        0,
+        470,
+        0,
+        "bool"
+      ],
+      [
+        980,
+        564,
+        4,
+        400,
+        0,
+        "bool"
+      ],
+      [
+        981,
+        483,
+        0,
+        560,
+        0,
+        "exec"
+      ],
+      [
+        982,
+        560,
+        0,
+        571,
+        0,
+        "exec"
+      ],
+      [
+        983,
+        432,
+        0,
+        548,
+        0,
+        "bool"
+      ]
+    ],
+    "groups": [
+      {
+        "title": "Indicators",
+        "bounding": [
+          -352,
+          -313,
+          1517,
+          756
+        ],
+        "color": "#3f789e",
+        "font_size": 24
+      },
+      {
+        "title": "Grid",
+        "bounding": [
+          1357,
+          -620,
+          881,
+          2875
+        ],
+        "color": "#8A8",
+        "font_size": 24
+      },
+      {
+        "title": "TakeProfit",
+        "bounding": [
+          2248,
+          -131,
+          1487,
+          1718
+        ],
+        "color": "#A88",
+        "font_size": 24
+      },
+      {
+        "title": "Risk Management",
+        "bounding": [
+          2287,
+          1616,
+          1674,
+          643
+        ],
+        "color": "#3f789e",
+        "font_size": 24
+      }
+    ],
+    "config": {},
+    "extra": {},
+    "version": 0.4
+  },
+  "startDate": "2025-06-08T00:00:00",
+  "endDate": "2026-03-31T00:00:00",
+  "timeframe": "5min",
+  "symbol": "ANIMEUSDT"
+}

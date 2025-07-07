@@ -1,0 +1,1909 @@
+{
+  "graph": {
+    "last_node_id": 612,
+    "last_link_id": 1017,
+    "nodes": [
+      {
+        "id": 564,
+        "type": "indicators/ma",
+        "pos": [
+          716,
+          457
+        ],
+        "size": {
+          "0": 210,
+          "1": 78
+        },
+        "flags": {},
+        "order": 21,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 960,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 958,
+            "name": "Length",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              959,
+              962
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "ma_type": "sinwma"
+        },
+        "widgets_values": [
+          "sinwma"
+        ]
+      },
+      {
+        "id": 561,
+        "type": "get/low",
+        "pos": [
+          442,
+          460
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              960
+            ],
+            "name": "low",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 565,
+        "type": "set/integer",
+        "pos": [
+          480,
+          554
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              958
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 140
+        },
+        "widgets_values": [
+          140
+        ]
+      },
+      {
+        "id": 567,
+        "type": "compare/cross_over",
+        "pos": [
+          1030,
+          331
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 30,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 961,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 962,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              976
+            ],
+            "name": "Condition",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 576,
+        "type": "trade/get_position",
+        "pos": [
+          763,
+          639
+        ],
+        "size": {
+          "0": 140,
+          "1": 66
+        },
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": [
+              977
+            ],
+            "name": "Quantity",
+            "slot_index": 1,
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "integer"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 578,
+        "type": "set/float",
+        "pos": [
+          760,
+          775
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              978
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 0
+        },
+        "widgets_values": [
+          0
+        ]
+      },
+      {
+        "id": 577,
+        "type": "compare/equal",
+        "pos": [
+          1003,
+          673
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 22,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 977,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 978,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              979
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 575,
+        "type": "logic/and",
+        "pos": [
+          1309,
+          483
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 31,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 976,
+            "name": "Bool",
+            "type": "bool"
+          },
+          {
+            "link": 979,
+            "name": "Bool",
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              980,
+              981
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 580,
+        "type": "logic/if",
+        "pos": [
+          1545,
+          473
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 33,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 981,
+            "name": "Bool",
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              982
+            ],
+            "name": "True",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "False",
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 553,
+        "type": "indicators/ma",
+        "pos": [
+          690,
+          211
+        ],
+        "size": {
+          "0": 210,
+          "1": 78
+        },
+        "flags": {},
+        "order": 28,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 950,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 954,
+            "name": "Length",
+            "type": "integer"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              953,
+              961
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "ma_type": "linreg"
+        },
+        "widgets_values": [
+          "linreg"
+        ]
+      },
+      {
+        "id": 554,
+        "type": "math/multiply_float",
+        "pos": [
+          453,
+          231
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 23,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 951,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 952,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              950
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 552,
+        "type": "get/low",
+        "pos": [
+          216,
+          217
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              951
+            ],
+            "name": "low",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 557,
+        "type": "set/integer",
+        "pos": [
+          471,
+          331
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              954
+            ],
+            "name": "Integer",
+            "slot_index": 0,
+            "type": "integer"
+          }
+        ],
+        "properties": {
+          "value": 100
+        },
+        "widgets_values": [
+          100
+        ]
+      },
+      {
+        "id": 555,
+        "type": "set/float",
+        "pos": [
+          231,
+          292
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 6,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              952
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 0.98
+        },
+        "widgets_values": [
+          0.98
+        ]
+      },
+      {
+        "id": 556,
+        "type": "tools/add_indicator",
+        "pos": [
+          1035,
+          181
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 29,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 953,
+            "name": "Indicator",
+            "type": "float"
+          },
+          {
+            "link": 1015,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 610,
+        "type": "set/string",
+        "pos": [
+          747,
+          116
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {},
+        "order": 18,
+        "mode": 0,
+        "outputs": [
+          {
+            "name": "String",
+            "type": "string",
+            "links": [
+              1015
+            ],
+            "slot_index": 0
+          }
+        ],
+        "properties": {
+          "value": "LinReg"
+        },
+        "widgets_values": [
+          "LinReg"
+        ]
+      },
+      {
+        "id": 566,
+        "type": "tools/add_indicator",
+        "pos": [
+          1031,
+          462
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 27,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 959,
+            "name": "Indicator",
+            "type": "float"
+          },
+          {
+            "link": 1016,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 611,
+        "type": "set/string",
+        "pos": [
+          771,
+          377
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 19,
+        "mode": 0,
+        "outputs": [
+          {
+            "name": "String",
+            "type": "string",
+            "links": [
+              1016
+            ],
+            "slot_index": 0
+          }
+        ],
+        "properties": {
+          "value": "Sin"
+        },
+        "widgets_values": [
+          "Sin"
+        ]
+      },
+      {
+        "id": 612,
+        "type": "set/string",
+        "pos": [
+          1330,
+          349
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 20,
+        "mode": 0,
+        "outputs": [
+          {
+            "name": "String",
+            "type": "string",
+            "links": [
+              1017
+            ],
+            "slot_index": 0
+          }
+        ],
+        "properties": {
+          "value": "Entries"
+        },
+        "widgets_values": [
+          "Entries"
+        ]
+      },
+      {
+        "id": 560,
+        "type": "tools/add_signal",
+        "pos": [
+          1542,
+          346
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 32,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 980,
+            "name": "Signal",
+            "type": "bool"
+          },
+          {
+            "link": 1017,
+            "name": "Name",
+            "type": "string"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 586,
+        "type": "trade/create_order",
+        "pos": [
+          2373,
+          756
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 106
+        },
+        "flags": {},
+        "order": 35,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 989,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 990,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 991,
+            "name": "Limit/Market",
+            "type": "bool"
+          },
+          {
+            "link": 995,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 996,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              997
+            ],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": [
+              1004
+            ],
+            "name": "ID",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "direction: true/falsetype: true/false"
+        }
+      },
+      {
+        "id": 587,
+        "type": "set/bool",
+        "pos": [
+          2105,
+          778
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 15,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              990
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      },
+      {
+        "id": 588,
+        "type": "set/bool",
+        "pos": [
+          2101,
+          824
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 16,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              991
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 591,
+        "type": "math/multiply_float",
+        "pos": [
+          2155,
+          889
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {
+          "collapsed": true
+        },
+        "order": 26,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 993,
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          },
+          {
+            "link": 994,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              995
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 590,
+        "type": "get/close",
+        "pos": [
+          1985,
+          886
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {
+          "collapsed": true
+        },
+        "order": 14,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              993
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 589,
+        "type": "set/float",
+        "pos": [
+          1989,
+          937
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 17,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              994
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 1.01
+        },
+        "widgets_values": [
+          1.01
+        ]
+      },
+      {
+        "id": 593,
+        "type": "trade/create_conditional_order",
+        "pos": [
+          2329,
+          1195
+        ],
+        "size": [
+          200,
+          90
+        ],
+        "flags": {},
+        "order": 36,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 997,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 998,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 1001,
+            "name": "Trigger Price",
+            "type": "float"
+          },
+          {
+            "link": 1002,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "links": [
+              1003
+            ],
+            "name": "ID",
+            "slot_index": 1,
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "Always market order"
+        }
+      },
+      {
+        "id": 598,
+        "type": "trade/get_order",
+        "pos": [
+          2625,
+          864
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 37,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 1004,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float",
+            "slot_index": 1
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              1008
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 599,
+        "type": "trade/get_order",
+        "pos": [
+          2595,
+          1070
+        ],
+        "size": {
+          "0": 140,
+          "1": 126
+        },
+        "flags": {},
+        "order": 38,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 1003,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          },
+          {
+            "links": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Quantity",
+            "type": "float"
+          },
+          {
+            "links": null,
+            "name": "Created",
+            "type": "float"
+          },
+          {
+            "links": [
+              1007
+            ],
+            "name": "Executed?",
+            "slot_index": 4,
+            "type": "bool"
+          },
+          {
+            "links": null,
+            "name": "Open?",
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 596,
+        "type": "get/close",
+        "pos": [
+          1957.2382999999995,
+          1255.4651000000008
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {
+          "collapsed": true
+        },
+        "order": 12,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              999
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 595,
+        "type": "set/float",
+        "pos": [
+          1962.2382999999995,
+          1324.4651000000008
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 13,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              1000
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 0.98
+        },
+        "widgets_values": [
+          0.98
+        ]
+      },
+      {
+        "id": 597,
+        "type": "math/multiply_float",
+        "pos": [
+          2148,
+          1261
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {
+          "collapsed": true
+        },
+        "order": 25,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 999,
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          },
+          {
+            "link": 1000,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              1001
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 584,
+        "type": "math/divide_float",
+        "pos": [
+          1589,
+          830
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 24,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 986,
+            "name": "Float",
+            "type": "float"
+          },
+          {
+            "link": 985,
+            "name": "Float",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              988,
+              996,
+              1002
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 583,
+        "type": "set/float",
+        "pos": [
+          1383,
+          796
+        ],
+        "size": [
+          125,
+          30
+        ],
+        "flags": {},
+        "order": 9,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              986
+            ],
+            "name": "Float",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {
+          "value": 20
+        },
+        "widgets_values": [
+          20
+        ]
+      },
+      {
+        "id": 585,
+        "type": "get/close",
+        "pos": [
+          1385,
+          883
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {
+          "collapsed": true
+        },
+        "order": 10,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              985
+            ],
+            "name": "close",
+            "slot_index": 0,
+            "type": "float"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 601,
+        "type": "logic/or",
+        "pos": [
+          2859,
+          1020
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 39,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 1007,
+            "name": "Bool",
+            "type": "bool"
+          },
+          {
+            "link": 1008,
+            "name": "Bool",
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              1009
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 603,
+        "type": "logic/if",
+        "pos": [
+          3054,
+          1026
+        ],
+        "size": {
+          "0": 140,
+          "1": 46
+        },
+        "flags": {},
+        "order": 40,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 1009,
+            "name": "Bool",
+            "type": "bool"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              1010
+            ],
+            "name": "True",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "False",
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 602,
+        "type": "trade/cancel_all_order",
+        "pos": [
+          3256,
+          1026
+        ],
+        "size": {
+          "0": 140,
+          "1": 26
+        },
+        "flags": {},
+        "order": 41,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 1010,
+            "name": "Exec",
+            "type": "exec"
+          }
+        ],
+        "outputs": [
+          {
+            "links": null,
+            "name": "Exec",
+            "type": "exec"
+          }
+        ],
+        "properties": {}
+      },
+      {
+        "id": 581,
+        "type": "set/bool",
+        "pos": [
+          1860,
+          535
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 7,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              983
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": true
+        },
+        "widgets_values": [
+          true
+        ]
+      },
+      {
+        "id": 579,
+        "type": "trade/create_order",
+        "pos": [
+          2085,
+          471
+        ],
+        "size": {
+          "0": 144.39999389648438,
+          "1": 106
+        },
+        "flags": {},
+        "order": 34,
+        "mode": 0,
+        "inputs": [
+          {
+            "link": 982,
+            "name": "Exec",
+            "type": "exec"
+          },
+          {
+            "link": 983,
+            "name": "Long/Short",
+            "type": "bool"
+          },
+          {
+            "link": 984,
+            "name": "Limit/Market",
+            "type": "bool"
+          },
+          {
+            "link": null,
+            "name": "Price",
+            "type": "float"
+          },
+          {
+            "link": 988,
+            "name": "Quantity",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "links": [
+              989
+            ],
+            "name": "Exec",
+            "slot_index": 0,
+            "type": "exec"
+          },
+          {
+            "links": null,
+            "name": "ID",
+            "type": "string"
+          }
+        ],
+        "properties": {
+          "description": "direction: true/falsetype: true/false"
+        }
+      },
+      {
+        "id": 582,
+        "type": "set/bool",
+        "pos": [
+          1865,
+          589
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 8,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              984
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      },
+      {
+        "id": 594,
+        "type": "set/bool",
+        "pos": [
+          2188,
+          1200
+        ],
+        "size": [
+          100,
+          30
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 11,
+        "mode": 0,
+        "outputs": [
+          {
+            "links": [
+              998
+            ],
+            "name": "Bool",
+            "slot_index": 0,
+            "type": "bool"
+          }
+        ],
+        "properties": {
+          "value": false
+        },
+        "widgets_values": [
+          false
+        ]
+      }
+    ],
+    "links": [
+      [
+        950,
+        554,
+        0,
+        553,
+        0,
+        "float"
+      ],
+      [
+        951,
+        552,
+        0,
+        554,
+        0,
+        "float"
+      ],
+      [
+        952,
+        555,
+        0,
+        554,
+        1,
+        "float"
+      ],
+      [
+        953,
+        553,
+        0,
+        556,
+        0,
+        "float"
+      ],
+      [
+        954,
+        557,
+        0,
+        553,
+        1,
+        "integer"
+      ],
+      [
+        958,
+        565,
+        0,
+        564,
+        1,
+        "integer"
+      ],
+      [
+        959,
+        564,
+        0,
+        566,
+        0,
+        "float"
+      ],
+      [
+        960,
+        561,
+        0,
+        564,
+        0,
+        "float"
+      ],
+      [
+        961,
+        553,
+        0,
+        567,
+        0,
+        "float"
+      ],
+      [
+        962,
+        564,
+        0,
+        567,
+        1,
+        "float"
+      ],
+      [
+        976,
+        567,
+        0,
+        575,
+        0,
+        "bool"
+      ],
+      [
+        977,
+        576,
+        1,
+        577,
+        0,
+        "float"
+      ],
+      [
+        978,
+        578,
+        0,
+        577,
+        1,
+        "float"
+      ],
+      [
+        979,
+        577,
+        0,
+        575,
+        1,
+        "bool"
+      ],
+      [
+        980,
+        575,
+        0,
+        560,
+        0,
+        "bool"
+      ],
+      [
+        981,
+        575,
+        0,
+        580,
+        0,
+        "bool"
+      ],
+      [
+        982,
+        580,
+        0,
+        579,
+        0,
+        "exec"
+      ],
+      [
+        983,
+        581,
+        0,
+        579,
+        1,
+        "bool"
+      ],
+      [
+        984,
+        582,
+        0,
+        579,
+        2,
+        "bool"
+      ],
+      [
+        985,
+        585,
+        0,
+        584,
+        1,
+        "float"
+      ],
+      [
+        986,
+        583,
+        0,
+        584,
+        0,
+        "float"
+      ],
+      [
+        988,
+        584,
+        0,
+        579,
+        4,
+        "float"
+      ],
+      [
+        989,
+        579,
+        0,
+        586,
+        0,
+        "exec"
+      ],
+      [
+        990,
+        587,
+        0,
+        586,
+        1,
+        "bool"
+      ],
+      [
+        991,
+        588,
+        0,
+        586,
+        2,
+        "bool"
+      ],
+      [
+        993,
+        590,
+        0,
+        591,
+        0,
+        "float"
+      ],
+      [
+        994,
+        589,
+        0,
+        591,
+        1,
+        "float"
+      ],
+      [
+        995,
+        591,
+        0,
+        586,
+        3,
+        "float"
+      ],
+      [
+        996,
+        584,
+        0,
+        586,
+        4,
+        "float"
+      ],
+      [
+        997,
+        586,
+        0,
+        593,
+        0,
+        "exec"
+      ],
+      [
+        998,
+        594,
+        0,
+        593,
+        1,
+        "bool"
+      ],
+      [
+        999,
+        596,
+        0,
+        597,
+        0,
+        "float"
+      ],
+      [
+        1000,
+        595,
+        0,
+        597,
+        1,
+        "float"
+      ],
+      [
+        1001,
+        597,
+        0,
+        593,
+        2,
+        "float"
+      ],
+      [
+        1002,
+        584,
+        0,
+        593,
+        3,
+        "float"
+      ],
+      [
+        1003,
+        593,
+        1,
+        599,
+        0,
+        "string"
+      ],
+      [
+        1004,
+        586,
+        1,
+        598,
+        0,
+        "string"
+      ],
+      [
+        1007,
+        599,
+        4,
+        601,
+        0,
+        "bool"
+      ],
+      [
+        1008,
+        598,
+        4,
+        601,
+        1,
+        "bool"
+      ],
+      [
+        1009,
+        601,
+        0,
+        603,
+        0,
+        "bool"
+      ],
+      [
+        1010,
+        603,
+        0,
+        602,
+        0,
+        "exec"
+      ],
+      [
+        1015,
+        610,
+        0,
+        556,
+        1,
+        "string"
+      ],
+      [
+        1016,
+        611,
+        0,
+        566,
+        1,
+        "string"
+      ],
+      [
+        1017,
+        612,
+        0,
+        560,
+        1,
+        "string"
+      ]
+    ],
+    "groups": [],
+    "config": {},
+    "extra": {},
+    "version": 0.4
+  },
+  "startDate": "2025-05-27T19:45:22",
+  "endDate": "2026-06-13T10:50",
+  "timeframe": "3min",
+  "symbol": "1000PEPEUSDT"
+}
