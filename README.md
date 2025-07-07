@@ -336,6 +336,6 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 **Made with ❤️ by the PVE Community**
 
-[🌟 Star us on GitHub](https://github.com/yourusername/pve) • [🐛 Report Issues](https://github.com/yourusername/pve/issues) • [💬 Join Discussion](https://github.com/yourusername/pve/discussions)
+[🌟 Star us on GitHub](https://github.com/Yak0vkaSup/pve) • [🐛 Report Issues](https://github.com/Yak0vkaSup/pve/issues) • [💬 Join Discussion](https://github.com/Yak0vkaSup/pve/discussions)
 
 </div>
