@@ -1,8 +1,8 @@
-# 🚀 PVE (Platform Visual Engine)
+# 🚀 PVE 
 
 <div align="center">
 
-**A Visual Programming Language for Cryptocurrency Trading Strategies**
+**A Visual Programming Language for Cryptocurrency Trading Strategies on Bybit**
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Vue.js](https://img.shields.io/badge/Vue.js-3.x-4FC08D?logo=vue.js&logoColor=white)](https://vuejs.org/)
