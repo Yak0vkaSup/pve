@@ -218,7 +218,37 @@ export const useGraphStore = defineStore('graph', () => {
   }
 
   /**
-   * Fetches saved graphs from the server.
+   * Fetches saved graphs from the server without auto-loading.
+   */
+  const fetchSavedGraphsList = async (): Promise<void> => {
+    const userId = localStorage.getItem('userId')
+    const userToken = localStorage.getItem('userToken')
+
+    if (!userId || !userToken) {
+      toast.error('User is not authorised', pve)
+      return
+    }
+
+    try {
+      const response = await axios.get<InternalApiResponse<GraphData[]>>(
+        `${baseURL}/api/get-saved-graphs`,
+        { params: { id: userId, token: userToken } }
+      )
+
+      if (response.data.status === 'success' && response.data.graphs) {
+        savedGraphs.value = response.data.graphs.sort(
+          (a, b) => new Date(b.modified_at).getTime() - new Date(a.modified_at).getTime()
+        )
+      } else {
+        toast.error('Error fetching saved graphs.', pve)
+      }
+    } catch (error) {
+      toast.error('Error fetching saved graphs.', pve)
+    }
+  }
+
+  /**
+   * Fetches saved graphs from the server and auto-loads the most recent one (for initial load).
    */
   const fetchSavedGraphs = async (): Promise<void> => {
     const userId = localStorage.getItem('userId')
@@ -386,7 +416,7 @@ export const useGraphStore = defineStore('graph', () => {
       )
 
       if (response.data.status === 'success') {
-        await fetchSavedGraphs()
+        await fetchSavedGraphsList()
       } else {
         toast.error(`Error saving graph.`, pve)
       }
@@ -428,7 +458,7 @@ export const useGraphStore = defineStore('graph', () => {
 
       if (response.data.status === 'success') {
         toast.success('Empty strategy created successfully.', pve)
-        await fetchSavedGraphs()
+        await fetchSavedGraphsList()
         // Set the new strategy as selected
         selectedGraph.value = strategyName.trim()
         graphName.value = strategyName.trim()
@@ -488,7 +518,7 @@ export const useGraphStore = defineStore('graph', () => {
           }
         }
         
-        await fetchSavedGraphs()
+        await fetchSavedGraphsList()
         return true
       } else {
         toast.error(response.data.message || 'Error deleting strategy', pve)
@@ -556,7 +586,7 @@ export const useGraphStore = defineStore('graph', () => {
 
         if (saveResponse.data.status === 'success') {
           toast.success('Strategy duplicated successfully.', pve)
-          await fetchSavedGraphs()
+          await fetchSavedGraphsList()
           // Select the new duplicated strategy
           selectedGraph.value = newStrategyName.trim()
           await loadGraphFromServer()
@@ -831,6 +861,7 @@ export const useGraphStore = defineStore('graph', () => {
     resizeCanvas,
     populateSymbolDropdown,
     fetchSavedGraphs,
+    fetchSavedGraphsList,
     loadGraphFromServer,
     saveGraphToServer,
     deleteGraphToServer,

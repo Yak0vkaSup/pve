@@ -7,7 +7,7 @@
     <div class="strategy-management">
       <select
         v-model="graphStore.selectedGraph"
-        @focus="graphStore.fetchSavedGraphs"
+        @focus="graphStore.fetchSavedGraphsList"
         @change="handleGraphChange"
         class="select-saved-graph compact-dropdown"
       >
